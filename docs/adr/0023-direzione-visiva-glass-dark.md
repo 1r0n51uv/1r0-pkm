@@ -13,8 +13,9 @@ Direzione scelta: **Glass Dark** — dark-first, pannelli traslucidi con `backdr
 - **Dieta (iPhone)**: dashboard giornaliera (con quick-log acqua/caffeina/integratori), log pasto, ricerca alimento + barcode scan (ADR-0018), pianificazione pasti, editor ricetta, lista della spesa, obiettivo nutrizionale, report/andamento, checklist integratori, tracker caffeina (tracker semplici da ADR-0017)
 - **Onboarding**: accesso via magic link, condiviso tra i moduli
 - **Apple Watch**: home/routine, sessione live, rest timer, menu sessione (pausa/annulla, ADR-0016), prompt salva-in-scheda per modifiche ad hoc, riepilogo fine allenamento, complication quadrante (streak) — stesso linguaggio visivo del telefono, adattato alla cornice tonda
+- **Impostazioni e stati trasversali**: hub impostazioni generale (account, notifiche, permessi HealthKit, unità di misura, oltre alla sotto-pagina Aspetto già citata sopra), stato offline/sincronizzazione in coda (ADR-0006), sessione in pausa, nuova misurazione corporea, nuova foto progresso, stato vuoto lista routine, stato "nessun risultato" per ricerca esercizi/alimenti
 
-Ogni schermata elencata sopra ha un mockup di riferimento sul canvas, così che l'implementazione Swift/SwiftUI abbia sempre un punto di partenza visivo senza dover reinventare il layout in codice.
+Ogni schermata elencata sopra ha un mockup di riferimento sul canvas, così che l'implementazione Swift/SwiftUI abbia sempre un punto di partenza visivo senza dover reinventare il layout in codice. Restano fuori scope, perché non ancora modellati in nessuna ADR: il modulo PKM/appunti e la dashboard web (rimandata esplicitamente in ADR-0021).
 
 Le altre direzioni esplorate restano sul canvas come riferimento storico, non vengono cancellate.
 
