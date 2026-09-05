@@ -1,4 +1,4 @@
-// Tipi di dominio del modulo Dieta. Vedi docs/glossary.md per le definizioni
+// Tipi di dominio del modulo 1r0-diet. Vedi docs/glossary.md per le definizioni
 // e docs/adr/0017-modulo-dieta-scope.md e seguenti per le decisioni.
 
 export type FoodSource = "openfoodfacts" | "usda" | "custom";

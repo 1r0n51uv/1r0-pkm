@@ -4,7 +4,7 @@
 Accettata — supersede [ADR-0002](0002-supabase-backend.md) e [ADR-0009](0009-self-hosted-supabase-aws.md) per le parti Auth/RLS/Storage/Edge Functions. La scelta di Postgres come DB e di un'istanza AWS EC2 self-hosted (ADR-0009) restano valide: cambia il software che gira sopra, non dove gira.
 
 ## Contesto
-Decisione presa durante la revisione dei mockup/ADR ma mai scritta in un'ADR dedicata — le migration SQL erano già state ripulite da `auth.uid()`/RLS/`create policy` (vedi `supabase/migrations/`) in previsione di questo cambio, ma `docs/adr/0002` e `0009`, `infra/README.md`, `apps/ios/README.md` e `packages/shared/src/supabase/client.ts` sono rimasti riferiti a Supabase, creando un disallineamento tra codice/migration e documentazione. Questa ADR chiude quel disallineamento prima che lo spike backend (issue #2) e il TDD sul modulo Palestra puntino a un bersaglio sbagliato.
+Decisione presa durante la revisione dei mockup/ADR ma mai scritta in un'ADR dedicata — le migration SQL erano già state ripulite da `auth.uid()`/RLS/`create policy` (vedi `supabase/migrations/`) in previsione di questo cambio, ma `docs/adr/0002` e `0009`, `infra/README.md`, `apps/ios/README.md` e `packages/shared/src/supabase/client.ts` sono rimasti riferiti a Supabase, creando un disallineamento tra codice/migration e documentazione. Questa ADR chiude quel disallineamento prima che lo spike backend (issue #2) e il TDD sul modulo `1r0-gym` puntino a un bersaglio sbagliato.
 
 App resta single-user: l'unico vero bisogno di "auth" è impedire accesso non autorizzato all'API dal pubblico, non gestire più account.
 

@@ -1,8 +1,8 @@
 # Spike #1 — Watch↔iPhone Hello World
 
-Vedi [issue #1](https://github.com/1r0n51uv/PikM/issues/1) e `docs/adr/0021-piano-azione-workflow.md`.
+Vedi [issue #1](https://github.com/1r0n51uv/1r0-pkm/issues/1) e `docs/adr/0021-piano-azione-workflow.md`.
 Obiettivo: validare la toolchain Swift/SwiftUI nativa (ADR-0010) prima di
-costruirci sopra il modulo Palestra — nient'altro. Non è architettura
+costruirci sopra il modulo `1r0-gym` — nient'altro. Non è architettura
 definitiva: i file `*Connector.swift` qui dentro sono volutamente minimi
 e duplicati tra i due target, non lo strato Sync/outbox reale di ADR-0006.
 
@@ -58,7 +58,7 @@ lo include). Vanno creati e incollati in un progetto Xcode sul tuo Mac.
 
 Messaggio scambiato con successo in **entrambe le direzioni**. Se
 funziona: spunta l'issue #1 su GitHub e dimmelo, così passiamo allo
-spike #2 (backend) prima del TDD sul modulo Palestra (ADR-0021).
+spike #2 (backend) prima del TDD sul modulo `1r0-gym` (ADR-0021).
 
 Se qualcosa non attiva la sessione (`WCSession.isSupported()` false, o
 `activationState` non arriva mai a `.activated`) o i messaggi non

@@ -20,4 +20,4 @@ App single-user ma multi-device (iOS, Watch, web): serve comunque un account per
 
 ## Conseguenze
 - Dipendenza dal software Supabase (non dal vendor cloud, visto ADR-0009); accettabile perché è Postgres puro sotto il cofano, migrabile.
-- RLS va scritta fin dalla prima migration (vedi `supabase/migrations/0001_gym_schema.sql`).
+- RLS va scritta fin dalla prima migration (vedi `supabase/migrations/0001_1r0-gym_schema.sql`).

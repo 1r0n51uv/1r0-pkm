@@ -4,7 +4,7 @@
 Accettata — semplificata dopo [ADR-0010](0010-swift-native-ios-watch.md) (Swift nativo: nessun bridge, HealthKit usato direttamente).
 
 ## Contesto
-Il prodotto è iOS-first e deve integrarsi con Apple Salute: scrivere gli allenamenti loggati, leggere peso corporeo/passi/calorie attive (utili anche al futuro modulo Dieta), e permettere di avviare/loggare un allenamento dal Watch.
+Il prodotto è iOS-first e deve integrarsi con Apple Salute: scrivere gli allenamenti loggati, leggere peso corporeo/passi/calorie attive (utili anche al futuro modulo `1r0-diet`), e permettere di avviare/loggare un allenamento dal Watch.
 
 ## Decisione
 - Scrittura: ogni `Workout Session` chiusa viene salvata anche come `HKWorkoutSession`/`HKWorkout` su Apple Health (tipo attività: "Functional Strength Training" o mapping da definire per esercizio/routine).

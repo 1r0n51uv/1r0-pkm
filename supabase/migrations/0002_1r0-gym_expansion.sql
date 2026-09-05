@@ -1,4 +1,4 @@
--- Espansione modulo Palestra: fasi routine, misure corporee, config
+-- Espansione modulo 1r0-gym: fasi routine, misure corporee, config
 -- calcolatore piastre, suggerimenti di coaching AI. Vedi:
 -- docs/adr/0011-progressione-automatica-coaching-ai.md
 -- docs/adr/0012-body-tracking.md

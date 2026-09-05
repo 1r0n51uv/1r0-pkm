@@ -1,5 +1,5 @@
 {
-  "name": "@1r0/shared",
+  "name": "@1r0-pkm/shared",
   "version": "0.0.1",
   "private": true,
   "main": "src/index.ts",

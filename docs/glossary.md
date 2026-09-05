@@ -1,13 +1,15 @@
-# Glossario — 1r0
+# Glossario — 1r0-pkm
 
 Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verità per naming coerente tra moduli.
 
 ## Generali
 
-- **Modulo** — sezione funzionale dell'app (Palestra, PKM, Dieta, ...) vissuta come tab dentro un'unica app, non come app separate.
+- **1r0** — l'ombrello: la famiglia di app personali. Ogni app è un `1r0-<scope>`; questo repo è `1r0-pkm`. `1r0` da solo non è un'app, è la famiglia.
+- **1r0-pkm** — questa app. Scope *personal knowledge management* inteso in senso ampio (gestione della vita personale): fa da bundle ai moduli `1r0-gym`, `1r0-note`, `1r0-diet` e ad altri moduli configurabili.
+- **Modulo** — un `1r0-<scope>` (es. `1r0-gym`, `1r0-note`, `1r0-diet`, ...) incluso nell'app `1r0-pkm` e vissuto come tab dentro un'unica app. Unità di prima classe, potenzialmente attivabile/configurabile, non un'app separata da installare.
 - **Utente / Profile** — singolo utente autenticato (`auth.users` di Supabase + riga `profiles`). L'app è single-user ma richiede login minimo per sincronizzare iOS ↔ Watch ↔ web.
 
-## Modulo Palestra
+## Modulo 1r0-gym
 
 - **Exercise** — un esercizio del catalogo (es. "Panca piana"). Può avere `source`: `wger` (importato dall'API wger), `ai` (importato/strutturato via Claude), `custom` (inserito manualmente).
 - **Routine** — una scheda di allenamento, composta da uno o più **Routine Day** (giorni: es. Push/Pull/Legs).
@@ -22,7 +24,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 
 ## Integrazioni
 
-- **HealthKit sync** — scrittura di Workout Session verso Apple Health e lettura di peso corporeo/passi/calorie attive da Health verso il modulo Dieta/Palestra.
+- **HealthKit sync** — scrittura di Workout Session verso Apple Health e lettura di peso corporeo/passi/calorie attive da Health verso i moduli `1r0-diet`/`1r0-gym`.
 - **Watch companion** — target nativo watchOS (non Expo) che avvia/logga una Workout Session e sincronizza con l'app iOS via WatchConnectivity.
 - **AI import** — ricerca di un esercizio via Claude API che propone dati strutturati (nome, gruppo muscolare, istruzioni) da confermare manualmente prima del salvataggio come `Exercise` con `source = 'ai'`.
 
@@ -44,7 +46,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Plate Set Config** — bilanciere e dischi realmente disponibili all'utente, usati dal calcolatore piastre in-sessione.
 - **Warm-up ramp** — serie di riscaldamento suggerite a percentuali fisse (40/60/80%) del peso di lavoro.
 
-## Modulo Dieta
+## Modulo 1r0-diet
 
 - **Food** — un alimento del catalogo, con macro per 100g. `source`: `openfoodfacts`, `usda`, `custom`.
 - **Recipe** — pasto riutilizzabile (template), composto da uno o più **Recipe Item** (food + quantità).
@@ -63,4 +65,4 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 
 ## Moduli futuri (non ancora modellati)
 
-- **Note / PKM** — appunti collegabili (backlink), tag.
+- **1r0-note** — appunti collegabili (backlink), tag.

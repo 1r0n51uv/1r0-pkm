@@ -14,5 +14,5 @@ In palestra spesso non c'è rete. Il log di una Workout Session (Set Log) deve f
 - Routine/Exercise (dati meno volatili) restano cache-then-network senza outbox dedicato.
 
 ## Conseguenze
-- Introduce uno strato di sync client-side non banale (outbox + retry, gestito con `BackgroundTasks`/`URLSession` background) da costruire prima di poter dire "il modulo Palestra è affidabile".
+- Introduce uno strato di sync client-side non banale (outbox + retry, gestito con `BackgroundTasks`/`URLSession` background) da costruire prima di poter dire "il modulo `1r0-gym` è affidabile".
 - Essendo il backend self-hosted (non gestito), un downtime dell'istanza AWS si comporta esattamente come "nessuna rete" lato client — l'outbox deve già gestire bene questo caso, quindi nessuna logica aggiuntiva richiesta per l'assenza di backup automatico (ADR-0009).

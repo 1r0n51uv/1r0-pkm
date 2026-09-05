@@ -1,4 +1,4 @@
-# ADR-0020: Report e correlazioni del modulo Dieta
+# ADR-0020: Report e correlazioni del modulo 1r0-diet
 
 ## Status
 Accettata

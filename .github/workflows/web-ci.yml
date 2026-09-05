@@ -27,7 +27,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter @1r0/shared typecheck
-      - run: pnpm --filter @1r0/web lint
-      - run: pnpm --filter @1r0/web typecheck
-      - run: pnpm --filter @1r0/web build
+      - run: pnpm --filter @1r0-pkm/shared typecheck
+      - run: pnpm --filter @1r0-pkm/web lint
+      - run: pnpm --filter @1r0-pkm/web typecheck
+      - run: pnpm --filter @1r0-pkm/web build

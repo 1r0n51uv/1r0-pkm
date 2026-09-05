@@ -1,7 +1,7 @@
--- Modulo Dieta: schema iniziale. Vedi docs/glossary.md e
+-- Modulo 1r0-diet: schema iniziale. Vedi docs/glossary.md e
 -- docs/adr/0017-modulo-dieta-scope.md, 0018, 0019, 0020.
 -- Riusa `profiles` e `body_measurements` (peso/misure) già create per il
--- modulo Palestra — vedi ADR-0019 sul collegamento condiviso.
+-- modulo 1r0-gym — vedi ADR-0019 sul collegamento condiviso.
 
 create table if not exists foods (
   id uuid primary key default gen_random_uuid(),

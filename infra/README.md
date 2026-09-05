@@ -29,7 +29,7 @@ docker compose up -d
 # 3. Applica lo schema di questo repo
 #    dall'istanza, o da locale puntando all'host remoto:
 psql "postgresql://postgres:<password>@<host>:5432/postgres" \
-  -f supabase/migrations/0001_gym_schema.sql
+  -f supabase/migrations/0001_1r0-gym_schema.sql
 ```
 
 ## Reverse proxy (Caddy)

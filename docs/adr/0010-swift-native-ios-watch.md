@@ -19,7 +19,7 @@ La prima ipotesi era Expo/React Native con un modulo nativo custom per il target
 - **Expo ora, Watch dopo**: scartata, il requisito Watch è day-1.
 
 ## Conseguenze
-- **Costo**: ogni feature del modulo Palestra (e futuri PKM/Dieta) va scritta due volte se serve anche sul web — accettato perché il web è dashboard marginale, non l'esperienza primaria.
-- **Learning curve**: Swift/SwiftUI da imparare da zero — rischio noto e accettato, mitigato costruendo il modulo Palestra come primo terreno di apprendimento pratico.
+- **Costo**: ogni feature del modulo `1r0-gym` (e futuri `1r0-note`/`1r0-diet`) va scritta due volte se serve anche sul web — accettato perché il web è dashboard marginale, non l'esperienza primaria.
+- **Learning curve**: Swift/SwiftUI da imparare da zero — rischio noto e accettato, mitigato costruendo il modulo `1r0-gym` come primo terreno di apprendimento pratico.
 - **Toolchain**: serve macOS (VM o hardware) per build/dev/test — è vero per il 100% dello sviluppo mobile, non solo per il target Watch.
 - Nessuna dipendenza da versioni Expo SDK/RN da tenere allineate al codice nativo: un solo ecosistema (Apple) da seguire.

@@ -4,7 +4,7 @@
 Accettata — struttura rivista dopo [ADR-0010](0010-swift-native-ios-watch.md) (Swift nativo invece di Expo).
 
 ## Contesto
-1r0 è pensata a moduli (Palestra, PKM, Dieta, ...) esposti da un'unica app, ma su piattaforme che non condividono più codice (iOS/Watch nativi Swift, web Next.js) da quando ADR-0010 ha sostituito Expo. Resta comunque utile un solo repo per tenere insieme codice, schema DB e documentazione delle decisioni.
+1r0-pkm è pensata a moduli (`1r0-gym`, `1r0-note`, `1r0-diet`, ...) esposti da un'unica app, ma su piattaforme che non condividono più codice (iOS/Watch nativi Swift, web Next.js) da quando ADR-0010 ha sostituito Expo. Resta comunque utile un solo repo per tenere insieme codice, schema DB e documentazione delle decisioni.
 
 ## Decisione
 Un unico repo con struttura:

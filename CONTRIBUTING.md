@@ -1,4 +1,4 @@
-# Contribuire a 1r0
+# Contribuire a 1r0-pkm
 
 Workflow di sviluppo — vedi `docs/adr/0021-piano-azione-workflow.md` per il
 contesto completo delle decisioni.

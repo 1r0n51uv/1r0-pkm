@@ -1,4 +1,4 @@
-// Tipi di dominio del modulo Palestra. Vedi docs/glossary.md per le definizioni.
+// Tipi di dominio del modulo 1r0-gym. Vedi docs/glossary.md per le definizioni.
 
 export type ExerciseSource = "wger" | "ai" | "custom";
 

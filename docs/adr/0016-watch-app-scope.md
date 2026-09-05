@@ -28,6 +28,6 @@ ADR-0010 stabilisce che l'app Watch è nativa (SwiftUI, non un bridge Expo), ADR
 - In idle (fuori sessione) mostra la **streak/costanza** (es. giorni consecutivi o allenamenti questa settimana) — valore derivato da `workout_sessions` con `status = 'completed'`, nessuna tabella dedicata.
 
 ## Conseguenze
-- Il Watch diventa un client "pesante" quanto l'iPhone per il modulo Palestra (stessa logica di log, stesso SwiftData locale, stesso outbox verso l'iPhone) — più superficie da costruire/testare rispetto a un companion leggero, ma coerente con l'uso reale previsto (allenarsi senza portare il telefono in mano).
+- Il Watch diventa un client "pesante" quanto l'iPhone per il modulo `1r0-gym` (stessa logica di log, stesso SwiftData locale, stesso outbox verso l'iPhone) — più superficie da costruire/testare rispetto a un companion leggero, ma coerente con l'uso reale previsto (allenarsi senza portare il telefono in mano).
 - `hapticsOverride`/`watch_settings` come `jsonb` per evitare colonne rigide per ogni singola preferenza — stesso pattern già usato per `measurements` (ADR-0012) e `proposed_changes` (ADR-0011).
 - La scelta "chiede sempre" per le modifiche al template introduce un piccolo attrito UX (un prompt in più) ma evita sia sorprese (routine che cambia da sola) sia perdita di intenzione (modifica fatta e persa perché non salvata da nessuna parte).
