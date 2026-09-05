@@ -50,9 +50,15 @@ lo include). Vanno creati e incollati in un progetto Xcode sul tuo Mac.
 2. Esegui anche lo scheme del target Watch (o lascia che si avvii da
    solo insieme all'app iOS, se accoppiati).
 3. Su iPhone: tocca "Invia 'Ciao' al Watch" → sul Watch deve apparire
-   "Ciao dal iPhone" nel testo in alto.
+   "Ciao dal iPhone" nel testo in alto e il contatore `ricevuti: N`
+   che aumenta a ogni invio.
 4. Su Watch: tocca "Invia a iPhone" → su iPhone deve apparire
-   "Ciao dal Watch" sotto "Ultimo messaggio dal Watch".
+   "Ciao dal Watch" sotto "Ultimo messaggio dal Watch", di nuovo col
+   contatore `ricevuti: N` che sale.
+
+La sessione si attiva già all'avvio dell'app (il connector è creato
+nello `@main App`, non alla prima `View`): "Sessione attiva" dovrebbe
+comparire senza toccare nulla.
 
 ## Criterio di successo (issue #1)
 

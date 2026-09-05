@@ -8,6 +8,7 @@ final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = PhoneConnector()
 
     @Published var lastReceivedMessage: String = "(nessun messaggio ricevuto)"
+    @Published var receivedCount: Int = 0
     @Published var statusText: String = "Attivazione in corso..."
 
     private override init() {
@@ -21,17 +22,22 @@ final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func sendHelloToWatch() {
-        guard WCSession.default.activationState == .activated else {
+        let session = WCSession.default
+        guard session.activationState == .activated else {
             statusText = "Sessione non ancora attiva"
             return
         }
-        guard WCSession.default.isWatchAppInstalled else {
+        guard session.isWatchAppInstalled else {
             statusText = "App Watch non installata"
             return
         }
-        WCSession.default.sendMessage(["greeting": "Ciao dal iPhone"], replyHandler: nil) { error in
+        guard session.isReachable else {
+            statusText = "Watch non raggiungibile (fuori portata o app Watch non in foreground)"
+            return
+        }
+        session.sendMessage(["greeting": "Ciao dal iPhone"], replyHandler: nil) { [weak self] error in
             DispatchQueue.main.async {
-                self.statusText = "Errore invio: \(error.localizedDescription)"
+                self?.statusText = "Errore invio: \(error.localizedDescription)"
             }
         }
         statusText = "Messaggio inviato"
@@ -52,6 +58,7 @@ final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         DispatchQueue.main.async {
             self.lastReceivedMessage = message["greeting"] as? String ?? "messaggio senza testo"
+            self.receivedCount += 1
         }
     }
 }

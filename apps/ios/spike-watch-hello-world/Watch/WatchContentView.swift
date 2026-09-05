@@ -1,13 +1,18 @@
 import SwiftUI
 
 struct WatchContentView: View {
-    @StateObject private var connector = WatchConnector.shared
+    @EnvironmentObject private var connector: WatchConnector
 
     var body: some View {
         VStack(spacing: 10) {
             Text(connector.lastReceivedMessage)
                 .font(.footnote)
                 .multilineTextAlignment(.center)
+            if connector.receivedCount > 0 {
+                Text("ricevuti: \(connector.receivedCount)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
 
             Button("Invia a iPhone") {
                 connector.sendHelloToPhone()
@@ -23,4 +28,5 @@ struct WatchContentView: View {
 
 #Preview {
     WatchContentView()
+        .environmentObject(WatchConnector.shared)
 }
