@@ -64,8 +64,8 @@ struct ImportExerciseView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .padding(14)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                    .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
                     .accessibilityIdentifier("aiQuery")
 
                 Button {
@@ -76,8 +76,8 @@ struct ImportExerciseView: View {
                         else { Image(systemName: "sparkle.magnifyingglass") }
                     }
                     .frame(width: 46, height: 46)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                    .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
                 }
                 .disabled(query.trimmingCharacters(in: .whitespaces).isEmpty || phase != .idle)
                 .accessibilityIdentifier("aiSearch")
@@ -109,16 +109,10 @@ struct ImportExerciseView: View {
                         .font(Glass.body(12)).foregroundStyle(Glass.accent2)
                 }
 
-                Button(action: saveProposal) {
-                    Text("Salva esercizio").font(Glass.body(16, .semibold))
-                        .frame(maxWidth: .infinity).padding(.vertical, 14)
-                        .background(LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                                  startPoint: .leading, endPoint: .trailing),
-                                   in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .foregroundStyle(.white)
-                        .opacity(p.wrappedValue.name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
-                }
-                .disabled(p.wrappedValue.name.trimmingCharacters(in: .whitespaces).isEmpty)
+                GlassPrimaryButton(title: "Salva esercizio", systemImage: "checkmark",
+                                   action: saveProposal)
+                    .opacity(p.wrappedValue.name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
+                    .disabled(p.wrappedValue.name.trimmingCharacters(in: .whitespaces).isEmpty)
                 .accessibilityIdentifier("aiSave")
             }
             .padding(14)
@@ -146,8 +140,8 @@ struct ImportExerciseView: View {
                 }
                 .font(Glass.body(15, .semibold))
                 .frame(maxWidth: .infinity).padding(.vertical, 13)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
             }
             .disabled(phase != .idle)
             .accessibilityIdentifier("wgerSync")

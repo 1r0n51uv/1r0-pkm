@@ -43,8 +43,8 @@ struct LogSetSheet: View {
                         }
                         .font(Glass.body(16))
                         .padding(14)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
                     }
                     .accessibilityIdentifier("pickExercise")
                 }
@@ -68,21 +68,10 @@ struct LogSetSheet: View {
                     .pickerStyle(.segmented)
                 }
 
-                Button(action: log) {
-                    Text("Registra")
-                        .font(Glass.body(16, .semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(
-                            LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                           startPoint: .leading, endPoint: .trailing),
-                            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        )
-                        .foregroundStyle(.white)
-                        .opacity(picked == nil ? 0.4 : 1)
-                }
-                .disabled(picked == nil)
-                .accessibilityIdentifier("logSet")
+                GlassPrimaryButton(title: "Registra", systemImage: "checkmark", action: log)
+                    .opacity(picked == nil ? 0.4 : 1)
+                    .disabled(picked == nil)
+                    .accessibilityIdentifier("logSet")
             }
             .padding(20)
         }
@@ -105,8 +94,8 @@ struct LogSetSheet: View {
                 stepper()
             }
             .padding(12)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
         }
     }
 

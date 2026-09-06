@@ -46,11 +46,16 @@ private struct SyncFailureBanner: View {
 
     var body: some View {
         if !failed.isEmpty {
-            HStack(spacing: 10) {
-                Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")
-                    .font(.system(size: 14, weight: .semibold))
-                Text("\(failed.count) modifiche non sincronizzate")
-                    .font(Glass.body(13, .medium))
+            HStack(spacing: 12) {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Glass.amber)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("\(failed.count) modifiche non sincronizzate")
+                        .font(Glass.body(13, .semibold))
+                    Text("Verranno reinviate al ritorno della rete")
+                        .font(Glass.body(11)).foregroundStyle(Glass.ink.opacity(0.5))
+                }
                 Spacer(minLength: 8)
                 Button {
                     retrying = true
@@ -60,14 +65,17 @@ private struct SyncFailureBanner: View {
                         retrying = false
                     }
                 } label: {
-                    Text(retrying ? "…" : "Riprova").font(Glass.body(13, .semibold))
+                    Text(retrying ? "…" : "Riprova")
+                        .font(Glass.body(12, .bold)).foregroundStyle(Glass.amberText)
                 }
                 .disabled(retrying)
             }
             .foregroundStyle(Glass.textPrimary)
-            .padding(.horizontal, 14).padding(.vertical, 10)
-            .background(Glass.accent2.opacity(0.22), in: Capsule())
-            .overlay(Capsule().strokeBorder(Glass.accent2.opacity(0.45)))
+            .padding(.horizontal, 16).padding(.vertical, 12)
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Glass.amber.opacity(0.12)))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Glass.amber.opacity(0.35)))
             .padding(.horizontal, 18)
             .padding(.top, 4)
             .transition(.move(edge: .top).combined(with: .opacity))

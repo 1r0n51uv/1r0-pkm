@@ -32,8 +32,8 @@ struct AddRoutineView: View {
                               prompt: Text("Push Pull Legs").foregroundColor(Glass.textSecondary))
                         .font(Glass.body(16))
                         .padding(14)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
                         .accessibilityIdentifier("routineName")
                 }
 
@@ -47,22 +47,11 @@ struct AddRoutineView: View {
                     }
                 }
 
-                Button(action: save) {
-                    Text("Salva")
-                        .font(Glass.body(16, .semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(
-                            LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                           startPoint: .leading, endPoint: .trailing),
-                            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        )
-                        .foregroundStyle(.white)
-                        .opacity(canSave ? 1 : 0.4)
-                }
-                .disabled(!canSave)
-                .accessibilityIdentifier("saveRoutine")
-                .padding(.top, 4)
+                GlassPrimaryButton(title: "Salva", action: save)
+                    .opacity(canSave ? 1 : 0.4)
+                    .disabled(!canSave)
+                    .accessibilityIdentifier("saveRoutine")
+                    .padding(.top, 4)
             }
             .padding(20)
         }
@@ -71,19 +60,14 @@ struct AddRoutineView: View {
 
     private func chip(_ p: RoutinePhase?, _ label: String) -> some View {
         let selected = phase == p
-        return Button {
-            phase = p
-        } label: {
+        let hue = Glass.phaseColor(p?.rawValue)
+        return Button { phase = p } label: {
             Text(label)
-                .font(Glass.body(13, .semibold))
-                .padding(.horizontal, 12).padding(.vertical, 8)
-                .background(
-                    (selected ? Glass.phaseColor(p?.rawValue).opacity(0.22) : Glass.hairline),
-                    in: Capsule()
-                )
-                .overlay(Capsule().strokeBorder(
-                    selected ? Glass.phaseColor(p?.rawValue) : .clear, lineWidth: 1))
-                .foregroundStyle(selected ? Glass.phaseColor(p?.rawValue) : Glass.textSecondary)
+                .font(Glass.body(13, selected ? .bold : .semibold))
+                .padding(.horizontal, 14).padding(.vertical, 8)
+                .background(Capsule().fill(selected ? hue.opacity(0.16) : Color.white.opacity(0.06)))
+                .overlay(Capsule().strokeBorder(selected ? hue.opacity(0.4) : .clear, lineWidth: 1))
+                .foregroundStyle(selected ? hue : Glass.textSecondary)
         }
         .buttonStyle(.plain)
     }

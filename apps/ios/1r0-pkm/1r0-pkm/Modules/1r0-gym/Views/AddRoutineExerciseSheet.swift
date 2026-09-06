@@ -72,8 +72,8 @@ struct AddRoutineExerciseSheet: View {
                             .frame(maxHeight: 220)
                         }
                     }
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                    .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
                 }
 
                 HStack(spacing: 12) {
@@ -91,16 +91,10 @@ struct AddRoutineExerciseSheet: View {
                     }
                 }
 
-                Button(action: save) {
-                    Text("Aggiungi").font(Glass.body(16, .semibold))
-                        .frame(maxWidth: .infinity).padding(.vertical, 14)
-                        .background(LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                                  startPoint: .leading, endPoint: .trailing),
-                                   in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .foregroundStyle(.white).opacity(picked == nil ? 0.4 : 1)
-                }
-                .disabled(picked == nil)
-                .accessibilityIdentifier("saveRoutineExercise")
+                GlassPrimaryButton(title: "Aggiungi", systemImage: "plus", action: save)
+                    .opacity(picked == nil ? 0.4 : 1)
+                    .disabled(picked == nil)
+                    .accessibilityIdentifier("saveRoutineExercise")
             }
             .padding(20)
         }
@@ -121,8 +115,8 @@ struct AddRoutineExerciseSheet: View {
                 Spacer(); s()
             }
             .padding(12)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
         }
     }
 

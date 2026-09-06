@@ -133,12 +133,12 @@ struct PlateCalculatorView: View {
     }
     private func plateColor(_ p: Double) -> Color {
         switch p {
-        case 25: return Color(red: 0.86, green: 0.24, blue: 0.24)
-        case 20: return Color(red: 0.27, green: 0.5, blue: 0.9)
-        case 15: return Color(red: 0.95, green: 0.79, blue: 0.24)
-        case 10: return Color(red: 0.36, green: 0.75, blue: 0.42)
-        case 5:  return Color(white: 0.9)
-        case 2.5: return Color(white: 0.55)
+        case 25: return Color(red: 0.82, green: 0.28, blue: 0.30)     // rosso gara
+        case 20: return Glass.coral                                   // canvas: 20 = 25°
+        case 15: return Color(red: 0.95, green: 0.79, blue: 0.24)     // oro
+        case 10: return Glass.blue                                    // canvas: 10 = 250°
+        case 5:  return Glass.green
+        case 2.5: return Glass.amber                                  // canvas: 2.5 = 55°
         default: return Color(white: 0.75)
         }
     }

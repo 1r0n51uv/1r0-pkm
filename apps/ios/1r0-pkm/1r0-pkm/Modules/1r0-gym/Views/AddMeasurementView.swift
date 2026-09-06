@@ -70,18 +70,11 @@ struct AddMeasurementView: View {
                           id: "meas_\(f.key)")
                 }
 
-                Button(action: save) {
-                    Text("Salva")
-                        .font(Glass.body(16, .semibold))
-                        .frame(maxWidth: .infinity).padding(.vertical, 14)
-                        .background(LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                                  startPoint: .leading, endPoint: .trailing),
-                                   in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .foregroundStyle(.white)
-                        .opacity(canSave ? 1 : 0.4)
-                }
-                .disabled(!canSave)
-                .accessibilityIdentifier("saveMeasurement")
+                GlassPrimaryButton(title: "Salva", fill: Glass.green,
+                                   onInk: Color(red: 0.01, green: 0.09, blue: 0.05), action: save)
+                    .opacity(canSave ? 1 : 0.4)
+                    .disabled(!canSave)
+                    .accessibilityIdentifier("saveMeasurement")
             }
             .padding(20)
         }
@@ -106,8 +99,8 @@ struct AddMeasurementView: View {
                 .font(Glass.body(16))
                 .keyboardType(.decimalPad)
                 .padding(14)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
                 .accessibilityIdentifier(id)
         }
     }

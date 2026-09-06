@@ -52,14 +52,7 @@ struct PlateConfigView: View {
                     }
                 }
 
-                Button("Fatto") { save(cfg); dismiss() }
-                    .font(Glass.body(16, .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 13)
-                    .background(LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                              startPoint: .leading, endPoint: .trailing),
-                               in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .foregroundStyle(.white)
+                GlassPrimaryButton(title: "Fatto") { save(cfg); dismiss() }
                     .accessibilityIdentifier("savePlateConfig")
             }
             .padding(20)
