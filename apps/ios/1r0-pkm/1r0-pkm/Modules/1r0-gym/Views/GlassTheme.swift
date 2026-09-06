@@ -22,6 +22,17 @@ enum Glass {
 
     static let corner: CGFloat = 22
 
+    /// Colore fase routine (ADR-0015).
+    static func phaseColor(_ phase: String?) -> Color {
+        switch phase {
+        case "bulk": return Color(red: 0.45, green: 0.7, blue: 1.0)
+        case "cut": return Color(red: 1.0, green: 0.55, blue: 0.42)
+        case "deload": return Color(red: 0.72, green: 0.62, blue: 1.0)
+        case "maintenance": return good
+        default: return .white.opacity(0.35)
+        }
+    }
+
     // Fonts (variabili — il peso lo applica .fontWeight)
     static func display(_ size: CGFloat, _ weight: Font.Weight = .bold) -> Font {
         .custom("Space Grotesk", size: size).weight(weight)
@@ -53,8 +64,8 @@ struct GlassBackground: View {
         Circle()
             .fill(c)
             .frame(width: d, height: d)
-            .blur(radius: d * 0.34)
-            .opacity(0.42)
+            .blur(radius: d * 0.32)
+            .opacity(0.55)
     }
 }
 
@@ -68,9 +79,21 @@ struct GlassPanel<Content: View>: View {
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Glass.corner, style: .continuous))
+            .background(
+                // sottile luce dall'alto, così i pannelli non "spariscono" sul dark
+                LinearGradient(
+                    colors: [.white.opacity(0.10), .white.opacity(0.02)],
+                    startPoint: .top, endPoint: .bottom
+                ),
+                in: RoundedRectangle(cornerRadius: Glass.corner, style: .continuous)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: Glass.corner, style: .continuous)
-                    .strokeBorder(Glass.hairline, lineWidth: 1)
+                    .strokeBorder(
+                        LinearGradient(colors: [.white.opacity(0.22), .white.opacity(0.05)],
+                                       startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1
+                    )
             )
     }
 }

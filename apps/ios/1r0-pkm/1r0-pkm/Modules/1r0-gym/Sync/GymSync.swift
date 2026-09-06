@@ -45,6 +45,34 @@ enum GymSync {
         }
     }
 
+    /// Scarica le schede dal backend e fa upsert nello store locale.
+    @MainActor
+    static func pullRoutines(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/routines")
+            let rows = try JSONDecoder.api.decode([RoutineDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<Routine>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                if let e = existing {
+                    e.name = r.name
+                    e.phaseRaw = r.phase
+                    e.syncedAt = .now
+                } else {
+                    context.insert(Routine(
+                        id: uuid, name: r.name,
+                        phase: r.phase.flatMap(RoutinePhase.init(rawValue:)),
+                        createdAt: JSONDecoder.iso.date(from: r.created_at) ?? .now,
+                        syncedAt: .now
+                    ))
+                }
+            }
+            try context.save()
+        } catch {}
+    }
+
     /// Svuota l'outbox spedendo ogni entry.
     @MainActor
     static func flushOutbox(_ context: ModelContext) async {
@@ -66,6 +94,15 @@ enum GymSync {
                         FetchDescriptor<Exercise>(predicate: #Predicate { $0.id == uuid })
                        ).first {
                         e.syncedAt = .now
+                    }
+                case "routine.create":
+                    let data = try await ApiClient.shared.post("v1/routines", json: entry.payload)
+                    let dto = try JSONDecoder.api.decode(RoutineDTO.self, from: data)
+                    if let uuid = UUID(uuidString: dto.id),
+                       let r = try context.fetch(
+                        FetchDescriptor<Routine>(predicate: #Predicate { $0.id == uuid })
+                       ).first {
+                        r.syncedAt = .now
                     }
                 default:
                     break
@@ -91,6 +128,13 @@ struct ExerciseDTO: Decodable {
     let source: String
     let muscle_groups: [String]
     let equipment: String?
+    let created_at: String
+}
+
+struct RoutineDTO: Decodable {
+    let id: String
+    let name: String
+    let phase: String?
     let created_at: String
 }
 

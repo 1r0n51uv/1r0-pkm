@@ -16,7 +16,10 @@ struct _r0_pkmApp: App {
         let reset = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
         do {
             let config = ModelConfiguration(isStoredInMemoryOnly: reset)
-            container = try ModelContainer(for: Exercise.self, OutboxEntry.self, configurations: config)
+            container = try ModelContainer(
+                for: Exercise.self, Routine.self, OutboxEntry.self,
+                configurations: config
+            )
         } catch {
             fatalError("ModelContainer non creato: \(error)")
         }
