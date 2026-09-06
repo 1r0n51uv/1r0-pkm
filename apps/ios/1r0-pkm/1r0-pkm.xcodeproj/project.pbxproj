@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06564A0AA86E916B6869F2D0 /* SpikeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE241B1AC29783A56CA21B5 /* SpikeConfig.swift */; };
+		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
@@ -79,7 +81,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1CE241B1AC29783A56CA21B5 /* SpikeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpikeConfig.swift; path = "1r0-pkm/SpikeConfig.swift"; sourceTree = SOURCE_ROOT; };
 		33394EDB88C37094051E27DE /* PhoneConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhoneConnector.swift; path = "1r0-pkm/PhoneConnector.swift"; sourceTree = SOURCE_ROOT; };
+		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wApp.swift; sourceTree = "<group>"; };
@@ -206,6 +210,8 @@
 				ED3F625B304CD5CE000F4A2D /* Products */,
 				33394EDB88C37094051E27DE /* PhoneConnector.swift */,
 				B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */,
+				1CE241B1AC29783A56CA21B5 /* SpikeConfig.swift */,
+				54B54FD4AD90693086FD751B /* ApiClient.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -540,6 +546,8 @@
 				ED3F6260304CD5CF000F4A2D /* ContentView.swift in Sources */,
 				ED3F625E304CD5CF000F4A2D /* _r0_pkmApp.swift in Sources */,
 				F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */,
+				06564A0AA86E916B6869F2D0 /* SpikeConfig.swift in Sources */,
+				2375415E863C85E094782F1E /* ApiClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -863,6 +871,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"1r0-pkm/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "1r0-pkm/Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -901,6 +910,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"1r0-pkm/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "1r0-pkm/Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

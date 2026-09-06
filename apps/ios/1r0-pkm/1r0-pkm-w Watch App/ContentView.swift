@@ -25,6 +25,10 @@ struct ContentView: View {
                 connector.sendHelloToPhone()
             }
 
+            Button("Logga set (100kg × 5)") {
+                connector.sendTestSetLog()
+            }
+
             Text(connector.statusText)
                 .font(.caption2)
                 .foregroundStyle(.secondary)

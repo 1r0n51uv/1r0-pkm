@@ -33,6 +33,15 @@ struct ContentView: View {
             }
             .buttonStyle(.borderedProminent)
 
+            VStack(spacing: 6) {
+                Text("Sync set → backend:")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Text(connector.lastSyncResult)
+                    .font(.callout)
+                    .multilineTextAlignment(.center)
+            }
+
             Text(connector.statusText)
                 .font(.caption)
                 .foregroundStyle(.secondary)

@@ -17,6 +17,8 @@ final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     @Published var lastReceivedMessage: String = "(nessun messaggio ricevuto)"
     @Published var receivedCount: Int = 0
     @Published var statusText: String = "Attivazione in corso..."
+    /// End-to-end spike (issue #6): result of forwarding a Watch set to the backend.
+    @Published var lastSyncResult: String = "(nessun set inviato)"
 
     private override init() {
         super.init()
@@ -63,6 +65,20 @@ final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        if message["type"] as? String == "setLog" {
+            let weight = (message["weightKg"] as? NSNumber)?.doubleValue ?? 0
+            let reps = (message["reps"] as? NSNumber)?.intValue ?? 0
+            DispatchQueue.main.async {
+                self.lastReceivedMessage = "set dal Watch: \(weight)kg × \(reps)"
+                self.receivedCount += 1
+                self.lastSyncResult = "invio al backend…"
+            }
+            Task {
+                let result = await ApiClient.shared.postSetLog(weightKg: weight, reps: reps)
+                await MainActor.run { self.lastSyncResult = result }
+            }
+            return
+        }
         DispatchQueue.main.async {
             self.lastReceivedMessage = message["greeting"] as? String ?? "messaggio senza testo"
             self.receivedCount += 1

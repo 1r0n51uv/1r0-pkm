@@ -34,4 +34,20 @@ final class _r0_pkm_w_Watch_AppUITests: XCTestCase {
             "Nessun aggiornamento di stato dopo il tap di invio sul Watch"
         )
     }
+
+    /// Spike #6 — end-to-end: tap "Logga set" on the Watch. The iPhone forwards
+    /// it to the backend; this test only asserts the Watch send path ran.
+    func testLogSet() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(
+            app.staticTexts["Sessione attiva"].waitForExistence(timeout: 10),
+            "WCSession non attiva sul Watch"
+        )
+        app.buttons["Logga set (100kg × 5)"].tap()
+        XCTAssertTrue(
+            app.staticTexts["Messaggio inviato"].waitForExistence(timeout: 5),
+            "Il set non è stato inviato dal Watch"
+        )
+    }
 }

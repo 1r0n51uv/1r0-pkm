@@ -28,6 +28,16 @@ final class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func sendHelloToPhone() {
+        send(["greeting": "Ciao dal Watch"])
+    }
+
+    /// End-to-end spike (issue #6): the Watch logs a set; the iPhone forwards
+    /// it to the backend. Fixed payload — this is a transport proof.
+    func sendTestSetLog() {
+        send(["type": "setLog", "weightKg": 100.0, "reps": 5])
+    }
+
+    private func send(_ payload: [String: Any]) {
         let session = WCSession.default
         guard session.activationState == .activated else {
             statusText = "Sessione non ancora attiva"
@@ -37,7 +47,7 @@ final class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
             statusText = "iPhone non raggiungibile"
             return
         }
-        session.sendMessage(["greeting": "Ciao dal Watch"], replyHandler: nil) { [weak self] error in
+        session.sendMessage(payload, replyHandler: nil) { [weak self] error in
             DispatchQueue.main.async {
                 self?.statusText = "Errore invio: \(error.localizedDescription)"
             }
