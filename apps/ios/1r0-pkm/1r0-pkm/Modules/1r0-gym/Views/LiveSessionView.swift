@@ -194,8 +194,10 @@ struct LiveSessionView: View {
     }
 
     private func end() {
+        let start = session.startedAt
+        let finish = Date()
         session.status = .completed
-        session.endedAt = .now
+        session.endedAt = finish
         session.syncedAt = nil
         if let data = try? JSONSerialization.data(withJSONObject: [
             "id": session.id.uuidString, "status": "completed",
@@ -205,5 +207,8 @@ struct LiveSessionView: View {
         try? context.save()
         let ctx = context
         Task { await GymSync.flushOutbox(ctx) }
+        // salva l'allenamento in Apple Salute (ADR-0004); no-op se non
+        // autorizzato o non disponibile
+        Task { await HealthKitService.shared.saveCompletedWorkout(start: start, end: finish, activeEnergyKcal: nil) }
     }
 }

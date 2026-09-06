@@ -9,6 +9,10 @@ final class _r0_pkmUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // il simulatore può restare in landscape da run precedenti: la tab bar
+        // finisce compressa sul bordo e `scrollToVisible` fallisce. Forza il
+        // portrait per ogni test.
+        XCUIDevice.shared.orientation = .portrait
     }
 
     /// 1r0-gym · catalogo esercizi: crea un esercizio offline-first e verifica
@@ -132,10 +136,21 @@ final class _r0_pkmUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Pull"].waitForExistence(timeout: 5))
 
         app.buttons["addExerciseToDay"].tap()
-        XCTAssertTrue(app.buttons["pickRoutineExercise"].waitForExistence(timeout: 5))
-        app.buttons["pickRoutineExercise"].tap()
-        app.buttons[exName].tap()   // scegli l'esercizio appena creato dal menu
-        app.buttons["saveRoutineExercise"].tap()
+        let picker = app.buttons["pickRoutineExercise"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 5))
+        // espande la lista inline e sceglie l'esercizio appena creato
+        let pickerItem = app.buttons[exName].firstMatch
+        var opened = false
+        for _ in 0..<3 {
+            picker.tap()
+            if pickerItem.waitForExistence(timeout: 3) { opened = true; break }
+        }
+        XCTAssertTrue(opened, "La lista di scelta esercizio non si è aperta")
+        pickerItem.tap()
+
+        let save = app.buttons["saveRoutineExercise"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        save.tap()
 
         XCTAssertTrue(app.staticTexts[exName].waitForExistence(timeout: 5),
                       "L'esercizio non compare nel giorno")
@@ -187,6 +202,24 @@ final class _r0_pkmUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["77.5 kg"].waitForExistence(timeout: 5),
                       "La rilevazione non compare nei Progressi")
         sleep(1); attach(app, "progressi")
+    }
+
+    /// ADR-0004: tocca "Apple Salute" nei Progressi → compare l'onboarding
+    /// coi permessi (senza toccare il dialog di sistema).
+    func testHealthKitOnboardingSheet() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Progressi"].tap()
+        XCTAssertTrue(app.buttons["healthImport"].waitForExistence(timeout: 10))
+        app.buttons["healthImport"].tap()
+
+        // niente peso / non autorizzato ⇒ onboarding
+        XCTAssertTrue(app.buttons["healthAllow"].waitForExistence(timeout: 5),
+                      "L'onboarding HealthKit non è comparso")
+        XCTAssertTrue(app.staticTexts["Apple Salute"].exists)
+        sleep(1); attach(app, "healthkit-onboarding")
     }
 
     /// Non è un test: cattura screenshot delle tab per la review.

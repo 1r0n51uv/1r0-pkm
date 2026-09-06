@@ -13,6 +13,8 @@ struct ProgressTabView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \BodyMeasurement.recordedAt, order: .reverse) private var items: [BodyMeasurement]
     @State private var showAdd = false
+    @State private var showHealth = false
+    @State private var healthNote: String?
 
     private var weightPoints: [(date: Date, kg: Double)] {
         items.compactMap { m in m.weightKg.map { (m.recordedAt, $0) } }
@@ -46,6 +48,16 @@ struct ProgressTabView: View {
         .glassScreen()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { importFromHealth() } label: {
+                    Image(systemName: "heart.text.square")
+                        .font(.system(size: 15, weight: .semibold))
+                        .frame(width: 34, height: 34)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .overlay(Circle().strokeBorder(Glass.hairline))
+                }
+                .accessibilityIdentifier("healthImport")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showAdd = true } label: {
                     Image(systemName: "plus")
@@ -62,6 +74,14 @@ struct ProgressTabView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
+        .sheet(isPresented: $showHealth) {
+            HealthKitOnboardingView { _ in importFromHealth() }
+                .presentationDetents([.medium, .large])
+                .presentationBackground(.ultraThinMaterial)
+        }
+        .alert("Apple Salute", isPresented: .constant(healthNote != nil)) {
+            Button("OK") { healthNote = nil }
+        } message: { Text(healthNote ?? "") }
         .task {
             await GymSync.pullMeasurements(into: context)
             await GymSync.flushOutbox(context)
@@ -95,6 +115,12 @@ struct ProgressTabView: View {
                 HStack {
                     Text(m.recordedAt.formatted(date: .abbreviated, time: .omitted))
                         .font(Glass.body(13, .medium)).foregroundStyle(Glass.textSecondary)
+                    if m.source == "healthkit" {
+                        Label("Salute", systemImage: "heart.fill")
+                            .labelStyle(.iconOnly)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Glass.accent2)
+                    }
                     Spacer()
                     if let w = m.weightKg {
                         Text("\(fmt(w)) kg").font(Glass.body(16, .semibold)).monospacedDigit()
@@ -119,6 +145,34 @@ struct ProgressTabView: View {
 
     private func label(_ key: String) -> String {
         MeasurementField.all.first { $0.key == key }?.short ?? key
+    }
+
+    @MainActor
+    private func importFromHealth() {
+        Task { @MainActor in
+            guard HealthKitService.shared.isAvailable else {
+                healthNote = "HealthKit non è disponibile su questo dispositivo."
+                return
+            }
+            guard let kg = await HealthKitService.shared.latestBodyWeightKg() else {
+                // non autorizzato o nessun dato → mostra l'onboarding
+                showHealth = true
+                return
+            }
+            let m = BodyMeasurement(weightKg: kg, source: "healthkit")
+            context.insert(m)
+            if let data = try? JSONSerialization.data(withJSONObject: [
+                "id": m.id.uuidString,
+                "recordedAt": ISO8601DateFormatter().string(from: m.recordedAt),
+                "weightKg": kg, "measurements": [String: Double](),
+            ]) {
+                context.insert(OutboxEntry(kind: "measurement.create", payload: data))
+            }
+            try? context.save()
+            let ctx = context
+            Task { await GymSync.flushOutbox(ctx) }
+            healthNote = "Peso importato da Salute: \(fmt(kg)) kg."
+        }
     }
     private func fmt(_ d: Double) -> String {
         d == d.rounded() ? String(Int(d)) : String(format: "%.1f", d)

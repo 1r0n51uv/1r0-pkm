@@ -17,18 +17,23 @@ final class BodyMeasurement {
     var weightKg: Double?
     /// chiavi libere, es. ["waistCm": 82, "armLeftCm": 38.5]
     var measurements: [String: Double]
+    /// origine del dato (ADR-0004: "la UI deve mostrare la fonte").
+    /// "manual" | "healthkit". Locale — non ancora sincronizzata.
+    var source: String
     var syncedAt: Date?
 
     init(
         id: UUID = UUID(),
         recordedAt: Date = .now,
         weightKg: Double? = nil,
-        measurements: [String: Double] = [:]
+        measurements: [String: Double] = [:],
+        source: String = "manual"
     ) {
         self.id = id
         self.recordedAt = recordedAt
         self.weightKg = weightKg
         self.measurements = measurements
+        self.source = source
         self.syncedAt = nil
     }
 }

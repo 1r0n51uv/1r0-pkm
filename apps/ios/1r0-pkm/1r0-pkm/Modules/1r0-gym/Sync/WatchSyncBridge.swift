@@ -79,10 +79,16 @@ final class WatchSyncBridge {
     private func endSession(_ msg: [String: Any]) {
         guard let id = uuid(msg["id"]), let session = fetchSession(id) else { return }
         let status = (msg["status"] as? String) == "cancelled" ? SessionStatus.cancelled : .completed
+        let start = session.startedAt
+        let finish = Date()
         session.status = status
-        session.endedAt = .now
+        session.endedAt = finish
         session.syncedAt = nil
         enqueue("session.update", ["id": id.uuidString, "status": status.rawValue])
+        // sessioni cancelled escluse da Salute (ADR-0016)
+        if status == .completed {
+            Task { await HealthKitService.shared.saveCompletedWorkout(start: start, end: finish, activeEnergyKcal: nil) }
+        }
     }
 
     // MARK: helpers

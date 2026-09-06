@@ -13,6 +13,7 @@
 		1120432A8B1833C6A4890A38 /* GymMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292C4093960D1B8A0B5EFE7A /* GymMath.swift */; };
 		15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81184CE697A7F0353C1C751F /* Secrets.swift */; };
 		1BAB4C4A81B0F447065F41B8 /* AddRoutineExerciseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63D43549FE4494E570C5E5F /* AddRoutineExerciseSheet.swift */; };
+		1EB7419B9E262618D12A1F1B /* HealthKitOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */; };
 		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		2B094869A349674F22DCF8DD /* SessionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC994C5085C6F4838B6CB02B /* SessionTabView.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
@@ -22,6 +23,7 @@
 		5BF34CE5858978E07B47D404 /* GymData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAC45ECAC44E556696F8639 /* GymData.swift */; };
 		5D9446AEB37E9FD6C24722C0 /* BodyMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F4AFA951073018127E688 /* BodyMeasurement.swift */; };
 		632B47C7BE8A10C16A029B55 /* LiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835F43B5870342A3BF890AD0 /* LiveSessionView.swift */; };
+		638441CFAC494580478D0FB4 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */; };
 		650E46A081AA17029C3EA43B /* LogSetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CF42F8A42ACCC09F9B8CF1 /* LogSetSheet.swift */; };
 		6B024022BA531D93DB13AD53 /* PlateCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18F4033B588C189F079C74E /* PlateCalculatorView.swift */; };
 		7E9A4A8F83BCA23A955AAF82 /* RoutineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96724B90BEEE9BDF3F52CCFE /* RoutineListView.swift */; };
@@ -116,6 +118,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitOnboardingView.swift; path = "1r0-pkm/Modules/1r0-gym/HealthKit/HealthKitOnboardingView.swift"; sourceTree = SOURCE_ROOT; };
 		1150416D9C7B193D0F2B6C0C /* WatchSyncBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSyncBridge.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/WatchSyncBridge.swift"; sourceTree = SOURCE_ROOT; };
 		20CF4E7CB31B6551914B2913 /* GymSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymSync.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/GymSync.swift"; sourceTree = SOURCE_ROOT; };
 		24654844A0874A09F64936EB /* WatchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchRootView.swift; path = "1r0-pkm-w Watch App/WatchRootView.swift"; sourceTree = SOURCE_ROOT; };
@@ -148,6 +151,7 @@
 		B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfigView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/PlateConfigView.swift"; sourceTree = SOURCE_ROOT; };
 		BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSessionModel.swift; path = "1r0-pkm-w Watch App/WatchSessionModel.swift"; sourceTree = SOURCE_ROOT; };
 		C0B14280B27D1D098F4D875E /* StartWorkoutIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StartWorkoutIntent.swift; path = "1r0-pkm/Modules/1r0-gym/Intents/StartWorkoutIntent.swift"; sourceTree = SOURCE_ROOT; };
+		C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitService.swift; path = "1r0-pkm/Modules/1r0-gym/HealthKit/HealthKitService.swift"; sourceTree = SOURCE_ROOT; };
 		D8674562A94FA124E9CEE71D /* PlateConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfig.swift; path = "1r0-pkm/Modules/1r0-gym/Models/PlateConfig.swift"; sourceTree = SOURCE_ROOT; };
 		DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymMathTests.swift; path = "1r0-pkmTests/GymMathTests.swift"; sourceTree = SOURCE_ROOT; };
 		DC994C5085C6F4838B6CB02B /* SessionTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SessionTabView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/SessionTabView.swift"; sourceTree = SOURCE_ROOT; };
@@ -264,6 +268,8 @@
 				C0B14280B27D1D098F4D875E /* StartWorkoutIntent.swift */,
 				6D064219A6E4B05B6109F826 /* GymShortcuts.swift */,
 				3E814E85AA3C3D338CE9D85E /* SiriIntentTests.swift */,
+				C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */,
+				0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -597,6 +603,8 @@
 				5BF34CE5858978E07B47D404 /* GymData.swift in Sources */,
 				9A85421982A6D5F7C2553099 /* StartWorkoutIntent.swift in Sources */,
 				BA9F44C2952DC8F42C9B7713 /* GymShortcuts.swift in Sources */,
+				638441CFAC494580478D0FB4 /* HealthKitService.swift in Sources */,
+				1EB7419B9E262618D12A1F1B /* HealthKitOnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
