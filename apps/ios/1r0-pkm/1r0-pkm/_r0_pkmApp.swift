@@ -16,13 +16,9 @@ struct _r0_pkmApp: App {
     init() {
         _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity
 
-        if ProcessInfo.processInfo.arguments.contains("-uitest-reset") {
-            GymData.container = try! ModelContainer(
-                for: GymData.schema,
-                configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-            )
-        }
-        // container unico condiviso con gli App Intents (ADR-0014)
+        // container unico condiviso con gli App Intents (ADR-0014).
+        // `GymData.makeContainer()` sceglie in-memory sotto `-uitest-reset`
+        // e recupera da uno store locale non migrabile.
         container = GymData.container
 
         // motore di sync (ADR-0006): reachability + BackgroundTasks.

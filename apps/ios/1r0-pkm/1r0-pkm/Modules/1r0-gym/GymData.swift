@@ -16,15 +16,31 @@ enum GymData {
         PlateConfig.self, BodyMeasurement.self, OutboxEntry.self,
     ])
 
-    /// Container reale (on-disk). `var` così i test lo sostituiscono con uno
-    /// in-memory.
-    static var container: ModelContainer = {
+    /// Container condiviso. In-memory sotto i test UI (`-uitest-reset`),
+    /// altrimenti on-disk. `var` così i test possono comunque sostituirlo.
+    static var container: ModelContainer = makeContainer()
+
+    static func makeContainer() -> ModelContainer {
+        let inMemory = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
+        let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
         do {
-            return try ModelContainer(for: schema)
+            return try ModelContainer(for: schema, configurations: config)
         } catch {
+            // Schema drift sullo store locale (es. nuovo attributo non
+            // opzionale): i dati veri stanno sul backend (ADR-0006), meglio
+            // ripartire da vuoto che non far partire l'app. Solo on-disk.
+            if !inMemory {
+                let url = URL.applicationSupportDirectory.appending(path: "default.store")
+                for ext in ["", "-shm", "-wal"] {
+                    try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + ext))
+                }
+                if let recovered = try? ModelContainer(for: schema, configurations: config) {
+                    return recovered
+                }
+            }
             fatalError("GymData container non creato: \(error)")
         }
-    }()
+    }
 }
 
 @MainActor

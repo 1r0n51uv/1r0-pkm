@@ -18,8 +18,9 @@ final class BodyMeasurement {
     /// chiavi libere, es. ["waistCm": 82, "armLeftCm": 38.5]
     var measurements: [String: Double]
     /// origine del dato (ADR-0004: "la UI deve mostrare la fonte").
-    /// "manual" | "healthkit". Locale — non ancora sincronizzata.
-    var source: String
+    /// "manual" | "healthkit". Default in dichiarazione per la migrazione
+    /// lightweight SwiftData (attributo non opzionale su righe già su disco).
+    var source: String = "manual"
     var syncedAt: Date?
 
     init(
