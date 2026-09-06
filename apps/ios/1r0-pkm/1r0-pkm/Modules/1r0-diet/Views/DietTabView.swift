@@ -27,6 +27,7 @@ struct DietTabView: View {
     @State private var logSlot: MealSlot?
     @State private var showGoal = false
     @State private var showReport = false
+    @State private var showPlan = false
 
     private var today: [MealEntry] {
         allMeals.filter { Calendar.current.isDateInToday($0.consumedAt) }
@@ -106,6 +107,11 @@ struct DietTabView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
+        .sheet(isPresented: $showPlan) {
+            MealPlanView()
+                .presentationDetents([.large])
+                .presentationBackground(.ultraThinMaterial)
+        }
         .task {
             await DietSync.pullFoods(into: context)
             await DietSync.pullMealEntries(into: context)
@@ -123,6 +129,8 @@ struct DietTabView: View {
                     .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
             }
             Spacer(minLength: 8)
+            GlassIconButton(systemName: "calendar") { showPlan = true }
+                .accessibilityIdentifier("openPlan")
             GlassIconButton(systemName: "chart.line.uptrend.xyaxis") { showReport = true }
                 .accessibilityIdentifier("showReport")
             GlassIconButton(systemName: "target") { showGoal = true }

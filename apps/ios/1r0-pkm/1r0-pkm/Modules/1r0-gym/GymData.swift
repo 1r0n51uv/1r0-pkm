@@ -16,6 +16,7 @@ enum GymData {
         PlateConfig.self, BodyMeasurement.self, OutboxEntry.self,
         // Modulo 1r0-diet (ADR-0017): container unico, ADR-0008.
         Food.self, MealEntry.self, MealEntryItem.self, NutritionGoal.self,
+        Recipe.self, RecipeItem.self, PlannedMeal.self, PlannedMealItem.self,
     ])
 
     /// Container condiviso. In-memory sotto i test UI (`-uitest-reset`),

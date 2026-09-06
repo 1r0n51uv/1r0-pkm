@@ -346,6 +346,10 @@ enum GymSync {
             return try id(await api.post("v1/meal-entries", json: entry.payload))
         case "nutritiongoal.create":
             return try id(await api.post("v1/nutrition-goals", json: entry.payload))
+        case "recipe.create":
+            return try id(await api.post("v1/recipes", json: entry.payload))
+        case "plannedmeal.create":
+            return try id(await api.post("v1/planned-meals", json: entry.payload))
         default:
             throw ApiClient.HTTPError(status: -1, body: "kind sconosciuto: \(entry.kind)")
         }
@@ -388,6 +392,12 @@ enum GymSync {
                 .first?.syncedAt = .now
         case "nutritiongoal.create":
             try? context.fetch(FetchDescriptor<NutritionGoal>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "recipe.create":
+            try? context.fetch(FetchDescriptor<Recipe>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "plannedmeal.create":
+            try? context.fetch(FetchDescriptor<PlannedMeal>(predicate: #Predicate { $0.id == uuid }))
                 .first?.syncedAt = .now
         default:
             break

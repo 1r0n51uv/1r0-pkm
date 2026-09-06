@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */; };
+		82091FD5FC934AD0B3A6A91A /* MealPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75F149E62524030BE1EC58F /* MealPlanView.swift */; };
+		B45A7DCE5D974C478D17072A /* RecipeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */; };
+		B5FED695F6FC49D2860194A0 /* FoodBasketEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */; };
+		8258DD1E5B8F4CC49EF4B9FD /* PlannedMeal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A53D9552D59546D2A10D4C9D /* PlannedMeal.swift */; };
+		0E33E098577A43BCBE657600 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621ABECCE5244E47B87B7258 /* Recipe.swift */; };
 		59CD4B6D8FC847F2886CAFFE /* DietReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3AA36288814E159C189B3E /* DietReportView.swift */; };
 		9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F725248DB437980EF296A /* DietReport.swift */; };
 		66F69909C8E97D894A348BF2 /* NutritionGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6952FB3A11858434A98160 /* NutritionGoal.swift */; };
@@ -134,6 +139,11 @@
 
 /* Begin PBXFileReference section */
 		0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoalView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/NutritionGoalView.swift"; sourceTree = SOURCE_ROOT; };
+		E75F149E62524030BE1EC58F /* MealPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealPlanView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/MealPlanView.swift"; sourceTree = SOURCE_ROOT; };
+		33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecipeListView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/RecipeListView.swift"; sourceTree = SOURCE_ROOT; };
+		A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FoodBasketEditor.swift; path = "1r0-pkm/Modules/1r0-diet/Views/FoodBasketEditor.swift"; sourceTree = SOURCE_ROOT; };
+		A53D9552D59546D2A10D4C9D /* PlannedMeal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlannedMeal.swift; path = "1r0-pkm/Modules/1r0-diet/Models/PlannedMeal.swift"; sourceTree = SOURCE_ROOT; };
+		621ABECCE5244E47B87B7258 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Recipe.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Recipe.swift"; sourceTree = SOURCE_ROOT; };
 		DD3AA36288814E159C189B3E /* DietReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReportView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietReportView.swift"; sourceTree = SOURCE_ROOT; };
 		B98F725248DB437980EF296A /* DietReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReport.swift; path = "1r0-pkm/Modules/1r0-diet/DietReport.swift"; sourceTree = SOURCE_ROOT; };
 		4C6952FB3A11858434A98160 /* NutritionGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoal.swift; path = "1r0-pkm/Modules/1r0-diet/Models/NutritionGoal.swift"; sourceTree = SOURCE_ROOT; };
@@ -253,6 +263,11 @@
 			isa = PBXGroup;
 			children = (
 				0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */,
+				E75F149E62524030BE1EC58F /* MealPlanView.swift */,
+				33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */,
+				A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */,
+				A53D9552D59546D2A10D4C9D /* PlannedMeal.swift */,
+				621ABECCE5244E47B87B7258 /* Recipe.swift */,
 				DD3AA36288814E159C189B3E /* DietReportView.swift */,
 				B98F725248DB437980EF296A /* DietReport.swift */,
 				4C6952FB3A11858434A98160 /* NutritionGoal.swift */,
@@ -616,6 +631,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */,
+				82091FD5FC934AD0B3A6A91A /* MealPlanView.swift in Sources */,
+				B45A7DCE5D974C478D17072A /* RecipeListView.swift in Sources */,
+				B5FED695F6FC49D2860194A0 /* FoodBasketEditor.swift in Sources */,
+				8258DD1E5B8F4CC49EF4B9FD /* PlannedMeal.swift in Sources */,
+				0E33E098577A43BCBE657600 /* Recipe.swift in Sources */,
 				59CD4B6D8FC847F2886CAFFE /* DietReportView.swift in Sources */,
 				9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */,
 				66F69909C8E97D894A348BF2 /* NutritionGoal.swift in Sources */,

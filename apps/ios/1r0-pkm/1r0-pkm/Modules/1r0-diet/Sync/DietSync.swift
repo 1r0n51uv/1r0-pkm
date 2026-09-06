@@ -133,6 +133,181 @@ enum DietSync {
         return m
     }
 
+    // MARK: - Ricette + pianificazione pasti (ADR-0017 slice 2)
+
+    @MainActor
+    static func pullRecipes(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/recipes")
+            let rows = try JSONDecoder.api.decode([RecipeDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<Recipe>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let rec = existing ?? Recipe(id: uuid, name: r.name)
+                if existing == nil { context.insert(rec) }
+                rec.name = r.name
+                rec.notes = r.notes
+                rec.updatedAt = JSONDecoder.iso.date(from: r.updated_at ?? "") ?? rec.updatedAt
+                rec.syncedAt = .now
+                // rimpiazza gli item (vedi nota anti-crash in pullMealEntries).
+                for old in rec.items { context.delete(old) }
+                for (i, it) in (r.items ?? []).enumerated() {
+                    context.insert(RecipeItem(
+                        recipe: rec,
+                        foodId: it.food_id.flatMap(UUID.init(uuidString:)),
+                        foodName: it.food_name ?? "—",
+                        quantityG: num(it.quantity_g) ?? 0,
+                        orderIndex: it.order_index ?? i
+                    ))
+                }
+            }
+            try context.save()
+        } catch { }
+    }
+
+    @MainActor
+    static func pullPlannedMeals(from: Date, to: Date, into context: ModelContext) async {
+        let q = "from=\(isoDate(from))&to=\(isoDate(to))"
+        do {
+            let data = try await ApiClient.shared.get("v1/planned-meals?\(q)")
+            let rows = try JSONDecoder.api.decode([PlannedMealDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id),
+                      let slot = MealSlot(rawValue: r.meal_slot),
+                      let day = date(r.planned_date) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<PlannedMeal>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let p = existing ?? PlannedMeal(id: uuid, plannedDate: day, mealSlot: slot)
+                if existing == nil { context.insert(p) }
+                p.plannedDate = day
+                p.mealSlot = slot
+                p.status = PlanStatus(rawValue: r.status ?? "planned") ?? .planned
+                p.recipeId = r.recipe_id.flatMap(UUID.init(uuidString:))
+                p.mealEntryId = r.meal_entry_id.flatMap(UUID.init(uuidString:))
+                p.syncedAt = .now
+                for old in p.items { context.delete(old) }
+                for (i, it) in (r.items ?? []).enumerated() {
+                    context.insert(PlannedMealItem(
+                        plannedMeal: p,
+                        foodId: it.food_id.flatMap(UUID.init(uuidString:)),
+                        foodName: it.food_name ?? "—",
+                        quantityG: num(it.quantity_g) ?? 0,
+                        orderIndex: it.order_index ?? i
+                    ))
+                }
+            }
+            try context.save()
+        } catch { }
+    }
+
+    /// Crea/aggiorna una ricetta + accoda `recipe.create` (upsert idempotente).
+    @MainActor
+    @discardableResult
+    static func saveRecipe(name: String, notes: String? = nil,
+                           items: [(food: Food, grams: Double)],
+                           existing: Recipe? = nil,
+                           in context: ModelContext) -> Recipe {
+        let rec = existing ?? Recipe(name: name)
+        rec.name = name
+        rec.notes = notes
+        rec.updatedAt = .now
+        rec.syncedAt = nil
+        if existing == nil { context.insert(rec) }
+        for old in rec.items { context.delete(old) }
+        var payloadItems: [[String: Any]] = []
+        for (i, pair) in items.enumerated() {
+            context.insert(RecipeItem(recipe: rec, foodId: pair.food.id,
+                                      foodName: pair.food.name, quantityG: pair.grams,
+                                      orderIndex: i))
+            payloadItems.append([
+                "foodId": pair.food.id.uuidString, "foodName": pair.food.name,
+                "quantityG": pair.grams, "orderIndex": i,
+            ])
+        }
+        var payload: [String: Any] = ["id": rec.id.uuidString, "name": name,
+                                      "items": payloadItems]
+        if let notes, !notes.isEmpty { payload["notes"] = notes }
+        enqueue("recipe.create", payload, in: context)
+        return rec
+    }
+
+    /// Pianifica un pasto per un giorno + accoda `plannedmeal.create`.
+    @MainActor
+    @discardableResult
+    static func planMeal(date day: Date, slot: MealSlot, recipe: Recipe? = nil,
+                         items: [(food: Food, grams: Double)],
+                         in context: ModelContext) -> PlannedMeal {
+        let d = Calendar.current.startOfDay(for: day)
+        let p = PlannedMeal(plannedDate: d, mealSlot: slot, recipeId: recipe?.id)
+        context.insert(p)
+        var payloadItems: [[String: Any]] = []
+        for (i, pair) in items.enumerated() {
+            context.insert(PlannedMealItem(plannedMeal: p, foodId: pair.food.id,
+                                           foodName: pair.food.name, quantityG: pair.grams,
+                                           orderIndex: i))
+            payloadItems.append([
+                "foodId": pair.food.id.uuidString, "foodName": pair.food.name,
+                "quantityG": pair.grams, "orderIndex": i,
+            ])
+        }
+        var payload: [String: Any] = [
+            "id": p.id.uuidString, "plannedDate": isoDate(d),
+            "mealSlot": slot.rawValue, "status": "planned", "items": payloadItems,
+        ]
+        if let recipe { payload["recipeId"] = recipe.id.uuidString }
+        enqueue("plannedmeal.create", payload, in: context)
+        return p
+    }
+
+    /// Conferma un pasto pianificato: crea il `MealEntry` collegato (log) e
+    /// mette lo stato `completed`. Accoda `mealentry.create` + `plannedmeal.create`.
+    @MainActor
+    static func completePlannedMeal(_ p: PlannedMeal, foods: [UUID: Food],
+                                    in context: ModelContext) {
+        guard p.status != .completed else { return }
+        let pairs: [(food: Food, grams: Double)] = p.items.compactMap { it in
+            guard let f = it.foodId.flatMap({ foods[$0] }) else { return nil }
+            return (f, it.quantityG)
+        }
+        let entry = logMeal(slot: p.mealSlot, date: .now, items: pairs, in: context)
+        p.status = .completed
+        p.mealEntryId = entry.id
+        p.syncedAt = nil
+        enqueuePlannedMeal(p, in: context)
+    }
+
+    @MainActor
+    static func skipPlannedMeal(_ p: PlannedMeal, in context: ModelContext) {
+        p.status = .skipped
+        p.syncedAt = nil
+        enqueuePlannedMeal(p, in: context)
+    }
+
+    /// Re-accoda lo stato corrente di un pasto pianificato (upsert).
+    @MainActor
+    private static func enqueuePlannedMeal(_ p: PlannedMeal, in context: ModelContext) {
+        let payloadItems = p.items
+            .sorted { $0.orderIndex < $1.orderIndex }
+            .map { it -> [String: Any] in
+                var d: [String: Any] = ["foodName": it.foodName,
+                                        "quantityG": it.quantityG,
+                                        "orderIndex": it.orderIndex]
+                if let fid = it.foodId { d["foodId"] = fid.uuidString }
+                return d
+            }
+        var payload: [String: Any] = [
+            "id": p.id.uuidString, "plannedDate": isoDate(p.plannedDate),
+            "mealSlot": p.mealSlot.rawValue, "status": p.status.rawValue,
+            "items": payloadItems,
+        ]
+        if let rid = p.recipeId { payload["recipeId"] = rid.uuidString }
+        if let mid = p.mealEntryId { payload["mealEntryId"] = mid.uuidString }
+        enqueue("plannedmeal.create", payload, in: context)
+    }
+
     // MARK: - Obiettivo nutrizionale (ADR-0019, append-only)
 
     @MainActor
@@ -195,12 +370,18 @@ enum DietSync {
             .max { ($0.effectiveFrom, $0.createdAt) < ($1.effectiveFrom, $1.createdAt) }
     }
 
+    // Le date "civili" (`effective_from`, `planned_date`) sono senza fuso:
+    // le si interpreta nel calendario locale, coerente con lo
+    // `startOfDay(for:)` locale usato nelle viste (niente scivolamento di un
+    // giorno per chi non è a UTC).
     private static func date(_ s: String) -> Date? {
-        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; f.timeZone = .init(identifier: "UTC")
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"
+        f.calendar = .init(identifier: .gregorian); f.timeZone = .current
         return f.date(from: String(s.prefix(10)))
     }
     private static func isoDate(_ d: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; f.timeZone = .init(identifier: "UTC")
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"
+        f.calendar = .init(identifier: .gregorian); f.timeZone = .current
         return f.string(from: d)
     }
 
@@ -362,4 +543,31 @@ struct MealEntryDTO: Decodable {
     let meal_slot: String
     let notes: String?
     let items: [Item]?
+}
+
+/// item di ricetta / pasto pianificato (solo nome + quantità, macro
+/// calcolati dal `Food` all'uso).
+struct PlanItemDTO: Decodable {
+    let food_id: String?
+    let food_name: String?
+    let quantity_g: FoodDTO.Num?
+    let order_index: Int?
+}
+
+struct RecipeDTO: Decodable {
+    let id: String
+    let name: String
+    let notes: String?
+    let updated_at: String?
+    let items: [PlanItemDTO]?
+}
+
+struct PlannedMealDTO: Decodable {
+    let id: String
+    let planned_date: String
+    let meal_slot: String
+    let recipe_id: String?
+    let status: String?
+    let meal_entry_id: String?
+    let items: [PlanItemDTO]?
 }

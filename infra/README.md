@@ -107,6 +107,30 @@ curl -s -X POST $BASE/v1/meal-entries \
 curl -s $BASE/v1/meal-entries -H "Authorization: Bearer $KEY" | jq '.[0]'
 ```
 
+## Dieta — ricette + pianificazione pasti (ADR-0017 slice 2)
+
+Ricette (pasti riutilizzabili) e pasti pianificati per data, con conferma
+("completed" → il client crea un `meal_entry` e ne passa l'id) o "skipped".
+Client-supplied UUID, upsert idempotente (outbox, ADR-0006). Richiede la
+migration `0008_recipe_planned_item_snapshot.sql` (aggiunge `food_name` a
+`recipe_items`/`planned_meal_items` e rende `food_id` nullable).
+
+```bash
+curl -s -X POST $BASE/v1/recipes \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"name":"Colazione tipo","items":[{"foodId":"<uuid>","foodName":"Avena","quantityG":80,"orderIndex":0}]}'
+# -> {"id":...,"name":"Colazione tipo",...}
+curl -s $BASE/v1/recipes -H "Authorization: Bearer $KEY" | jq '.[0]'
+
+curl -s -X POST $BASE/v1/planned-meals \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"plannedDate":"2026-09-10","mealSlot":"lunch","status":"planned","items":[{"foodName":"Avena","quantityG":80,"orderIndex":0}]}'
+# -> {"id":...,"planned_date":"2026-09-10","status":"planned",...}
+# range: ?from=YYYY-MM-DD&to=YYYY-MM-DD
+curl -s "$BASE/v1/planned-meals?from=2026-09-06&to=2026-09-13" -H "Authorization: Bearer $KEY" | jq '.[0]'
+# conferma: re-POST con {"id":<stesso>,"status":"completed","mealEntryId":"<uuid del meal_entry>"}
+```
+
 ## Ricerca alimenti — OpenFoodFacts + USDA (ADR-0018)
 
 Il backend fa da proxy alle due fonti e normalizza a un `FoodCandidate`

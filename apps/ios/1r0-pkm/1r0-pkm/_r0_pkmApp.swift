@@ -21,6 +21,19 @@ struct _r0_pkmApp: App {
         // e recupera da uno store locale non migrabile.
         container = GymData.container
 
+        // seed deterministico per i test UI del modulo dieta (ADR-0017
+        // slice 2): un alimento in cache, così ricette/pianificazione non
+        // dipendono dal flusso fragile "crea alimento" né dalla rete.
+        if ProcessInfo.processInfo.arguments.contains("-uitest-seed-diet") {
+            let ctx = container.mainContext
+            if (try? ctx.fetch(FetchDescriptor<Food>()))?.isEmpty ?? true {
+                ctx.insert(Food(name: "Avena test", source: "custom",
+                                caloriesPer100g: 380, proteinGPer100g: 13,
+                                carbsGPer100g: 60, fatGPer100g: 7))
+                try? ctx.save()
+            }
+        }
+
         // motore di sync (ADR-0006): reachability + BackgroundTasks.
         // Saltato nei test UI per non dipendere dalla rete reale.
         if !isUITest {

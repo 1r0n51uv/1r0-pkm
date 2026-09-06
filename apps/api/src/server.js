@@ -16,6 +16,8 @@ import foods from "./routes/foods.js";
 import meals from "./routes/meals.js";
 import foodSearch from "./routes/foodsearch.js";
 import nutritionGoals from "./routes/nutritiongoals.js";
+import recipes from "./routes/recipes.js";
+import plannedMeals from "./routes/plannedmeals.js";
 import { pool } from "./db.js";
 
 // Custom REST backend (ADR-0022): single Fastify process, talks straight to
@@ -43,6 +45,8 @@ await app.register(foods);
 await app.register(meals);
 await app.register(foodSearch);
 await app.register(nutritionGoals);
+await app.register(recipes);
+await app.register(plannedMeals);
 
 const port = Number(process.env.PORT ?? 8080);
 

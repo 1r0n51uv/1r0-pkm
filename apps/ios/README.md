@@ -119,8 +119,11 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   `MealEntryItem` in cascade che *snapshotta* nome + calorie/macro al log
   (ADR-0017), `NutritionGoal` (ADR-0019: append-only, `mode`
   manual/phase_linked/tdee, target in grammi assoluti; + `NutritionMath`
-  puro per TDEE ≈ peso×fattore e preset di fase bulk/cut/deload). Registrati
-  nello stesso `GymData.schema` (container unico, ADR-0008).
+  puro per TDEE ≈ peso×fattore e preset di fase bulk/cut/deload),
+  `Recipe`/`RecipeItem` + `PlannedMeal`/`PlannedMealItem` (ADR-0017
+  slice 2: pasti riutilizzabili e pianificati per data, `status`
+  planned/completed/skipped). Registrati nello stesso `GymData.schema`
+  (container unico, ADR-0008).
 - `Modules/1r0-diet/Sync/DietSync.swift` — `pullFoods` / `pullMealEntries` /
   `pullGoals` + azioni `createFood` / `logMeal` / `setGoal` (sempre INSERT,
   mai update — ADR-0019) + `current(_:)` (riga più recente con
@@ -128,8 +131,11 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   `v1/foods/search` — OpenFoodFacts + USDA via backend), `lookupBarcode(_:)`
   (GET `v1/foods/barcode/:code` — cache poi OFF), `materialize(_:)`
   (`FoodCandidate` transitorio → `Food` locale, riuso per barcode/
-  external_id). Outbox condiviso: kind `food.create` / `mealentry.create` /
-  `nutritiongoal.create` in `GymSync.send` (ADR-0006).
+  external_id). ADR-0017 slice 2: `pullRecipes` / `pullPlannedMeals(from:to:)`
+  + `saveRecipe` / `planMeal` / `completePlannedMeal` (crea il `MealEntry` +
+  stato `completed`) / `skipPlannedMeal`. Outbox condiviso: kind
+  `food.create` / `mealentry.create` / `nutritiongoal.create` /
+  `recipe.create` / `plannedmeal.create` in `GymSync.send` (ADR-0006).
 - `Modules/1r0-diet/DietReport.swift` — funzioni pure di aggregazione per il
   report (ADR-0020): serie giornaliera calorie/macro sulla finestra
   (30/90 gg), obiettivo storicamente attivo per giorno
@@ -155,8 +161,15 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   `mode == phase_linked` e la fase della scheda non combacia.
   TDEE è una stima grezza (peso × fattore attività): manca sesso/età/altezza
   nel profilo, da aggiungere se serve un Mifflin-St Jeor vero.
-- Fuori 0017/0018/0019/0020: pianificazione pasti / ricette / lista spesa,
-  tracker acqua/caffeina/integratori, modulo dieta su Watch.
+- `Modules/1r0-diet/Views/` (slice 2) — `MealPlanView` (mockup pianificazione:
+  striscia 7 giorni, slot per giorno, `PlanMealSheet` per pianificare da una
+  ricetta o da un paniere di alimenti; ogni pasto pianificato → "Mangiato"
+  crea un `MealEntry` / "Salta"), `RecipeListView` + `AddRecipeView` (CRUD
+  ricette), `FoodBasketEditor` (paniere alimenti+grammi riusato da ricette e
+  pianificazione). Ingresso dall'header di `DietTabView` (icona `calendar`).
+- Fuori 0017/0018/0019/0020: lista spesa, tracker acqua/caffeina/integratori,
+  modulo dieta su Watch. (ADR-0017 slice 2: ricette + pianificazione fatte;
+  lista spesa e tracker restano.)
 
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
 route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`

@@ -366,6 +366,76 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "diet-report")
     }
 
+    /// 1r0-diet · ADR-0017 slice 2: salva una ricetta (nome + un alimento) e
+    /// verifica che compaia nell'elenco ricette. Alimento pre-seminato
+    /// (`-uitest-seed-diet`) → nessuna rete, nessun flusso "crea alimento".
+    func testCreateRecipe() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset", "-uitest-seed-diet"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["openPlan"].tap()
+        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
+        app.buttons["openRecipes"].tap()
+        XCTAssertTrue(app.staticTexts["Ricette"].waitForExistence(timeout: 5))
+        app.buttons["addRecipe"].firstMatch.tap()
+
+        let rn = app.textFields["recipeName"]
+        XCTAssertTrue(rn.waitForExistence(timeout: 5))
+        let recipeName = "Colazione tipo \(Int(Date().timeIntervalSince1970))"
+        rn.tap(); rn.typeText(recipeName)
+
+        let bs = app.textFields["basketSearch"]
+        XCTAssertTrue(bs.waitForExistence(timeout: 5))
+        bs.tap(); bs.typeText("Avena")
+        let add = app.buttons["basketAdd"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "Nessun risultato nel paniere")
+        add.tap()
+
+        app.buttons["saveRecipe"].tap()
+        XCTAssertTrue(app.staticTexts[recipeName].waitForExistence(timeout: 6),
+                      "La ricetta salvata non compare in elenco")
+        sleep(1); attach(app, "recipe-list")
+    }
+
+    /// 1r0-diet · ADR-0017 slice 2: pianifica un pasto per oggi e confermalo
+    /// ("Mangiato") — lo stato passa a completato.
+    func testPlanAndCompleteMeal() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset", "-uitest-seed-diet"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["openPlan"].tap()
+        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
+
+        app.buttons["plan_lunch"].tap()
+        XCTAssertTrue(app.staticTexts["Pianifica"].waitForExistence(timeout: 5))
+
+        let bs = app.textFields["basketSearch"]
+        XCTAssertTrue(bs.waitForExistence(timeout: 5))
+        bs.tap(); bs.typeText("Avena")
+        let add = app.buttons["basketAdd"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "Nessun risultato nel paniere")
+        add.tap()
+
+        app.buttons["savePlannedMeal"].tap()
+
+        let complete = app.buttons["completePlanned"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 6),
+                      "Il pasto pianificato non è comparso")
+        complete.tap()
+
+        XCTAssertTrue(app.staticTexts["MANGIATO"].waitForExistence(timeout: 6),
+                      "Lo stato del pasto non è passato a 'Mangiato'")
+        sleep(1); attach(app, "meal-plan")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()
