@@ -63,6 +63,31 @@ curl -s -o /dev/null -w '%{http_code}\n' $BASE/v1/profile
 Health OK + an authed write + read-back + a 401 without the key = spike #2
 done. Tick issue #2.
 
+## Catalogo esercizi (ADR-0005)
+
+Import una tantum del database wger (inglese) nella tabella `exercises`
+(`source = 'wger'`). Idempotente: rilanciarlo aggiorna solo le righe
+esistenti (l'`uuid` wger è usato come `id` della riga).
+
+```bash
+curl -s -X POST $BASE/v1/exercises/wger-sync \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"max": 1000}'
+# -> {"pages":9,"fetched":871,"inserted":871,"updated":0,"skipped":N}
+```
+
+Import assistito da AI di un singolo esercizio non presente a catalogo
+(richiede `ANTHROPIC_API_KEY` nel `.env`; senza chiave risponde 500 e la app
+mostra un avviso):
+
+```bash
+curl -s -X POST $BASE/v1/exercises/ai-import \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"query": "jefferson curl"}'
+# -> {"name":"Jefferson Curl","muscleGroups":[...],"equipment":...,"instructions":"..."}
+# la app fa confermare/modificare all'utente, poi POST /v1/exercises con source:"ai"
+```
+
 ## Not done yet
 
 - Provisioning automation (Terraform/CDK) — manual for now.

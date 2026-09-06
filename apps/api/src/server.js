@@ -10,6 +10,7 @@ import measurements from "./routes/measurements.js";
 import exercises from "./routes/exercises.js";
 import routines from "./routes/routines.js";
 import routineTree from "./routes/routinetree.js";
+import wgerSync from "./routes/wger.js";
 import ai from "./routes/ai.js";
 import { pool } from "./db.js";
 
@@ -32,6 +33,7 @@ await app.register(measurements);
 await app.register(exercises);
 await app.register(routines);
 await app.register(routineTree);
+await app.register(wgerSync);
 await app.register(ai);
 
 const port = Number(process.env.PORT ?? 8080);
