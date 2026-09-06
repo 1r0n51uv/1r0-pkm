@@ -36,58 +36,48 @@ struct SessionTabView: View {
             }
         }
         .glassScreen()
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
         .task { await GymSync.flushOutbox(context) }
     }
 
     private var startCTA: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Sessione")
-                .font(Glass.display(34, .bold))
-            Text("Nessun allenamento in corso.")
-                .font(Glass.body(15))
-                .foregroundStyle(Glass.textSecondary)
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Sessione")
+                    .font(Glass.display(28, .bold)).tracking(-0.5)
+                Text(done.isEmpty ? "Nessun allenamento ancora" : "Nessun allenamento in corso")
+                    .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
+            }
 
             if !done.isEmpty {
-                GlassPanel {
-                    HStack(spacing: 14) {
-                        stat("\(streak)", streak == 1 ? "giorno di fila" : "giorni di fila", Glass.accent2)
-                        Divider().frame(height: 30).overlay(Glass.hairline)
-                        stat("\(thisWeek)", "questa settimana", Glass.accent)
-                    }
+                HStack(spacing: 0) {
+                    stat("\(streak)", streak == 1 ? "giorno di fila" : "giorni di fila", Glass.coralLight)
+                    Rectangle().fill(Glass.hairlineSoft).frame(width: 1, height: 34)
+                    stat("\(thisWeek)", "questa settimana", Glass.blueLight)
                 }
+                .padding(.vertical, 18)
+                .frame(maxWidth: .infinity)
+                .glassCard()
             }
 
-            Button(action: start) {
-                HStack {
-                    Image(systemName: "play.fill")
-                    Text("Inizia sessione")
-                }
-                .font(Glass.body(17, .semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(
-                    LinearGradient(colors: [Glass.accent, Glass.accent2],
-                                   startPoint: .leading, endPoint: .trailing),
-                    in: RoundedRectangle(cornerRadius: 18, style: .continuous)
-                )
-                .foregroundStyle(.white)
+            GlassPrimaryButton(title: "Inizia sessione", systemImage: "play.fill", height: 56) {
+                start()
             }
             .accessibilityIdentifier("startSession")
-            .padding(.top, 8)
+            .padding(.top, 2)
 
             Spacer()
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 8)
+        .padding(.horizontal, 22).padding(.top, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func stat(_ value: String, _ label: String, _ color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(value).font(Glass.display(24, .bold)).foregroundStyle(color)
+        VStack(spacing: 3) {
+            Text(value).font(Glass.display(26, .bold)).foregroundStyle(color).monospacedDigit()
             Text(label).font(Glass.body(11)).foregroundStyle(Glass.textSecondary)
         }
+        .frame(maxWidth: .infinity)
     }
 
     @MainActor

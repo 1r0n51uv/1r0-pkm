@@ -4,7 +4,9 @@
 //
 //  Dettaglio scheda: giorni + esercizi con target, e il suggerimento di
 //  progressione (double progression, ADR-0011) calcolato dall'ultima
-//  sessione completata. Stile Glass Dark (ADR-0023).
+//  sessione completata. Stile Glass Dark (ADR-0023), layout dal mockup
+//  "GlassRoutineBuilder": header modale, righe con rail di fase + tile,
+//  bottoni "aggiungi" tratteggiati.
 //
 
 import SwiftUI
@@ -12,10 +14,9 @@ import SwiftData
 
 struct RoutineDetailView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     @Bindable var routine: Routine
 
-    // @Query diretti sui figli: il re-render è affidabile, la traversata di
-    // routine.days / day.exercises no.
     @Query(sort: \RoutineDay.orderIndex) private var allDays: [RoutineDay]
     @Query(sort: \RoutineExercise.orderIndex) private var allExercises: [RoutineExercise]
     @Query(
@@ -34,32 +35,32 @@ struct RoutineDetailView: View {
         allExercises.filter { $0.day?.id == day.id }
     }
     private let incrementKg = 2.5
+    private var phaseHue: Color { Glass.phaseColor(routine.phaseRaw) }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                header
+        VStack(spacing: 0) {
+            modalHeader
 
-                ForEach(days) { day in dayPanel(day) }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if let p = routine.phase {
+                        PhasePill(text: p.label, color: phaseHue)
+                    }
 
-                Button {
-                    newDayName = ""
-                    showAddDay = true
-                } label: {
-                    HStack { Image(systemName: "plus"); Text("Aggiungi giorno") }
-                        .font(Glass.body(15, .semibold))
-                        .frame(maxWidth: .infinity).padding(.vertical, 13)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                    ForEach(days) { day in daySection(day) }
+
+                    dashedButton("Aggiungi giorno") {
+                        newDayName = ""
+                        showAddDay = true
+                    }
+                    .accessibilityIdentifier("addDay")
                 }
-                .accessibilityIdentifier("addDay")
+                .padding(.horizontal, 22).padding(.top, 8).padding(.bottom, 40)
             }
-            .padding(.horizontal, 18).padding(.bottom, 40)
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
         .glassScreen()
-        .navigationTitle(routine.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
         .alert("Nuovo giorno", isPresented: $showAddDay) {
             TextField("Push / Pull / Legs", text: $newDayName)
             Button("Annulla", role: .cancel) {}
@@ -73,60 +74,85 @@ struct RoutineDetailView: View {
         .task { await GymSync.pullRoutineTree(routineId: routine.id, into: context) }
     }
 
-    private var header: some View {
-        HStack(spacing: 10) {
-            RoundedRectangle(cornerRadius: 3).fill(Glass.phaseColor(routine.phaseRaw)).frame(width: 4, height: 30)
-            Text("\(days.count) giorni")
-                .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
-            if let p = routine.phase {
-                Text(p.label.uppercased())
-                    .font(Glass.body(10, .bold)).tracking(0.6).foregroundStyle(Glass.bg)
-                    .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Glass.phaseColor(routine.phaseRaw), in: Capsule())
+    private var modalHeader: some View {
+        HStack {
+            Button { dismiss() } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Glass.ink.opacity(0.75))
+                    .frame(width: 44, height: 44, alignment: .leading)
             }
             Spacer()
+            Text(routine.name).font(Glass.display(16, .semibold)).lineLimit(1)
+            Spacer()
+            Color.clear.frame(width: 44, height: 44)
         }
-        .padding(.top, 6)
+        .padding(.horizontal, 22).padding(.top, 8)
     }
 
-    private func dayPanel(_ day: RoutineDay) -> some View {
-        GlassPanel {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(day.name).font(Glass.body(17, .bold))
+    private func daySection(_ day: RoutineDay) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(text: day.name)
 
-                let exs = exercises(of: day)
-                if exs.isEmpty {
-                    Text("nessun esercizio").font(Glass.body(13)).foregroundStyle(Glass.textSecondary)
-                } else {
-                    ForEach(exs) { re in exerciseRow(re) }
-                }
-
-                Button { addExerciseFor = day } label: {
-                    HStack(spacing: 5) { Image(systemName: "plus.circle"); Text("Esercizio") }
-                        .font(Glass.body(13, .semibold)).foregroundStyle(Glass.accent)
-                }
-                .accessibilityIdentifier("addExerciseToDay")
+            let exs = exercises(of: day)
+            if exs.isEmpty {
+                Text("Nessun esercizio")
+                    .font(Glass.body(13)).foregroundStyle(Glass.textTertiary)
+                    .padding(.leading, 4).padding(.vertical, 4)
+            } else {
+                ForEach(exs) { re in exerciseRow(re) }
             }
+
+            dashedButton("Aggiungi esercizio", small: true) { addExerciseFor = day }
+                .accessibilityIdentifier("addExerciseToDay")
         }
     }
 
     private func exerciseRow(_ re: RoutineExercise) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(re.exerciseName).font(Glass.body(15, .semibold))
-                Spacer()
-                Text("\(re.targetSets)×\(re.targetReps) · rec \(re.targetRestSeconds)s")
-                    .font(Glass.body(12)).foregroundStyle(Glass.textSecondary).monospacedDigit()
+        HStack(alignment: .top, spacing: 8) {
+            RoundedRectangle(cornerRadius: 999)
+                .fill(phaseHue.opacity(0.5))
+                .frame(width: 4)
+            HStack(spacing: 12) {
+                MuscleTile(groups: [], size: 40)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(re.exerciseName).font(Glass.body(14, .semibold)).lineLimit(1)
+                    Text("\(re.targetSets) serie · \(re.targetReps) reps · \(re.targetRestSeconds)s riposo")
+                        .font(Glass.body(12)).foregroundStyle(Glass.ink.opacity(0.45))
+                        .monospacedDigit()
+                    if let advice = advice(for: re) {
+                        Text(adviceText(advice))
+                            .font(Glass.body(11, .semibold))
+                            .foregroundStyle(Glass.greenText)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(Glass.green.opacity(0.16), in: Capsule())
+                            .padding(.top, 1)
+                    }
+                }
+                Spacer(minLength: 0)
             }
-            if let advice = advice(for: re) {
-                Text(adviceText(advice))
-                    .font(Glass.body(11, .semibold))
-                    .foregroundStyle(Glass.good)
-                    .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Glass.good.opacity(0.14), in: Capsule())
-            }
+            .padding(.horizontal, 14).padding(.vertical, 12)
+            .glassRow()
         }
-        .padding(.vertical, 3)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func dashedButton(_ title: String, small: Bool = false,
+                              _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: "plus")
+                Text(title)
+            }
+            .font(Glass.body(small ? 13 : 15, .semibold))
+            .foregroundStyle(Glass.ink.opacity(0.7))
+            .frame(maxWidth: .infinity)
+            .frame(height: small ? 44 : 52)
+            .background(RoundedRectangle(cornerRadius: 15, style: .continuous).fill(Color.white.opacity(0.05)))
+            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.20), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])))
+        }
+        .buttonStyle(.plain)
     }
 
     private func advice(for re: RoutineExercise) -> GymMath.ProgressionAdvice? {

@@ -273,7 +273,7 @@ struct GlassPanel<Content: View>: View {
 struct GlassIconButton: View {
     var systemName: String
     var tint: Color? = nil
-    var action: () -> Void
+    var action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
@@ -305,7 +305,7 @@ struct GlassPrimaryButton: View {
     var fill: Color = Glass.coral
     var onInk: Color = Glass.onCoral
     var height: CGFloat = 52
-    var action: () -> Void
+    var action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
@@ -348,7 +348,7 @@ struct GlassChip: View {
     var label: String
     var selected: Bool
     var tint: Color = Glass.coral
-    var action: () -> Void
+    var action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
