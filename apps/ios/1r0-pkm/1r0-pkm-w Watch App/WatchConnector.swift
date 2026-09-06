@@ -1,3 +1,10 @@
+//
+//  WatchConnector.swift
+//  1r0-pkm-w Watch App
+//
+//  Created by 1r0n51uv on 05/09/26.
+//
+
 import Foundation
 import WatchConnectivity
 

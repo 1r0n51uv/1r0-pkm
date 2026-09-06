@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct _r0_pkmApp: App {
+    // Activate WatchConnectivity at launch, not lazily on first view render —
+    // "sessione mai attivata" è il fallimento più comune di questo spike (issue #1).
+    @StateObject private var connector = PhoneConnector.shared
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(connector)
         }
     }
 }
