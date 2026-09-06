@@ -57,7 +57,16 @@ verrà introdotta quando si implementa il primo modulo:
 
 ## Stato
 
-Toolchain validata (spike #1, #2, #6). Prossimo: implementazione del
-modulo `1r0-gym` — schema in `supabase/migrations/0001_1r0-gym_schema.sql`,
-tipi di riferimento in `packages/shared/src/types/1r0-gym.ts` (non
-importabili da Swift ma utili come contratto dei nomi). Vedi ADR-0021.
+Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
+`feat/1r0-gym-*`):
+
+- `Modules/1r0-gym/Models/` — `Exercise`, `Routine` (SwiftData). `WorkoutSession`,
+  `SetLog`, `RoutineDay`, `RoutineExercise` ancora da modellare in codice.
+- `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync` (pull + flush outbox,
+  ADR-0006). Retry con backoff / BackgroundTasks: da fare.
+- `Modules/1r0-gym/Views/` — `GlassTheme` (linguaggio Glass Dark, ADR-0023),
+  `ExerciseListView` + `AddExerciseView`, `RoutineListView` + `AddRoutineView`.
+- Shell: `ContentView` = TabView (Schede | Catalogo).
+
+Schema: `supabase/migrations/0001_1r0-gym_schema.sql`; contratto nomi in
+`packages/shared/src/types/1r0-gym.ts`. Vedi ADR-0021.
