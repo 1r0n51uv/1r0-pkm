@@ -2,8 +2,10 @@
 //  WatchConnector.swift
 //  1r0-pkm-w Watch App
 //
-//  Controparte watchOS di PhoneConnector. Trasporto validato (spike #1/#6);
-//  il log sessione reale da Watch (ADR-0016) si costruirà su questo.
+//  Trasporto verso l'iPhone (ADR-0016: il Watch non parla mai col backend,
+//  sincronizza solo via WatchConnectivity). Le mutazioni di sessione vanno
+//  con `transferUserInfo` — coda FIFO, consegnata quando l'iPhone è
+//  raggiungibile (resilienza se si esce dal BT range).
 //
 
 import Foundation
@@ -13,6 +15,8 @@ final class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = WatchConnector()
 
     @Published private(set) var isActivated = false
+    /// numero di mutazioni ancora in coda verso l'iPhone
+    @Published private(set) var pendingTransfers = 0
 
     private override init() {
         super.init()
@@ -21,14 +25,37 @@ final class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
         WCSession.default.activate()
     }
 
-    /// Invia un messaggio all'iPhone se raggiungibile (per il log sessione).
-    func send(_ payload: [String: Any]) {
+    /// Invia una mutazione di sessione all'iPhone. Se raggiungibile va subito
+    /// con `sendMessage`; altrimenti (o su errore) `transferUserInfo` — coda
+    /// FIFO consegnata quando l'iPhone torna attivo.
+    func enqueue(_ payload: [String: Any]) {
         let s = WCSession.default
-        guard s.activationState == .activated, s.isReachable else { return }
-        s.sendMessage(payload, replyHandler: nil, errorHandler: nil)
+        guard s.activationState == .activated else { return }
+        if s.isReachable {
+            s.sendMessage(payload, replyHandler: nil) { [weak self] _ in
+                s.transferUserInfo(payload)
+                self?.refreshPending()
+            }
+        } else {
+            s.transferUserInfo(payload)
+        }
+        refreshPending()
     }
 
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        DispatchQueue.main.async { self.isActivated = (activationState == .activated && error == nil) }
+    private func refreshPending() {
+        DispatchQueue.main.async {
+            self.pendingTransfers = WCSession.default.outstandingUserInfoTransfers.count
+        }
+    }
+
+    func session(_ s: WCSession, activationDidCompleteWith state: WCSessionActivationState, error: Error?) {
+        DispatchQueue.main.async {
+            self.isActivated = (state == .activated && error == nil)
+            self.pendingTransfers = s.outstandingUserInfoTransfers.count
+        }
+    }
+
+    func session(_ s: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
+        DispatchQueue.main.async { self.pendingTransfers = s.outstandingUserInfoTransfers.count }
     }
 }

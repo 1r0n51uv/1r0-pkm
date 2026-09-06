@@ -99,6 +99,56 @@ final class GymMathTests: XCTestCase {
         XCTAssertLessThan(ramp[0].load.achievable, ramp[2].load.achievable)
     }
 
+    // MARK: - streak / costanza (ADR-0016)
+
+    private func day(_ s: String, _ cal: Calendar) -> Date {
+        let f = DateFormatter(); f.calendar = cal; f.timeZone = cal.timeZone
+        f.dateFormat = "yyyy-MM-dd"
+        return f.date(from: s)!
+    }
+
+    func testStreak_threeConsecutiveDaysEndingToday() {
+        var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+        let today = day("2026-09-06", cal)
+        let dates = [day("2026-09-06", cal), day("2026-09-05", cal), day("2026-09-04", cal),
+                     day("2026-09-01", cal)]  // buco: non conta
+        XCTAssertEqual(GymMath.currentStreakDays(completedDates: dates, asOf: today, calendar: cal), 3)
+    }
+
+    func testStreak_countsFromYesterdayIfNoWorkoutToday() {
+        var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+        let today = day("2026-09-06", cal)
+        let dates = [day("2026-09-05", cal), day("2026-09-04", cal)]
+        XCTAssertEqual(GymMath.currentStreakDays(completedDates: dates, asOf: today, calendar: cal), 2)
+    }
+
+    func testStreak_brokenIfLastWorkoutOlderThanYesterday() {
+        var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+        let today = day("2026-09-06", cal)
+        let dates = [day("2026-09-03", cal), day("2026-09-02", cal)]
+        XCTAssertEqual(GymMath.currentStreakDays(completedDates: dates, asOf: today, calendar: cal), 0)
+    }
+
+    func testStreak_multipleSessionsSameDayCountOnce() {
+        var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+        let today = day("2026-09-06", cal)
+        let dates = [day("2026-09-06", cal), day("2026-09-06", cal), day("2026-09-05", cal)]
+        XCTAssertEqual(GymMath.currentStreakDays(completedDates: dates, asOf: today, calendar: cal), 2)
+    }
+
+    func testStreak_emptyIsZero() {
+        XCTAssertEqual(GymMath.currentStreakDays(completedDates: []), 0)
+    }
+
+    func testWorkoutsThisWeek() {
+        var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+        cal.firstWeekday = 2  // lunedì
+        let now = day("2026-09-06", cal)  // domenica
+        let dates = [day("2026-09-06", cal), day("2026-09-02", cal),  // stessa settimana (lun-dom)
+                     day("2026-08-30", cal)]                          // settimana prima
+        XCTAssertEqual(GymMath.workoutsThisWeek(completedDates: dates, asOf: now, calendar: cal), 2)
+    }
+
     // MARK: - trend peso corporeo (ADR-0012)
 
     func testWeightTrend_lossOverTwoWeeks() {

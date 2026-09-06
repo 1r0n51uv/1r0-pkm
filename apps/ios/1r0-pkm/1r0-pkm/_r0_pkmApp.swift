@@ -9,9 +9,10 @@ import SwiftData
 @main
 struct _r0_pkmApp: App {
     let container: ModelContainer
+    @State private var watchBridge: WatchSyncBridge?
 
     init() {
-        _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity per dopo
+        _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity
 
         let reset = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
         do {
@@ -30,6 +31,12 @@ struct _r0_pkmApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .task {
+                    // instrada le mutazioni di sessione dal Watch a SwiftData + outbox
+                    if watchBridge == nil {
+                        watchBridge = WatchSyncBridge(context: container.mainContext)
+                    }
+                }
         }
         .modelContainer(container)
     }

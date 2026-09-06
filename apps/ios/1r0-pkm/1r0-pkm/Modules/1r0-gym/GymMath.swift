@@ -138,6 +138,41 @@ enum GymMath {
         return .repeatSame
     }
 
+    // MARK: - Streak / costanza (ADR-0016)
+
+    /// Giorni consecutivi (di calendario) con almeno una sessione completata,
+    /// che terminano oggi o ieri. `asOf` è "oggi". Calendario e fuso locali.
+    static func currentStreakDays(
+        completedDates dates: [Date],
+        asOf now: Date = .now,
+        calendar cal: Calendar = .current
+    ) -> Int {
+        guard !dates.isEmpty else { return 0 }
+        let days = Set(dates.map { cal.startOfDay(for: $0) })
+        let today = cal.startOfDay(for: now)
+        guard let yesterday = cal.date(byAdding: .day, value: -1, to: today) else { return 0 }
+        let start: Date? = days.contains(today) ? today
+            : (days.contains(yesterday) ? yesterday : nil)
+        guard var cursor = start else { return 0 }
+        var count = 0
+        while days.contains(cursor) {
+            count += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = prev
+        }
+        return count
+    }
+
+    /// Sessioni completate nella settimana corrente (`asOf`).
+    static func workoutsThisWeek(
+        completedDates dates: [Date],
+        asOf now: Date = .now,
+        calendar cal: Calendar = .current
+    ) -> Int {
+        guard let week = cal.dateInterval(of: .weekOfYear, for: now) else { return 0 }
+        return dates.filter { week.contains($0) }.count
+    }
+
     // MARK: - Andamento peso corporeo (ADR-0012)
 
     /// Trend su punti (data, peso). Serve almeno un giorno di separazione fra
