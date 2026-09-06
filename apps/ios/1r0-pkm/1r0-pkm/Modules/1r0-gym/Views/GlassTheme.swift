@@ -153,7 +153,7 @@ struct GlassBackground: View {
                     RadialGradient(
                         gradient: Gradient(stops: [
                             .init(color: b.color, location: 0.0),
-                            .init(color: b.color.opacity(0.5), location: 0.4),
+                            .init(color: b.color.opacity(0.45), location: 0.45),
                             .init(color: b.color.opacity(0), location: 1.0),
                         ]),
                         center: UnitPoint(x: b.x, y: b.y),
@@ -162,7 +162,7 @@ struct GlassBackground: View {
                     )
                 }
             }
-            .blur(radius: 12)
+            .blur(radius: 3)
         }
         .ignoresSafeArea()
     }
@@ -173,24 +173,24 @@ struct GlassBackground: View {
         switch tint {
         case .standard:
             return [
-                Blob(color: Glass.coral.opacity(0.42), x: 0.12, y: -0.04, r: 0.95),
-                Blob(color: Glass.blue.opacity(0.32), x: 1.02, y: 0.14, r: 0.92),
-                Blob(color: Glass.purple.opacity(0.24), x: 0.05, y: 0.86, r: 0.85),
+                Blob(color: Glass.coral.opacity(0.62), x: 0.10, y: -0.06, r: 1.05),
+                Blob(color: Glass.blue.opacity(0.48), x: 1.04, y: 0.12, r: 1.00),
+                Blob(color: Glass.purple.opacity(0.34), x: 0.02, y: 0.88, r: 0.90),
             ]
         case .progress:
             return [
-                Blob(color: Glass.green.opacity(0.38), x: 0.12, y: -0.04, r: 0.95),
-                Blob(color: Glass.blue.opacity(0.26), x: 1.02, y: 0.16, r: 0.90),
+                Blob(color: Glass.green.opacity(0.44), x: 0.10, y: -0.06, r: 1.05),
+                Blob(color: Glass.blue.opacity(0.30), x: 1.04, y: 0.14, r: 0.95),
             ]
         case .warm:
             return [
-                Blob(color: Glass.amber.opacity(0.26), x: 0.88, y: -0.04, r: 0.92),
-                Blob(color: Glass.coral.opacity(0.22), x: 0.02, y: 0.88, r: 0.85),
+                Blob(color: Glass.amber.opacity(0.30), x: 0.90, y: -0.06, r: 1.00),
+                Blob(color: Glass.coral.opacity(0.24), x: 0.00, y: 0.90, r: 0.90),
             ]
         case .cool:
             return [
-                Blob(color: Glass.blue.opacity(0.34), x: 0.88, y: -0.04, r: 0.92),
-                Blob(color: Glass.purple.opacity(0.22), x: -0.02, y: 0.92, r: 0.85),
+                Blob(color: Glass.blue.opacity(0.40), x: 0.90, y: -0.06, r: 1.00),
+                Blob(color: Glass.purple.opacity(0.26), x: -0.04, y: 0.94, r: 0.90),
             ]
         }
     }
@@ -198,51 +198,57 @@ struct GlassBackground: View {
 
 // MARK: - Superfici vetro
 
-/// Vetro coerente: material (blur) + tinta bianca ~5.5% + hairline chiara +
-/// luce speculare in alto. `elevated` aggiunge l'ombra netta delle card.
+/// Vetro allineato ai valori del canvas: tinta bianca + hairline piatta +
+/// riga di luce speculare in alto. Le card (`material`) hanno anche il blur
+/// e l'ombra; le righe restano piatte e uniformi (nessun campionamento del
+/// fondo, così non virano da chiare a nere lungo lo scroll).
 private struct GlassSurface: ViewModifier {
     var corner: CGFloat
-    var elevated: Bool
-    var fillOpacity: Double = 0.055
+    var fillOpacity: Double
+    var borderOpacity: Double
+    var material: Material?
+    var shadow: Bool
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
         return content
             .background {
-                shape.fill(.ultraThinMaterial)
-                    .overlay(shape.fill(Color.white.opacity(fillOpacity)))
-                    // luce speculare in alto (canvas: inset 0 1px 0 rgba(255,255,255,0.08))
-                    .overlay(
-                        shape.fill(
-                            LinearGradient(colors: [.white.opacity(0.10), .white.opacity(0), .white.opacity(0)],
-                                           startPoint: .top, endPoint: .bottom)
-                        )
+                ZStack {
+                    if let material { shape.fill(material) }
+                    shape.fill(Color.white.opacity(fillOpacity))
+                    // canvas: inset 0 1px 0 rgba(255,255,255,0.08)
+                    shape.fill(
+                        LinearGradient(
+                            stops: [.init(color: .white.opacity(0.10), location: 0),
+                                    .init(color: .white.opacity(0), location: 0.12),
+                                    .init(color: .white.opacity(0), location: 1)],
+                            startPoint: .top, endPoint: .bottom)
                     )
+                }
             }
-            .overlay(
-                shape.strokeBorder(
-                    LinearGradient(colors: [.white.opacity(0.30), .white.opacity(0.12)],
-                                   startPoint: .top, endPoint: .bottom),
-                    lineWidth: 1
-                )
-            )
+            .overlay(shape.strokeBorder(Color.white.opacity(borderOpacity), lineWidth: 1))
             .clipShape(shape)
-            .shadow(color: .black.opacity(elevated ? 0.40 : 0), radius: elevated ? 22 : 0, y: elevated ? 12 : 0)
+            .shadow(color: .black.opacity(shadow ? 0.40 : 0), radius: shadow ? 22 : 0, y: shadow ? 12 : 0)
     }
 }
 
 extension View {
-    /// Card in rilievo (canvas: radius 30, ombra netta).
+    /// Card in rilievo (canvas: radius 30, blur, ombra netta, hairline .14).
     func glassCard(corner: CGFloat = Glass.cardCorner) -> some View {
-        modifier(GlassSurface(corner: corner, elevated: true, fillOpacity: 0.10))
+        modifier(GlassSurface(corner: corner, fillOpacity: 0.05, borderOpacity: 0.14,
+                              material: .ultraThinMaterial, shadow: true))
     }
-    /// Riga/tessera piatta (canvas: radius 18, niente ombra, tinta più bassa).
+    /// Riga/tessera (canvas: radius 18, piatta e uniforme, tinta .06,
+    /// hairline .13). Niente material: sul fondo scuro lo rende opaco, e va
+    /// tenuta uniforme lungo lo scroll.
     func glassRow(corner: CGFloat = Glass.rowCorner) -> some View {
-        modifier(GlassSurface(corner: corner, elevated: false, fillOpacity: 0.08))
+        modifier(GlassSurface(corner: corner, fillOpacity: 0.06, borderOpacity: 0.13,
+                              material: nil, shadow: false))
     }
-    /// Controllo (input, icon button): radius 16, tinta 6/7%.
+    /// Controllo (input, icon button): radius 16, tinta .07, hairline .14.
     func glassControl(corner: CGFloat = Glass.controlCorner) -> some View {
-        modifier(GlassSurface(corner: corner, elevated: false, fillOpacity: 0.09))
+        modifier(GlassSurface(corner: corner, fillOpacity: 0.07, borderOpacity: 0.14,
+                              material: nil, shadow: false))
     }
 }
 
@@ -280,7 +286,7 @@ struct GlassIconButton: View {
                     if let tint {
                         s.fill(tint)
                     } else {
-                        s.fill(.ultraThinMaterial).overlay(s.fill(Color.white.opacity(0.07)))
+                        s.fill(Color.white.opacity(0.08))
                     }
                 }
                 .overlay(
@@ -399,9 +405,9 @@ struct GlassField: View {
         HStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Glass.ink.opacity(0.45))
+                .foregroundStyle(Glass.ink.opacity(0.5))
             TextField("", text: $text,
-                      prompt: Text(placeholder).foregroundColor(Glass.ink.opacity(0.40)))
+                      prompt: Text(placeholder).foregroundColor(Glass.ink.opacity(0.46)))
                 .font(Glass.body(15))
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()

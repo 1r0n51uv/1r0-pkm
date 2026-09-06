@@ -3,9 +3,9 @@
 //  1r0-pkm · Modules/1r0-gym
 //
 //  Catalogo esercizi (ADR-0005) — stile Glass Dark (ADR-0023), layout dal
-//  mockup "GlassExercisePicker": campo di ricerca vetro, chip per gruppo
-//  muscolare, righe compatte con tile icona colorato, CTA import AI a fondo
-//  lista, stato "nessun risultato" dedicato.
+//  mockup "GlassExercisePicker": header inline (niente nav bar iOS), campo
+//  di ricerca vetro, chip per gruppo muscolare, righe compatte con tile
+//  icona colorato, CTA import AI a fondo lista, stato "nessun risultato".
 //
 
 import SwiftUI
@@ -20,6 +20,9 @@ struct ExerciseListView: View {
     @State private var group: String? = nil          // filtro gruppo muscolare
 
     private var pendingCount: Int { exercises.filter { $0.syncedAt == nil }.count }
+    private var isFiltering: Bool {
+        group != nil || !search.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     /// Gruppi muscolari presenti a catalogo, per frequenza, primi 6.
     private var groups: [String] {
@@ -43,11 +46,11 @@ struct ExerciseListView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 18) {
                 header
 
                 if exercises.isEmpty {
-                    emptyState.padding(.top, 80)
+                    emptyState.padding(.top, 72)
                 } else {
                     GlassField(placeholder: "Cerca un esercizio…", text: $search,
                                identifier: "exerciseSearch")
@@ -55,11 +58,13 @@ struct ExerciseListView: View {
                     if !groups.isEmpty { chips }
 
                     if filtered.isEmpty {
-                        noResults.padding(.top, 60)
+                        noResults.padding(.top, 48)
                     } else {
-                        Text("\(filtered.count) eserciz\(filtered.count == 1 ? "io" : "i")")
-                            .font(Glass.body(11)).foregroundStyle(Glass.textFaint)
-                            .padding(.leading, 4)
+                        if isFiltering {
+                            Text("\(filtered.count) risultat\(filtered.count == 1 ? "o" : "i")")
+                                .font(Glass.body(11)).foregroundStyle(Glass.textFaint)
+                                .padding(.leading, 4)
+                        }
                         VStack(spacing: 10) {
                             ForEach(filtered) { row($0) }
                         }
@@ -68,22 +73,12 @@ struct ExerciseListView: View {
                 }
             }
             .padding(.horizontal, 22)
-            .padding(.top, 8)
+            .padding(.top, 20)
             .padding(.bottom, 40)
         }
         .scrollIndicators(.hidden)
         .glassScreen()
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                toolbarButton("square.and.arrow.down") { showImport = true }
-                    .accessibilityIdentifier("importExercise")
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                toolbarButton("plus") { showAdd = true }
-                    .accessibilityIdentifier("addExercise")
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAdd) {
             AddExerciseView()
                 .presentationDetents([.medium, .large])
@@ -100,43 +95,35 @@ struct ExerciseListView: View {
         }
     }
 
-    private func toolbarButton(_ name: String, _ action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: name)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Glass.ink)
-                .frame(width: 34, height: 34)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Glass.hairline))
-        }
-    }
-
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Catalogo")
-                .font(Glass.display(28, .bold)).tracking(-0.5)
-            HStack(spacing: 6) {
-                Text("\(exercises.count) eserciz\(exercises.count == 1 ? "io" : "i")")
-                    .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
-                if pendingCount > 0 {
-                    Circle().fill(Glass.amber).frame(width: 5, height: 5)
-                    Text("\(pendingCount) in coda")
-                        .font(Glass.body(14)).foregroundStyle(Glass.amberText)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Catalogo")
+                    .font(Glass.display(28, .bold)).tracking(-0.5)
+                HStack(spacing: 6) {
+                    Text("\(exercises.count) eserciz\(exercises.count == 1 ? "io" : "i")")
+                        .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
+                    if pendingCount > 0 {
+                        Circle().fill(Glass.amber).frame(width: 5, height: 5)
+                        Text("\(pendingCount) in coda")
+                            .font(Glass.body(14)).foregroundStyle(Glass.amberText)
+                    }
                 }
             }
+            Spacer(minLength: 8)
+            GlassIconButton(systemName: "plus") { showAdd = true }
+                .accessibilityIdentifier("addExercise")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var chips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                GlassChip(label: "Tutti", selected: group == nil,
-                          tint: Glass.coral) { group = nil }
+                GlassChip(label: "Tutti", selected: group == nil) { group = nil }
                 ForEach(groups, id: \.self) { g in
-                    let (c, _) = Glass.muscleHues([g])
-                    GlassChip(label: g.capitalized, selected: group == g,
-                              tint: c) { group = (group == g ? nil : g) }
+                    GlassChip(label: g.capitalized, selected: group == g) {
+                        group = (group == g ? nil : g)
+                    }
                 }
             }
             .padding(.horizontal, 2)
@@ -152,7 +139,7 @@ struct ExerciseListView: View {
                     .lineLimit(1)
                 Text(subtitle(ex))
                     .font(Glass.body(12))
-                    .foregroundStyle(Glass.textTertiary)
+                    .foregroundStyle(Glass.ink.opacity(0.45))
                     .lineLimit(1)
             }
             Spacer(minLength: 4)
@@ -209,9 +196,10 @@ struct ExerciseListView: View {
             .frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.white.opacity(0.05)))
             .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(Glass.hairline, style: StrokeStyle(lineWidth: 1, dash: [5, 4])))
+                .strokeBorder(Color.white.opacity(0.18), style: StrokeStyle(lineWidth: 1, dash: [5, 4])))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("importExercise")
         .padding(.top, 6)
     }
 
@@ -257,6 +245,7 @@ struct ExerciseListView: View {
                 Button("Importa dal catalogo") { showImport = true }
                     .font(Glass.body(13, .semibold))
                     .foregroundStyle(Glass.amberText)
+                    .accessibilityIdentifier("importExercise")
             }
         }
     }
