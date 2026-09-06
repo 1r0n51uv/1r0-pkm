@@ -1,5 +1,5 @@
 -- Modulo 1r0-gym: schema iniziale. Vedi docs/glossary.md per i termini
--- e docs/adr/0022-backend-custom-postgres-api.md per le decisioni su
+-- e docs/adr/0022-custom-backend-node-fastify.md per le decisioni su
 -- backend/autorizzazione (niente Supabase, niente RLS: l'autorizzazione
 -- per user_id è applicata dal servizio API, non dal database).
 

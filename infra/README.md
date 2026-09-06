@@ -1,63 +1,72 @@
-# Infra — Supabase self-hosted su AWS EC2
+# Infra — backend stack on AWS EC2
 
-Vedi `docs/adr/0009-self-hosted-supabase-aws.md` per il contesto/decisione.
+Custom backend per `docs/adr/0022-custom-backend-node-fastify.md` (superseded
+Supabase; Postgres on EC2 from ADR-0009 still stands). One `docker compose`
+stack: **Postgres + Fastify API (`apps/api`) + Caddy** reverse proxy.
 
-## Panoramica
+This is spike #2 (issue #2): stand the stack up on an EC2 box and prove a
+client can reach it, authenticate, and read/write a row.
 
-- Istanza EC2 `t3.small`/`t4g.small` (2GB RAM), Ubuntu LTS.
-- Docker Compose ufficiale Supabase (`supabase/docker`, clonato sull'istanza
-  — non duplicato in questo repo per non disallinearsi dagli aggiornamenti
-  upstream).
-- Caddy come reverse proxy davanti allo stack, per HTTPS automatico sul
-  sottodominio scelto (es. `api.<tuodominio>`).
-- Nessun backup automatico per l'MVP (rischio accettato, vedi ADR-0009).
+## Stack
 
-## Setup (da eseguire sull'istanza EC2)
+| service | image / build | role |
+|---|---|---|
+| `db` | `postgres:16-alpine` | the only datastore. `supabase/migrations/*.sql` mounted into `/docker-entrypoint-initdb.d`, applied in order on first init. |
+| `api` | build `../apps/api` | Fastify, talks to `db` directly, static API-key auth, no RLS. Not published — only Caddy reaches it. |
+| `caddy` | `caddy:2-alpine` | ports 80/443. Plain HTTP by IP (`API_DOMAIN=:80`) or automatic HTTPS once `API_DOMAIN` is a real hostname. |
+
+Volumes: `pgdata` (Postgres), `caddy_data` + `caddy_config` (certs/state).
+
+## Deploy on EC2
 
 ```bash
-# 1. Provisioning istanza (fuori scope di questo repo: crea la EC2,
-#    apri solo le porte 22/80/443 nel security group, associa un Elastic IP)
+# 1. Provision (outside this repo): an EC2 instance (t3.small / t4g.small,
+#    2GB RAM, Ubuntu LTS), Elastic IP, security group opening 22/80/443 only.
+#    Install Docker + the compose plugin.
 
-# 2. Sull'istanza:
-git clone --depth 1 https://github.com/supabase/supabase
-cd supabase/docker
+# 2. On the instance:
+git clone <this repo> && cd 1r0-pkm/infra
 cp .env.example .env
-# genera secret forti per POSTGRES_PASSWORD, JWT_SECRET, ANON_KEY, SERVICE_ROLE_KEY
-# (vedi supabase/docker/README upstream per come generarli)
-docker compose up -d
-
-# 3. Applica lo schema di questo repo
-#    dall'istanza, o da locale puntando all'host remoto:
-psql "postgresql://postgres:<password>@<host>:5432/postgres" \
-  -f supabase/migrations/0001_1r0-gym_schema.sql
+#    edit .env: strong POSTGRES_PASSWORD, API_KEY (openssl rand -hex 32),
+#    ANTHROPIC_API_KEY if you want the AI routes, and API_DOMAIN
+#    (leave :80 for now, or set api.<yourdomain> after pointing DNS here)
+docker compose up -d --build
+docker compose ps          # all healthy?
+docker compose logs -f api
 ```
 
-## Reverse proxy (Caddy)
+The schema is applied automatically the first time `db` starts (empty
+volume). To re-apply after changing migrations, recreate the volume:
+`docker compose down -v && docker compose up -d` (destroys data).
 
-`Caddyfile` di esempio da mettere sull'istanza (fuori da questo repo, o in
-`infra/Caddyfile` — vedi file accanto):
+## Verify (spike #2 success criterion)
 
-```
-api.<tuodominio> {
-  reverse_proxy localhost:8000
-}
-```
-
-Caddy gestisce automaticamente il certificato Let's Encrypt al primo avvio.
-
-## Deploy della Edge Function
-
-`supabase/functions/ai-import-exercise/` va deployata con la Supabase CLI
-puntando all'istanza self-hosted:
+From your machine, against the EC2 public IP (or the domain):
 
 ```bash
-supabase functions deploy ai-import-exercise --project-ref <non applicabile self-hosted>
-# per self-hosted: seguire la procedura "self-hosted functions" della doc
-# Supabase (Docker Compose include già il container functions/edge-runtime)
+BASE=http://<ec2-ip>        # or https://api.<yourdomain>
+KEY=<the API_KEY from .env>
+
+curl -s $BASE/health
+# -> {"status":"ok","db":true}
+
+curl -s -X POST $BASE/v1/profile -H "Authorization: Bearer $KEY"
+# -> 201 {"id":"...","created_at":"..."}    (creates the single-user profile)
+
+curl -s $BASE/v1/profile -H "Authorization: Bearer $KEY"
+# -> 200 {"id":"...","created_at":"..."}    (reads it back)
+
+curl -s -o /dev/null -w '%{http_code}\n' $BASE/v1/profile
+# -> 401    (no bearer token)
 ```
 
-## Non ancora fatto
+Health OK + an authed write + read-back + a 401 without the key = spike #2
+done. Tick issue #2.
 
-- Provisioning EC2 automatizzato (Terraform/CDK) — per ora manuale.
-- Backup (vedi ADR-0009: rimandato consapevolmente).
-- Monitoring/alerting sull'istanza.
+## Not done yet
+
+- Provisioning automation (Terraform/CDK) — manual for now.
+- Backups (ADR-0009: deferred deliberately). Simplest later: `pg_dump` to S3 on a cron.
+- Monitoring/alerting on the instance.
+- `packages/shared/src/supabase/` and several ADRs still say "Supabase" in
+  prose — historical; ADR-0022 is the correction of record.

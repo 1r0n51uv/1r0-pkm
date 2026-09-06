@@ -9,7 +9,8 @@ moduli in futuro. Ogni modulo vive come sezione dentro un'unica app (vedi
 **Modulo in sviluppo ora: `1r0-gym`** (implementazione) **e `1r0-diet`**
 (domain-modeling completato, implementazione non ancora iniziata).
 Prodotto iOS-first nativo (Swift/SwiftUI), con companion Apple Watch e
-integrazione HealthKit. Backend Supabase self-hosted su AWS EC2.
+integrazione HealthKit. Backend REST custom (Node.js/Fastify + Postgres)
+self-hosted su AWS EC2 — vedi ADR-0022.
 
 ## Decisioni di architettura
 
@@ -31,15 +32,15 @@ Tutte le scelte (e le alternative scartate) sono documentate come ADR in
 
 ```
 apps/
-  ios/       Progetto Xcode Swift/SwiftUI (iOS + Watch) — non ancora creato, vedi apps/ios/README.md
+  ios/       Progetto Xcode Swift/SwiftUI (iOS + Watch), vedi apps/ios/README.md
   web/       Next.js — dashboard secondaria (sola lettura per ora)
+  api/       Backend REST custom (Node.js + Fastify), vedi ADR-0022 e apps/api/README.md
 packages/
-  shared/    tipi TS + client Supabase, usati solo da apps/web e supabase/functions
+  shared/    tipi TS + client REST generico, usati solo da apps/web
 infra/
-  Supabase self-hosted su AWS EC2 (Docker Compose + Caddy), vedi infra/README.md
+  docker-compose: Postgres + apps/api + Caddy, su AWS EC2 — vedi infra/README.md
 supabase/
-  migrations/  schema SQL + RLS
-  functions/   Edge Functions (es. import esercizi via Claude)
+  migrations/  schema SQL (fonte di verità, applicato con psql — ADR-0022)
 docs/
   adr/, glossary.md
 ```
@@ -51,11 +52,12 @@ Watch), un'istanza AWS EC2 per il backend (vedi `infra/README.md`).
 
 ```bash
 # backend (una tantum, sull'istanza EC2)
-# vedi infra/README.md per il setup completo di Supabase self-hosted
+# cd infra && cp .env.example .env && docker compose up -d --build
+# vedi infra/README.md
 
 # web
 pnpm install
-cp apps/web/.env.example apps/web/.env.local   # da creare: SUPABASE_URL, SUPABASE_ANON_KEY
+cp apps/web/.env.example apps/web/.env.local   # da creare: API_BASE_URL, API_KEY
 pnpm --filter @1r0-pkm/web dev
 
 # iOS/Watch: da fare su macOS/Xcode, vedi apps/ios/README.md

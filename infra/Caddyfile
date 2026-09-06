@@ -1,0 +1,9 @@
+# API_DOMAIN comes from the environment (see .env / docker-compose.yml):
+#   :80                -> plain HTTP on port 80, reachable by the EC2 public IP
+#                         immediately, no DNS needed (fine for the spike)
+#   api.example.com    -> Caddy gets a Let's Encrypt cert automatically once
+#                         an A record points at this host
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy api:8080
+}
