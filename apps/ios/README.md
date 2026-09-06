@@ -4,9 +4,11 @@ Vedi `docs/adr/0010-swift-native-ios-watch.md`.
 
 Il progetto Xcode **esiste** ora — creato per lo spike #1 (Watch↔iPhone):
 `apps/ios/1r0-pkm/1r0-pkm.xcodeproj`, con i target `1r0-pkm` (app iOS),
-`1r0-pkm-watch` (Watch App), `1r0-pkmTests`, `1r0-pkmUITests`. Bundle id
-prefix `1r0n51uv.1r0-pkm`. Il `.xcodeproj` è binario/generato da Xcode: va
-modificato lì, non a mano da qui.
+`1r0-pkm-w Watch App` (app watchOS, companion `1r0n51uv.1r0-pkm`) e i
+rispettivi target di test. Bundle id prefix `1r0n51uv.1r0-pkm`. Il
+`.xcodeproj` è binario/generato da Xcode: va modificato lì, non a mano da
+qui. Lo spike #1 è implementato in questi target — vedi
+`apps/ios/spike-watch-hello-world/README.md`.
 
 ## Struttura cartelle attesa
 

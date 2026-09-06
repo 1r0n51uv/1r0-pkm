@@ -9,3 +9,10 @@ dist/
 ios/Pods/
 ios/build/
 .DS_Store
+
+# Xcode (per-user state; shared project files are tracked)
+xcuserdata/
+*.xcuserstate
+DerivedData/
+*.xcscmblueprint
+*.xccheckout
