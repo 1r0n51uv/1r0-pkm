@@ -60,13 +60,19 @@ verrà introdotta quando si implementa il primo modulo:
 Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 `feat/1r0-gym-*`):
 
-- `Modules/1r0-gym/Models/` — `Exercise`, `Routine` (SwiftData). `WorkoutSession`,
-  `SetLog`, `RoutineDay`, `RoutineExercise` ancora da modellare in codice.
-- `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync` (pull + flush outbox,
-  ADR-0006). Retry con backoff / BackgroundTasks: da fare.
-- `Modules/1r0-gym/Views/` — `GlassTheme` (linguaggio Glass Dark, ADR-0023),
-  `ExerciseListView` + `AddExerciseView`, `RoutineListView` + `AddRoutineView`.
-- Shell: `ContentView` = TabView (Schede | Catalogo).
+- `Modules/1r0-gym/Models/` — `Exercise`, `Routine`, `WorkoutSession`,
+  `SetLogEntry` (SwiftData). `RoutineDay`, `RoutineExercise`,
+  `SupersetGroup` ancora da modellare in codice.
+- `Modules/1r0-gym/GymMath.swift` — regole pure (Epley 1RM, volume),
+  unit test in `1r0-pkmTests/GymMathTests`.
+- `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
+  `exercise.create`, `routine.create`, `session.create`, `session.update`,
+  `setlog.create`. Retry con backoff / BackgroundTasks: da fare.
+- `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
+  `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
+  `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
+  1RM stimato, timer riposo visivo).
+- Shell: `ContentView` = TabView (Sessione | Schede | Catalogo).
 
 Schema: `supabase/migrations/0001_1r0-gym_schema.sql`; contratto nomi in
 `packages/shared/src/types/1r0-gym.ts`. Vedi ADR-0021.
