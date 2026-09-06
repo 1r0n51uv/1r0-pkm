@@ -38,6 +38,7 @@ struct WatchRootView: View {
 
 struct WatchLiveView: View {
     @EnvironmentObject private var model: WatchSessionModel
+    @EnvironmentObject private var workout: WatchWorkoutSession
     @State private var showLog = false
     @State private var confirmCancel = false
 
@@ -54,6 +55,18 @@ struct WatchLiveView: View {
                                 .font(.caption2).foregroundStyle(.secondary)
                         }
                     }
+                }
+                if workout.isRunning {
+                    HStack(spacing: 14) {
+                        Label(workout.heartRate > 0 ? "\(Int(workout.heartRate))" : "–",
+                              systemImage: "heart.fill")
+                            .foregroundStyle(.pink)
+                        Label("\(Int(workout.activeEnergyKcal)) kcal", systemImage: "flame.fill")
+                            .foregroundStyle(.orange)
+                        Spacer()
+                    }
+                    .font(.system(.caption, design: .rounded)).monospacedDigit()
+                    .accessibilityIdentifier("wMetrics")
                 }
             }
 

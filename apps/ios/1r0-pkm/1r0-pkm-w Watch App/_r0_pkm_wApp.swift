@@ -17,6 +17,8 @@ struct _r0_pkm_w_Watch_AppApp: App {
         WindowGroup {
             WatchRootView()
                 .environmentObject(model)
+                .environmentObject(model.workout)
+                .task { model.primeHealthKit() }
         }
     }
 }

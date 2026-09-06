@@ -17,7 +17,13 @@ final class WatchSessionModel: ObservableObject {
     @Published private(set) var isPaused = false
     @Published private(set) var loggedSets: [(weightKg: Double, reps: Int)] = []
 
+    /// Sessione HealthKit reale (FC + calorie attive dai sensori, ADR-0016).
+    let workout = WatchWorkoutSession()
+
     var isActive: Bool { sessionId != nil }
+
+    /// Da chiamare all'avvio: chiede i permessi HealthKit una volta.
+    func primeHealthKit() { Task { await workout.requestAuthorization() } }
 
     func start() {
         let id = UUID()
@@ -25,6 +31,7 @@ final class WatchSessionModel: ObservableObject {
         startedAt = .now
         isPaused = false
         loggedSets = []
+        workout.start()
         WatchConnector.shared.enqueue([
             "type": "session.start", "id": id.uuidString,
             "startedAt": ISO8601DateFormatter().string(from: startedAt!),
@@ -46,19 +53,26 @@ final class WatchSessionModel: ObservableObject {
     func pause() {
         guard let sid = sessionId, !isPaused else { return }
         isPaused = true
+        workout.pause()
         WatchConnector.shared.enqueue(["type": "session.pause", "id": sid.uuidString])
     }
     func resume() {
         guard let sid = sessionId, isPaused else { return }
         isPaused = false
+        workout.resume()
         WatchConnector.shared.enqueue(["type": "session.resume", "id": sid.uuidString])
     }
 
     func end(cancelled: Bool) {
         guard let sid = sessionId else { return }
+        // se HealthKit stava registrando, il Watch salva lui l'`HKWorkout`
+        // con FC/calorie reali → l'iPhone non deve rifarne uno (ADR-0016).
+        let hkSaved = !cancelled && workout.isRunning
+        workout.end(discard: cancelled)
         WatchConnector.shared.enqueue([
             "type": "session.end", "id": sid.uuidString,
             "status": cancelled ? "cancelled" : "completed",
+            "hkSaved": hkSaved,
         ])
         WKInterfaceDevice.current().play(cancelled ? .failure : .stop)
         sessionId = nil

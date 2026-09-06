@@ -86,6 +86,14 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 - Watch: `WatchSessionModel` + `WatchConnector` (Watch→iPhone via
   WatchConnectivity, ADR-0016); `WatchSyncBridge` lato iPhone instrada gli
   eventi a SwiftData + outbox. UI: `WatchRootView`/`WatchLiveView`.
+  `WatchWorkoutSession` (ADR-0016): durante la sessione avvia un
+  `HKWorkoutSession` reale con `HKLiveWorkoutBuilder` (FC + calorie attive
+  dai sensori, mostrate live al polso); a fine sessione salva l'`HKWorkout`
+  in Salute (annullata → `discardWorkout`, niente scrittura). Se HealthKit è
+  attivo il payload `session.end` porta `hkSaved:true` e l'iPhone non crea un
+  workout duplicato; altrimenti fa da fallback. Entitlement HealthKit +
+  `NSHealth*UsageDescription` + `WKBackgroundModes=workout-processing` sul
+  target Watch.
 - `Modules/1r0-gym/Intents/` — `StartWorkoutIntent` + `GymShortcuts`
   (ADR-0014: "Ehi Siri, inizia allenamento <Giorno>"). Container condiviso
   App/Intent in `GymData`; azione in `GymActions.startWorkout`.
@@ -94,9 +102,10 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   `HKWorkoutBuilder`; legge il peso corporeo più recente per l'andamento nei
   Progressi) + `HealthKitOnboardingView` (spiega i permessi prima di
   richiederli). `LiveSessionView.end()` e `WatchSyncBridge.endSession` salvano
-  in Salute solo le sessioni `completed`, non le `cancelled`. Entitlement
-  `com.apple.developer.healthkit` + chiavi `NSHealth*UsageDescription`.
-  Watch `HKWorkoutSession` + lettura passi/calorie: da fare.
+  in Salute solo le sessioni `completed`, non le `cancelled` (e `endSession`
+  salta la scrittura se il Watch ha già salvato l'`HKWorkout` — `hkSaved`).
+  Entitlement `com.apple.developer.healthkit` + chiavi
+  `NSHealth*UsageDescription` su app iOS e target Watch.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
   `ExerciseListView` (ricerca + badge fonte; riga toccabile →
   `ExerciseDetailView`) / `AddExerciseView` / `ImportExerciseView`

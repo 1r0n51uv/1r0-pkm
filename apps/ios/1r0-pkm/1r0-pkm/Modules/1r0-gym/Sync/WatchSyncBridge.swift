@@ -85,8 +85,10 @@ final class WatchSyncBridge {
         session.endedAt = finish
         session.syncedAt = nil
         enqueue("session.update", ["id": id.uuidString, "status": status.rawValue])
-        // sessioni cancelled escluse da Salute (ADR-0016)
-        if status == .completed {
+        // sessioni cancelled escluse da Salute (ADR-0016). Se il Watch ha già
+        // salvato l'`HKWorkout` (HealthKit attivo al polso), l'iPhone non ne
+        // crea un duplicato — fallback solo se `hkSaved` non è true.
+        if status == .completed, (msg["hkSaved"] as? Bool) != true {
             Task { await HealthKitService.shared.saveCompletedWorkout(start: start, end: finish, activeEnergyKcal: nil) }
         }
     }

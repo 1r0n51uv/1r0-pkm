@@ -55,6 +55,7 @@
 		A36440B5B7CFFF5C581D0867 /* ProgressTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8540D8942B0227609A4C51 /* ProgressTabView.swift */; };
 		ACEF43729CB557894293499D /* Manrope-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */; };
 		B76D4F869846ED0E1E572011 /* WatchSessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */; };
+		B270E455CC29400EAC899F8C /* WatchWorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */; };
 		BA9F44C2952DC8F42C9B7713 /* GymShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D064219A6E4B05B6109F826 /* GymShortcuts.swift */; };
 		BDD148989ABE69AC75B05921 /* GymMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */; };
 		C5624F20BC650CE0BA3F80D6 /* WatchSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1150416D9C7B193D0F2B6C0C /* WatchSyncBridge.swift */; };
@@ -202,6 +203,7 @@
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfigView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/PlateConfigView.swift"; sourceTree = SOURCE_ROOT; };
 		BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSessionModel.swift; path = "1r0-pkm-w Watch App/WatchSessionModel.swift"; sourceTree = SOURCE_ROOT; };
+		61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchWorkoutSession.swift; path = "1r0-pkm-w Watch App/WatchWorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
 		C0B14280B27D1D098F4D875E /* StartWorkoutIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StartWorkoutIntent.swift; path = "1r0-pkm/Modules/1r0-gym/Intents/StartWorkoutIntent.swift"; sourceTree = SOURCE_ROOT; };
 		C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitService.swift; path = "1r0-pkm/Modules/1r0-gym/HealthKit/HealthKitService.swift"; sourceTree = SOURCE_ROOT; };
 		D8674562A94FA124E9CEE71D /* PlateConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfig.swift; path = "1r0-pkm/Modules/1r0-gym/Models/PlateConfig.swift"; sourceTree = SOURCE_ROOT; };
@@ -335,6 +337,7 @@
 				421948979EBC11976D54E1D2 /* RoutineDetailView.swift */,
 				A63D43549FE4494E570C5E5F /* AddRoutineExerciseSheet.swift */,
 				BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */,
+				61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */,
 				24654844A0874A09F64936EB /* WatchRootView.swift */,
 				1150416D9C7B193D0F2B6C0C /* WatchSyncBridge.swift */,
 				2DAB4C3A98F838E31AFE4693 /* WatchSyncBridgeTests.swift */,
@@ -623,6 +626,7 @@
 				ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */,
 				31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */,
 				B76D4F869846ED0E1E572011 /* WatchSessionModel.swift in Sources */,
+				B270E455CC29400EAC899F8C /* WatchWorkoutSession.swift in Sources */,
 				F24041909FCA48054D07867F /* WatchRootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -767,6 +771,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "1r0-pkm-w Watch App/_r0_pkm_w.entitlements";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "1r0-pkm legge frequenza cardiaca e calorie durante l'allenamento per mostrartele al polso.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "1r0-pkm salva l'allenamento del Watch in Salute con frequenza cardiaca e calorie.";
+				INFOPLIST_KEY_WKBackgroundModes = "workout-processing";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -796,6 +804,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "1r0-pkm-w Watch App/_r0_pkm_w.entitlements";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "1r0-pkm legge frequenza cardiaca e calorie durante l'allenamento per mostrartele al polso.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "1r0-pkm salva l'allenamento del Watch in Salute con frequenza cardiaca e calorie.";
+				INFOPLIST_KEY_WKBackgroundModes = "workout-processing";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
