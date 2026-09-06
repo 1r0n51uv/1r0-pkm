@@ -60,16 +60,17 @@ verrà introdotta quando si implementa il primo modulo:
 Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 `feat/1r0-gym-*`):
 
-- `Modules/1r0-gym/Models/` — `Exercise`, `Routine`, `WorkoutSession`,
-  `SetLogEntry`, `PlateConfig`, `BodyMeasurement` (SwiftData). `RoutineDay`,
-  `RoutineExercise`, `SupersetGroup` ancora da modellare in codice.
+- `Modules/1r0-gym/Models/` — `Exercise`, `Routine`, `RoutineDay`,
+  `RoutineExercise`, `WorkoutSession`, `SetLogEntry`, `PlateConfig`,
+  `BodyMeasurement` (SwiftData). `SupersetGroup` ancora da modellare.
 - `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
-  calcolatore piastre + warm-up (ADR-0013), trend peso corporeo
-  (ADR-0012). 15 unit test in `1r0-pkmTests/GymMathTests`.
+  calcolatore piastre + warm-up (ADR-0013), trend peso corporeo (ADR-0012),
+  double progression (ADR-0011). 22 unit test in `1r0-pkmTests/GymMathTests`.
 - `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
   `exercise.create`, `routine.create`, `session.create`, `session.update`,
-  `setlog.create`, `plateconfig.put`, `measurement.create`. Retry con
-  backoff / BackgroundTasks: da fare.
+  `setlog.create`, `plateconfig.put`, `measurement.create`,
+  `routineday.create`, `routineexercise.create`. Retry con backoff /
+  BackgroundTasks: da fare.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
   `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
