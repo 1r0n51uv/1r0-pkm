@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
 		ED3C9552304CE45800E8464E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED3C9551304CE45800E8464E /* Assets.xcassets */; };
@@ -22,6 +23,7 @@
 		ED3F6270304CD5D1000F4A2D /* _r0_pkmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F626F304CD5D1000F4A2D /* _r0_pkmTests.swift */; };
 		ED3F627A304CD5D1000F4A2D /* _r0_pkmUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */; };
 		ED3F627C304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */; };
+		F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33394EDB88C37094051E27DE /* PhoneConnector.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +79,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		33394EDB88C37094051E27DE /* PhoneConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhoneConnector.swift; path = "1r0-pkm/PhoneConnector.swift"; sourceTree = SOURCE_ROOT; };
+		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wApp.swift; sourceTree = "<group>"; };
 		ED3C954F304CE45600E8464E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -200,6 +204,8 @@
 				ED3C955D304CE45800E8464E /* 1r0-pkm-w Watch AppTests */,
 				ED3C9567304CE45800E8464E /* 1r0-pkm-w Watch AppUITests */,
 				ED3F625B304CD5CE000F4A2D /* Products */,
+				33394EDB88C37094051E27DE /* PhoneConnector.swift */,
+				B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -506,6 +512,7 @@
 			files = (
 				ED3C9550304CE45600E8464E /* ContentView.swift in Sources */,
 				ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */,
+				31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -532,6 +539,7 @@
 			files = (
 				ED3F6260304CD5CF000F4A2D /* ContentView.swift in Sources */,
 				ED3F625E304CD5CF000F4A2D /* _r0_pkmApp.swift in Sources */,
+				F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,13 +610,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "1r0-pkm-w";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "-r0n51uv.-r0-pkm";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.1r0.pkm;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -631,13 +639,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "1r0-pkm-w";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "-r0n51uv.-r0-pkm";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.1r0.pkm;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -658,7 +666,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm-w-Watch-AppTests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.watchkitapp.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -678,7 +686,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm-w-Watch-AppTests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.watchkitapp.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -698,7 +706,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm-w-Watch-AppUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.watchkitapp.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -717,7 +725,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm-w-Watch-AppUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.watchkitapp.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -870,7 +878,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -908,7 +916,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -930,7 +938,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkmTests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -952,7 +960,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkmTests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -973,7 +981,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkmUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -994,7 +1002,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkmUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -1021,7 +1029,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm-watch";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.legacyextension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1048,7 +1056,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-r0n51uv.-r0-pkm-watch";
+				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.legacyextension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
