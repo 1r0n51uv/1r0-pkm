@@ -67,12 +67,20 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 - `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
   calcolatore piastre + warm-up (ADR-0013), trend peso corporeo (ADR-0012),
   double progression (ADR-0011), streak/costanza (ADR-0016). Unit test in
-  `GymMathTests` (28) + `WatchSyncBridgeTests` (3) + `SiriIntentTests` (3).
+  `GymMathTests` (28) + `WatchSyncBridgeTests` (3) + `SiriIntentTests` (3) +
+  `SyncPolicyTests` (8).
 - `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
   `exercise.create`, `routine.create`, `session.create`, `session.update`,
   `setlog.create`, `plateconfig.put`, `measurement.create`,
-  `routineday.create`, `routineexercise.create`. Retry con backoff /
-  BackgroundTasks: da fare.
+  `routineday.create`, `routineexercise.create`.
+  Retry/backoff (ADR-0006): `SyncPolicy` (backoff esponenziale con tetto 1h,
+  classificazione transient/permanent degli errori HTTP); `flushOutbox`
+  rispetta il backoff, parcheggia le entry "poison" (4xx / troppi tentativi)
+  senza bloccare la coda, `retryFailed` le rimette in coda. `SyncEngine`
+  (`@MainActor`) fa partire il flush quando torna la rete (`NWPathMonitor`),
+  in foreground (scenePhase) e in background (`BGAppRefreshTask`
+  `dev.1r0.pkm.sync`). Banner globale in `ContentView` quando ci sono entry
+  parcheggiate.
 - Watch: `WatchSessionModel` + `WatchConnector` (Watch→iPhone via
   WatchConnectivity, ADR-0016); `WatchSyncBridge` lato iPhone instrada gli
   eventi a SwiftData + outbox. UI: `WatchRootView`/`WatchLiveView`.
