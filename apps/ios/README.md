@@ -76,7 +76,8 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
   1RM stimato, timer riposo visivo), `PlateCalculatorView`/`PlateConfigView`
   (ADR-0013, apribili dalla sessione), `ProgressTabView`/`AddMeasurementView`
-  (ADR-0012: peso + misure a nastro, andamento).
+  (ADR-0012), `RoutineDetailView`/`AddRoutineExerciseSheet` (ADR-0011:
+  giorni/esercizi con target + suggerimento di progressione).
 - Shell: `ContentView` = TabView (Sessione | Schede | Catalogo | Progressi).
 
 Fuori ADR-0013 per ora: demo video esercizio (serve import wger/AI,
