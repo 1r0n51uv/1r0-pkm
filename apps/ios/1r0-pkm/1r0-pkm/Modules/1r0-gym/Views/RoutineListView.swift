@@ -78,7 +78,7 @@ struct RoutineListView: View {
             HStack(alignment: .center, spacing: 12) {
                 RoundedRectangle(cornerRadius: 3)
                     .fill(Glass.phaseColor(r.phaseRaw))
-                    .frame(width: 4, height: 40)
+                    .frame(width: 5, height: 44)
                 VStack(alignment: .leading, spacing: 6) {
                     Text(r.name)
                         .font(Glass.body(18, .semibold))
@@ -86,9 +86,9 @@ struct RoutineListView: View {
                         Text(phase.label.uppercased())
                             .font(Glass.body(11, .bold))
                             .tracking(0.8)
-                            .foregroundStyle(Glass.phaseColor(r.phaseRaw))
+                            .foregroundStyle(Glass.bg)
                             .padding(.horizontal, 9).padding(.vertical, 4)
-                            .background(Glass.phaseColor(r.phaseRaw).opacity(0.14), in: Capsule())
+                            .background(Glass.phaseColor(r.phaseRaw), in: Capsule())
                     } else {
                         Text("nessuna fase")
                             .font(Glass.body(12))

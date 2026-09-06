@@ -75,26 +75,33 @@ struct GlassPanel<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        content
+        let shape = RoundedRectangle(cornerRadius: Glass.corner, style: .continuous)
+        return content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Glass.corner, style: .continuous))
-            .background(
-                // sottile luce dall'alto, così i pannelli non "spariscono" sul dark
-                LinearGradient(
-                    colors: [.white.opacity(0.10), .white.opacity(0.02)],
-                    startPoint: .top, endPoint: .bottom
-                ),
-                in: RoundedRectangle(cornerRadius: Glass.corner, style: .continuous)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Glass.corner, style: .continuous)
-                    .strokeBorder(
-                        LinearGradient(colors: [.white.opacity(0.22), .white.opacity(0.05)],
-                                       startPoint: .top, endPoint: .bottom),
-                        lineWidth: 1
+            .background {
+                // pannello traslucido chiaro sul fondo scuro: forziamo il
+                // material in light così "gela" invece di sparire nel nero,
+                // + una tinta e una luce dall'alto.
+                shape
+                    .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .light)
+                    .opacity(0.34)
+                    .overlay(
+                        shape.fill(
+                            LinearGradient(colors: [.white.opacity(0.12), .white.opacity(0.02)],
+                                           startPoint: .top, endPoint: .bottom)
+                        )
                     )
+            }
+            .overlay(
+                shape.strokeBorder(
+                    LinearGradient(colors: [.white.opacity(0.35), .white.opacity(0.08)],
+                                   startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1
+                )
             )
+            .clipShape(shape)
     }
 }
 
