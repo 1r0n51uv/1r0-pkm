@@ -16,6 +16,10 @@
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>1r0-gym salva ogni allenamento completato in Apple Salute.</string>
 
+	<!-- Scan barcode alimenti (ADR-0018): VisionKit DataScannerViewController. -->
+	<key>NSCameraUsageDescription</key>
+	<string>1r0-diet usa la fotocamera per scansionare il codice a barre dei prodotti alimentari.</string>
+
 	<!-- Sync outbox in background (ADR-0006): BGAppRefreshTask. -->
 	<key>UIBackgroundModes</key>
 	<array>

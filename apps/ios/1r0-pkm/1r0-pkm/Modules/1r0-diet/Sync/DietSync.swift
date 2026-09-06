@@ -57,14 +57,18 @@ enum DietSync {
                     FetchDescriptor<MealEntry>(predicate: #Predicate { $0.id == uuid })
                 ).first
                 let m = existing ?? MealEntry(id: uuid, mealSlot: slot)
+                if existing == nil { context.insert(m) }
                 m.consumedAt = JSONDecoder.iso.date(from: r.consumed_at) ?? m.consumedAt
                 m.mealSlot = slot
                 m.notes = r.notes
                 m.syncedAt = .now
-                // rimpiazza gli item (snapshot dal backend)
-                m.items.forEach { context.delete($0) }
-                m.items = (r.items ?? []).enumerated().map { i, it in
-                    MealEntryItem(
+                // rimpiazza gli item (snapshot dal backend). NB: non
+                // assegnare `m.items = [...]` mentre gli item si auto-
+                // registrano via `meal: m` — SwiftData crasha. Cancella i
+                // vecchi, poi `insert` i nuovi e lascia fare all'inverse rel.
+                for old in m.items { context.delete(old) }
+                for (i, it) in (r.items ?? []).enumerated() {
+                    context.insert(MealEntryItem(
                         meal: m,
                         foodId: it.food_id.flatMap(UUID.init(uuidString:)),
                         foodName: it.food_name ?? "—",
@@ -74,9 +78,8 @@ enum DietSync {
                                        carbsG: num(it.carbs_g) ?? 0,
                                        fatG: num(it.fat_g) ?? 0),
                         orderIndex: it.order_index ?? i
-                    )
+                    ))
                 }
-                if existing == nil { context.insert(m) }
             }
             try context.save()
         } catch { }
@@ -130,6 +133,78 @@ enum DietSync {
         return m
     }
 
+    // MARK: - Ricerca esterna (ADR-0018)
+
+    /// Ricerca testuale su OpenFoodFacts + USDA (via backend). Ritorna
+    /// candidati transitori (non SwiftData): l'utente ne sceglie uno e solo
+    /// allora diventa un `Food` locale (in `materialize`).
+    static func searchRemote(_ query: String) async -> [FoodCandidate] {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        guard q.count >= 2,
+              let enc = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        else { return [] }
+        do {
+            let data = try await ApiClient.shared.get("v1/foods/search?q=\(enc)")
+            return try JSONDecoder.api.decode([FoodCandidate].self, from: data)
+        } catch {
+            return []
+        }
+    }
+
+    /// Lookup barcode: prima la cache backend (`foods`), poi OpenFoodFacts.
+    static func lookupBarcode(_ code: String) async -> FoodCandidate? {
+        let c = code.filter(\.isNumber)
+        guard c.count >= 6 else { return nil }
+        do {
+            let data = try await ApiClient.shared.get("v1/foods/barcode/\(c)")
+            return try JSONDecoder.api.decode(FoodCandidate.self, from: data)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Trasforma un candidato in un `Food` locale (riusa quello già presente
+    /// per stesso barcode o external_id) + accoda `food.create`.
+    @MainActor
+    @discardableResult
+    static func materialize(_ cand: FoodCandidate, in context: ModelContext) -> Food {
+        let bc = cand.barcode, ext = cand.externalId, src = cand.source
+        if let bc, !bc.isEmpty,
+           let hit = try? context.fetch(
+               FetchDescriptor<Food>(predicate: #Predicate { $0.barcode == bc })).first {
+            return hit
+        }
+        if let ext, !ext.isEmpty,
+           let hit = try? context.fetch(FetchDescriptor<Food>(
+               predicate: #Predicate { $0.externalId == ext && $0.source == src })).first {
+            return hit
+        }
+        let f = Food(
+            name: cand.name, source: cand.source, externalId: cand.externalId,
+            barcode: cand.barcode, brand: cand.brand, servingSizeG: cand.servingSizeG,
+            caloriesPer100g: cand.caloriesPer100g,
+            proteinGPer100g: cand.proteinGPer100g,
+            carbsGPer100g: cand.carbsGPer100g,
+            fatGPer100g: cand.fatGPer100g,
+            caffeineMgPer100g: cand.caffeineMgPer100g
+        )
+        context.insert(f)
+        var payload: [String: Any] = [
+            "id": f.id.uuidString, "name": cand.name, "source": cand.source,
+            "caloriesPer100g": cand.caloriesPer100g,
+            "proteinGPer100g": cand.proteinGPer100g,
+            "carbsGPer100g": cand.carbsGPer100g,
+            "fatGPer100g": cand.fatGPer100g,
+        ]
+        if let v = cand.externalId { payload["externalId"] = v }
+        if let v = cand.barcode { payload["barcode"] = v }
+        if let v = cand.brand { payload["brand"] = v }
+        if let v = cand.servingSizeG { payload["servingSizeG"] = v }
+        if let v = cand.caffeineMgPer100g { payload["caffeineMgPer100g"] = v }
+        enqueue("food.create", payload, in: context)
+        return f
+    }
+
     @MainActor
     private static func enqueue(_ kind: String, _ payload: [String: Any], in context: ModelContext) {
         if let data = try? JSONSerialization.data(withJSONObject: payload) {
@@ -141,6 +216,23 @@ enum DietSync {
     }
 
     private static func num(_ v: FoodDTO.Num?) -> Double? { v?.value }
+}
+
+/// Risultato di ricerca esterna (ADR-0018) — transitorio, non SwiftData.
+/// Il backend normalizza OFF/USDA a questa forma (numeri JSON, non stringhe).
+struct FoodCandidate: Decodable, Identifiable, Hashable {
+    var id: String { "\(source)/\(externalId ?? name)" }
+    let name: String
+    let source: String                 // "openfoodfacts" | "usda"
+    let externalId: String?
+    let barcode: String?
+    let brand: String?
+    let servingSizeG: Double?
+    let caloriesPer100g: Double
+    let proteinGPer100g: Double
+    let carbsGPer100g: Double
+    let fatGPer100g: Double
+    let caffeineMgPer100g: Double?
 }
 
 // MARK: - wire

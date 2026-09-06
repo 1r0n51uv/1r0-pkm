@@ -121,17 +121,23 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   stesso `GymData.schema` (container unico, ADR-0008).
 - `Modules/1r0-diet/Sync/DietSync.swift` — `pullFoods` / `pullMealEntries`
   (GET `v1/foods`, `v1/meal-entries`) + azioni `createFood` / `logMeal`.
-  Outbox condiviso: kind `food.create` / `mealentry.create` gestiti in
-  `GymSync.send` (ADR-0006).
+  ADR-0018: `searchRemote(_:)` (GET `v1/foods/search` — OpenFoodFacts + USDA
+  via backend), `lookupBarcode(_:)` (GET `v1/foods/barcode/:code` — cache poi
+  OFF), `materialize(_:)` che trasforma un `FoodCandidate` transitorio in un
+  `Food` locale (riuso per barcode/external_id) + `food.create`. Outbox
+  condiviso: kind `food.create` / `mealentry.create` in `GymSync.send`
+  (ADR-0006).
 - `Modules/1r0-diet/Views/` — `DietTabView` (mockup "GlassDiet", accento
   ambra: anello calorie + barre macro + pasti della giornata),
   `LogFoodView` ("GlassFoodSearch" + card di composizione "GlassMealLog":
-  slot, ricerca alimento, grammi con anteprima macro live), `AddFoodView`
-  (alimento custom). Obiettivo calorico: costante `DietGoal` fissa —
-  `NutritionGoal` append-only/TDEE/fase arriva con ADR-0019.
-- Fuori slice 1: barcode + OpenFoodFacts/USDA (ADR-0018), pianificazione
-  pasti / ricette / lista spesa, tracker acqua/caffeina/integratori,
-  report (ADR-0020), modulo su Watch.
+  slot, ricerca cache+remota con debounce, pulsante scansione, grammi con
+  anteprima macro live), `BarcodeScannerView` (VisionKit
+  `DataScannerViewController`; fallback a codice manuale dove la fotocamera
+  non c'è — es. simulatore; `NSCameraUsageDescription` in Info.plist),
+  `AddFoodView` (alimento custom). Obiettivo calorico: costante `DietGoal`
+  fissa — `NutritionGoal` append-only/TDEE/fase arriva con ADR-0019.
+- Fuori slice 1 / 0018: pianificazione pasti / ricette / lista spesa,
+  tracker acqua/caffeina/integratori, report (ADR-0020), modulo su Watch.
 
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
 route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`

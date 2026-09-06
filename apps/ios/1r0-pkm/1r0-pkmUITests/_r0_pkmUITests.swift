@@ -284,6 +284,31 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "dieta-oggi")
     }
 
+    /// 1r0-diet · ADR-0018: il foglio "Aggiungi alimento" ha ricerca +
+    /// scansione barcode; il pulsante scan apre lo scanner (sul simulatore
+    /// niente fotocamera → inserimento manuale del codice).
+    func testFoodSearchAndBarcodeScan() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+        app.buttons["addFood"].tap()
+
+        XCTAssertTrue(app.textFields["foodSearch"].waitForExistence(timeout: 5),
+                      "Manca il campo di ricerca alimento")
+        XCTAssertTrue(app.buttons["scanBarcode"].exists, "Manca il pulsante scansione barcode")
+        XCTAssertTrue(app.buttons["createFood"].exists, "Manca 'crea alimento personalizzato'")
+
+        app.buttons["scanBarcode"].tap()
+        XCTAssertTrue(app.staticTexts["Scansiona codice"].waitForExistence(timeout: 5))
+        // simulatore: nessuna fotocamera → fallback manuale
+        XCTAssertTrue(app.textFields["manualBarcode"].waitForExistence(timeout: 5),
+                      "Manca l'inserimento manuale del codice quando la fotocamera non c'è")
+        sleep(1); attach(app, "barcode-scan")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()

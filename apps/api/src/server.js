@@ -14,6 +14,7 @@ import wgerSync from "./routes/wger.js";
 import ai from "./routes/ai.js";
 import foods from "./routes/foods.js";
 import meals from "./routes/meals.js";
+import foodSearch from "./routes/foodsearch.js";
 import { pool } from "./db.js";
 
 // Custom REST backend (ADR-0022): single Fastify process, talks straight to
@@ -39,6 +40,7 @@ await app.register(wgerSync);
 await app.register(ai);
 await app.register(foods);
 await app.register(meals);
+await app.register(foodSearch);
 
 const port = Number(process.env.PORT ?? 8080);
 

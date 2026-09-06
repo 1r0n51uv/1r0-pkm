@@ -107,6 +107,24 @@ curl -s -X POST $BASE/v1/meal-entries \
 curl -s $BASE/v1/meal-entries -H "Authorization: Bearer $KEY" | jq '.[0]'
 ```
 
+## Ricerca alimenti — OpenFoodFacts + USDA (ADR-0018)
+
+Il backend fa da proxy alle due fonti e normalizza a un `FoodCandidate`
+transitorio (camelCase, numeri). Non scrive in `foods` finché l'app non
+logga l'alimento (POST /v1/foods). `USDA_API_KEY` nel `.env` (default
+`DEMO_KEY`, throttlato).
+
+```bash
+# ricerca testuale (OFF primario + USDA fallback, deduplicata per nome)
+curl -s "$BASE/v1/foods/search?q=chicken%20breast" -H "Authorization: Bearer $KEY" | jq '.[0]'
+# -> {"name":"...","source":"usda"|"openfoodfacts","caloriesPer100g":...,"barcode":...}
+
+# barcode: prima la cache locale (foods.barcode), poi OpenFoodFacts
+curl -s "$BASE/v1/foods/barcode/3017620422003" -H "Authorization: Bearer $KEY"
+# -> {"name":"Nutella","source":"openfoodfacts","barcode":"3017620422003","caloriesPer100g":539,...}
+# 404 se non trovato; q < 2 char -> []
+```
+
 ## Not done yet
 
 - Provisioning automation (Terraform/CDK) — manual for now.

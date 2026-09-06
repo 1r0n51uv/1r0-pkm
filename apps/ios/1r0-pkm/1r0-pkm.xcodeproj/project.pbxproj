@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5EDB87C294F3AC058F11B139 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */; };
 		28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988633712155B9E1F8B5774C /* AddFoodView.swift */; };
 		FC89C3BE1C1E4342A8001AA8 /* LogFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */; };
 		BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24954145CE3772A2A0BA0C2 /* DietTabView.swift */; };
@@ -128,6 +129,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BarcodeScannerView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/BarcodeScannerView.swift"; sourceTree = SOURCE_ROOT; };
 		988633712155B9E1F8B5774C /* AddFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/AddFoodView.swift"; sourceTree = SOURCE_ROOT; };
 		06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LogFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/LogFoodView.swift"; sourceTree = SOURCE_ROOT; };
 		D24954145CE3772A2A0BA0C2 /* DietTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietTabView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietTabView.swift"; sourceTree = SOURCE_ROOT; };
@@ -242,6 +244,7 @@
 		ED3F6251304CD5CE000F4A2D = {
 			isa = PBXGroup;
 			children = (
+				EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */,
 				988633712155B9E1F8B5774C /* AddFoodView.swift */,
 				06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */,
 				D24954145CE3772A2A0BA0C2 /* DietTabView.swift */,
@@ -600,6 +603,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5EDB87C294F3AC058F11B139 /* BarcodeScannerView.swift in Sources */,
 				28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */,
 				FC89C3BE1C1E4342A8001AA8 /* LogFoodView.swift in Sources */,
 				BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */,
