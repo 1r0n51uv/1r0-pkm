@@ -113,6 +113,70 @@ final class GymMathTests: XCTestCase {
         XCTAssertEqual(tr.perWeekKg, -1, accuracy: 0.0001)   // -2 kg in 2 settimane
     }
 
+    // MARK: - double progression (ADR-0011)
+
+    func testRepRange_parsing() {
+        XCTAssertEqual(GymMath.RepRange("8-12"), GymMath.RepRange("8-12"))
+        XCTAssertEqual(GymMath.RepRange("8-12")?.min, 8)
+        XCTAssertEqual(GymMath.RepRange("8-12")?.max, 12)
+        XCTAssertEqual(GymMath.RepRange("5")?.min, 5)
+        XCTAssertEqual(GymMath.RepRange("5")?.max, 5)
+        XCTAssertNil(GymMath.RepRange("12-8"))   // invertito
+        XCTAssertNil(GymMath.RepRange("abc"))
+        XCTAssertNil(GymMath.RepRange("0-5"))
+    }
+
+    func testDoubleProgression_allAtTop_addsWeight() {
+        let last: [(weightKg: Double, reps: Int)] = [(60, 12), (60, 12), (60, 12)]
+        XCTAssertEqual(
+            GymMath.doubleProgression(targetSets: 3, repRange: GymMath.RepRange("8-12")!,
+                                      incrementKg: 2.5, lastSets: last),
+            .addWeight(toKg: 62.5)
+        )
+    }
+
+    func testDoubleProgression_completedNotAtTop_addsReps() {
+        let last: [(weightKg: Double, reps: Int)] = [(60, 10), (60, 9), (60, 8)]
+        XCTAssertEqual(
+            GymMath.doubleProgression(targetSets: 3, repRange: GymMath.RepRange("8-12")!,
+                                      incrementKg: 2.5, lastSets: last),
+            .addReps
+        )
+    }
+
+    func testDoubleProgression_missedRange_repeats() {
+        let last: [(weightKg: Double, reps: Int)] = [(60, 8), (60, 6), (60, 5)]
+        XCTAssertEqual(
+            GymMath.doubleProgression(targetSets: 3, repRange: GymMath.RepRange("8-12")!,
+                                      incrementKg: 2.5, lastSets: last),
+            .repeatSame
+        )
+    }
+
+    func testDoubleProgression_fewerSetsThanTarget_repeats() {
+        let last: [(weightKg: Double, reps: Int)] = [(60, 12), (60, 12)]
+        XCTAssertEqual(
+            GymMath.doubleProgression(targetSets: 3, repRange: GymMath.RepRange("8-12")!,
+                                      incrementKg: 2.5, lastSets: last),
+            .repeatSame
+        )
+    }
+
+    func testDoubleProgression_ignoresWarmupSets() {
+        // 2 riscaldamenti + 3 serie di lavoro a 60kg tutte a 12 → +peso
+        let last: [(weightKg: Double, reps: Int)] = [(20, 10), (40, 8), (60, 12), (60, 12), (60, 12)]
+        XCTAssertEqual(
+            GymMath.doubleProgression(targetSets: 3, repRange: GymMath.RepRange("8-12")!,
+                                      incrementKg: 2.5, lastSets: last),
+            .addWeight(toKg: 62.5)
+        )
+    }
+
+    func testDoubleProgression_noData_isNil() {
+        XCTAssertNil(GymMath.doubleProgression(targetSets: 3, repRange: GymMath.RepRange("8-12")!,
+                                               incrementKg: 2.5, lastSets: []))
+    }
+
     func testWeightTrend_orderIndependentAndGuards() {
         let day = 86_400.0
         let t0 = Date(timeIntervalSince1970: 1_000_000)

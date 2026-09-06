@@ -31,6 +31,9 @@ final class Routine {
     var createdAt: Date
     var syncedAt: Date?
 
+    @Relationship(deleteRule: .cascade, inverse: \RoutineDay.routine)
+    var days: [RoutineDay] = []
+
     var phase: RoutinePhase? {
         get { phaseRaw.flatMap(RoutinePhase.init(rawValue:)) }
         set { phaseRaw = newValue?.rawValue }

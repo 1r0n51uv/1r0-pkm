@@ -29,7 +29,10 @@ struct RoutineListView: View {
                         }
                     }
                 } else {
-                    ForEach(routines) { r in card(r) }
+                    ForEach(routines) { r in
+                        NavigationLink { RoutineDetailView(routine: r) } label: { card(r) }
+                            .buttonStyle(.plain)
+                    }
                 }
             }
             .padding(.horizontal, 18)

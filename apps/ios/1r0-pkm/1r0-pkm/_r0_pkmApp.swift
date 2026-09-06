@@ -17,7 +17,7 @@ struct _r0_pkmApp: App {
         do {
             let config = ModelConfiguration(isStoredInMemoryOnly: reset)
             container = try ModelContainer(
-                for: Exercise.self, Routine.self,
+                for: Exercise.self, Routine.self, RoutineDay.self, RoutineExercise.self,
                 WorkoutSession.self, SetLogEntry.self,
                 PlateConfig.self, BodyMeasurement.self, OutboxEntry.self,
                 configurations: config

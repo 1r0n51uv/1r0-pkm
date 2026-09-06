@@ -96,6 +96,52 @@ final class _r0_pkmUITests: XCTestCase {
                       "La sessione non è tornata allo stato iniziale")
     }
 
+    /// 1r0-gym · ADR-0011: crea scheda → apri dettaglio → aggiungi giorno →
+    /// aggiungi esercizio con target → verifica che compaia.
+    func testRoutineTreeEditing() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        // esercizio nel catalogo
+        app.tabBars.buttons["Catalogo"].tap()
+        XCTAssertTrue(app.staticTexts["Catalogo"].waitForExistence(timeout: 10))
+        let exName = "Rematore \(Int(Date().timeIntervalSince1970))"
+        app.buttons["addExercise"].tap()
+        let nf = app.textFields["exerciseName"]
+        XCTAssertTrue(nf.waitForExistence(timeout: 5)); nf.tap(); nf.typeText(exName)
+        app.buttons["saveExercise"].tap()
+        XCTAssertTrue(app.staticTexts[exName].waitForExistence(timeout: 8))
+
+        // scheda
+        app.tabBars.buttons["Schede"].tap()
+        let rName = "Split \(Int(Date().timeIntervalSince1970))"
+        app.buttons["addRoutine"].tap()
+        let rf = app.textFields["routineName"]
+        XCTAssertTrue(rf.waitForExistence(timeout: 5)); rf.tap(); rf.typeText(rName)
+        app.buttons["saveRoutine"].tap()
+        let card = app.staticTexts[rName]
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+
+        // dettaglio → giorno → esercizio
+        card.tap()
+        app.buttons["addDay"].tap()
+        let dayField = app.alerts.textFields.firstMatch
+        XCTAssertTrue(dayField.waitForExistence(timeout: 5)); dayField.typeText("Pull")
+        app.alerts.buttons["Aggiungi"].tap()
+        XCTAssertTrue(app.staticTexts["Pull"].waitForExistence(timeout: 5))
+
+        app.buttons["addExerciseToDay"].tap()
+        XCTAssertTrue(app.buttons["pickRoutineExercise"].waitForExistence(timeout: 5))
+        app.buttons["pickRoutineExercise"].tap()
+        app.buttons[exName].tap()   // scegli l'esercizio appena creato dal menu
+        app.buttons["saveRoutineExercise"].tap()
+
+        XCTAssertTrue(app.staticTexts[exName].waitForExistence(timeout: 5),
+                      "L'esercizio non compare nel giorno")
+        sleep(1); attach(app, "dettaglio-scheda")
+    }
+
     /// 1r0-gym · ADR-0013: apre il calcolatore piastre in sessione e verifica
     /// che mostri il carico per lato e la rampa di warm-up.
     func testPlateCalculatorInSession() throws {

@@ -89,6 +89,57 @@ enum GymMath {
         let perWeekKg: Double
     }
 
+    // MARK: - Double progression (ADR-0011)
+
+    struct RepRange: Equatable {
+        let min: Int
+        let max: Int
+        /// Parsa "8-12" o "8". nil se non valido.
+        init?(_ s: String) {
+            let parts = s.split(separator: "-", maxSplits: 1).map {
+                Int($0.trimmingCharacters(in: .whitespaces))
+            }
+            guard let lo = parts.first ?? nil, lo > 0 else { return nil }
+            let hi = parts.count == 2 ? parts[1] : lo
+            guard let hi, hi >= lo else { return nil }
+            self.min = lo
+            self.max = hi
+        }
+    }
+
+    enum ProgressionAdvice: Equatable {
+        /// Tutte le serie di lavoro al top del range ⇒ +peso la prossima volta.
+        case addWeight(toKg: Double)
+        /// Serie completate ma non al top ⇒ punta a una rep in più.
+        case addReps
+        /// Target non raggiunto ⇒ ripeti lo stesso peso.
+        case repeatSame
+    }
+
+    /// Regola deterministica, offline (ADR-0011). `lastSets` sono le serie
+    /// realmente loggate per l'esercizio nell'ultima sessione. Il peso di
+    /// lavoro è il più pesante fra quelle serie (le altre sono riscaldamento).
+    static func doubleProgression(
+        targetSets: Int,
+        repRange: RepRange,
+        incrementKg: Double,
+        lastSets: [(weightKg: Double, reps: Int)]
+    ) -> ProgressionAdvice? {
+        guard !lastSets.isEmpty, let working = lastSets.map(\.weightKg).max() else { return nil }
+        let eps = 0.001
+        let workSets = lastSets.filter { abs($0.weightKg - working) < eps }
+        let completed = workSets.count >= targetSets
+        if completed && workSets.allSatisfy({ $0.reps >= repRange.max }) {
+            return .addWeight(toKg: working + incrementKg)
+        }
+        if completed && workSets.allSatisfy({ $0.reps >= repRange.min }) {
+            return .addReps
+        }
+        return .repeatSame
+    }
+
+    // MARK: - Andamento peso corporeo (ADR-0012)
+
     /// Trend su punti (data, peso). Serve almeno un giorno di separazione fra
     /// il primo e l'ultimo punto perché il tasso settimanale abbia senso.
     /// L'ordine in input non conta.

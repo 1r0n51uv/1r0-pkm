@@ -95,6 +95,59 @@ enum GymSync {
         } catch {}
     }
 
+    /// Scarica l'albero di una scheda (giorni + esercizi) e fa upsert.
+    @MainActor
+    static func pullRoutineTree(routineId: UUID, into context: ModelContext) async {
+        guard let routine = try? context.fetch(
+            FetchDescriptor<Routine>(predicate: #Predicate { $0.id == routineId })
+        ).first else { return }
+        do {
+            let data = try await ApiClient.shared.get("v1/routines/\(routineId.uuidString)/tree")
+            let tree = try JSONDecoder.api.decode(RoutineTreeDTO.self, from: data)
+            for d in tree.days {
+                guard let dayId = UUID(uuidString: d.id) else { continue }
+                let day: RoutineDay
+                if let existing = try context.fetch(
+                    FetchDescriptor<RoutineDay>(predicate: #Predicate { $0.id == dayId })
+                ).first {
+                    existing.name = d.name
+                    existing.orderIndex = d.order_index
+                    existing.syncedAt = .now
+                    day = existing
+                } else {
+                    day = RoutineDay(id: dayId, routine: routine, name: d.name, orderIndex: d.order_index)
+                    day.syncedAt = .now
+                    context.insert(day)
+                }
+                for x in d.exercises {
+                    guard let xid = UUID(uuidString: x.id),
+                          let exId = UUID(uuidString: x.exercise_id) else { continue }
+                    if let existing = try context.fetch(
+                        FetchDescriptor<RoutineExercise>(predicate: #Predicate { $0.id == xid })
+                    ).first {
+                        existing.orderIndex = x.order_index
+                        existing.supersetGroup = x.superset_group
+                        existing.targetSets = x.target_sets
+                        existing.targetReps = x.target_reps
+                        existing.targetRestSeconds = x.target_rest_seconds
+                        existing.exerciseName = x.exercise_name
+                        existing.syncedAt = .now
+                    } else {
+                        let re = RoutineExercise(
+                            id: xid, day: day, exerciseId: exId, exerciseName: x.exercise_name,
+                            orderIndex: x.order_index, supersetGroup: x.superset_group,
+                            targetSets: x.target_sets, targetReps: x.target_reps,
+                            targetRestSeconds: x.target_rest_seconds
+                        )
+                        re.syncedAt = .now
+                        context.insert(re)
+                    }
+                }
+            }
+            try context.save()
+        } catch {}
+    }
+
     /// Scarica le rilevazioni corporee e fa upsert nello store locale.
     @MainActor
     static func pullMeasurements(into context: ModelContext) async {
@@ -174,6 +227,10 @@ enum GymSync {
             return try id(await api.post("v1/set-logs", json: entry.payload))
         case "measurement.create":
             return try id(await api.post("v1/body-measurements", json: entry.payload))
+        case "routineday.create":
+            return try id(await api.post("v1/routine-days", json: entry.payload))
+        case "routineexercise.create":
+            return try id(await api.post("v1/routine-exercises", json: entry.payload))
         case "plateconfig.put":
             _ = try await api.put("v1/plate-config", json: entry.payload)
             return ""
@@ -204,6 +261,12 @@ enum GymSync {
                 .first?.syncedAt = .now
         case "measurement.create":
             try? context.fetch(FetchDescriptor<BodyMeasurement>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "routineday.create":
+            try? context.fetch(FetchDescriptor<RoutineDay>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "routineexercise.create":
+            try? context.fetch(FetchDescriptor<RoutineExercise>(predicate: #Predicate { $0.id == uuid }))
                 .first?.syncedAt = .now
         default:
             break
@@ -239,6 +302,27 @@ struct MeasurementDTO: Decodable {
     let recorded_at: String
     let weight_kg: String?      // numeric → stringa
     let measurements: [String: Double]?
+}
+
+struct RoutineTreeDTO: Decodable {
+    struct Day: Decodable {
+        let id: String
+        let name: String
+        let order_index: Int
+        let exercises: [Ex]
+    }
+    struct Ex: Decodable {
+        let id: String
+        let exercise_id: String
+        let exercise_name: String
+        let order_index: Int
+        let superset_group: String?
+        let target_sets: Int
+        let target_reps: String
+        let target_rest_seconds: Int
+    }
+    let id: String
+    let days: [Day]
 }
 
 extension JSONDecoder {

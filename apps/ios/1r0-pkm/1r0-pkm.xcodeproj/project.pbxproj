@@ -11,9 +11,11 @@
 		0FC646509A6876E99A7AF7D4 /* SpaceGrotesk-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8FE746F3AB2181072C2880A5 /* SpaceGrotesk-Variable.ttf */; };
 		1120432A8B1833C6A4890A38 /* GymMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292C4093960D1B8A0B5EFE7A /* GymMath.swift */; };
 		15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81184CE697A7F0353C1C751F /* Secrets.swift */; };
+		1BAB4C4A81B0F447065F41B8 /* AddRoutineExerciseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63D43549FE4494E570C5E5F /* AddRoutineExerciseSheet.swift */; };
 		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		2B094869A349674F22DCF8DD /* SessionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC994C5085C6F4838B6CB02B /* SessionTabView.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
+		3BAB42BB8D275BF8F105CF92 /* RoutineDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421948979EBC11976D54E1D2 /* RoutineDetailView.swift */; };
 		3F7D4B20A3F6A0B4219EC83A /* PlateConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8674562A94FA124E9CEE71D /* PlateConfig.swift */; };
 		557E443B99C3337A7D982344 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */; };
 		5D9446AEB37E9FD6C24722C0 /* BodyMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F4AFA951073018127E688 /* BodyMeasurement.swift */; };
@@ -31,6 +33,7 @@
 		D3C34778A961B0896EE48FF4 /* AddRoutineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C5947A3A1313C8B63C79CCB /* AddRoutineView.swift */; };
 		D9594F6E835A7CA16D9517F6 /* WorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */; };
 		DA4A4D5282051F309B513328 /* PlateConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */; };
+		DBBC4A529D46141A77F9B9D4 /* RoutineDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442D414593C92BAF8038B209 /* RoutineDay.swift */; };
 		EAA34873A0DAD527D7CC5120 /* SetLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67C048CA9A5CB9A7E3AA639D /* SetLogEntry.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
@@ -109,6 +112,8 @@
 		292C4093960D1B8A0B5EFE7A /* GymMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymMath.swift; path = "1r0-pkm/Modules/1r0-gym/GymMath.swift"; sourceTree = SOURCE_ROOT; };
 		33394EDB88C37094051E27DE /* PhoneConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhoneConnector.swift; path = "1r0-pkm/PhoneConnector.swift"; sourceTree = SOURCE_ROOT; };
 		3D7F4AFA951073018127E688 /* BodyMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BodyMeasurement.swift; path = "1r0-pkm/Modules/1r0-gym/Models/BodyMeasurement.swift"; sourceTree = SOURCE_ROOT; };
+		421948979EBC11976D54E1D2 /* RoutineDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineDetailView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/RoutineDetailView.swift"; sourceTree = SOURCE_ROOT; };
+		442D414593C92BAF8038B209 /* RoutineDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineDay.swift; path = "1r0-pkm/Modules/1r0-gym/Models/RoutineDay.swift"; sourceTree = SOURCE_ROOT; };
 		4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OutboxEntry.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/OutboxEntry.swift"; sourceTree = SOURCE_ROOT; };
 		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
 		636C4706B7AF7ACBB3ECCD1A /* AddMeasurementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddMeasurementView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/AddMeasurementView.swift"; sourceTree = SOURCE_ROOT; };
@@ -125,6 +130,7 @@
 		93CF42F8A42ACCC09F9B8CF1 /* LogSetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LogSetSheet.swift; path = "1r0-pkm/Modules/1r0-gym/Views/LogSetSheet.swift"; sourceTree = SOURCE_ROOT; };
 		96724B90BEEE9BDF3F52CCFE /* RoutineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineListView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/RoutineListView.swift"; sourceTree = SOURCE_ROOT; };
 		9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkoutSession.swift; path = "1r0-pkm/Modules/1r0-gym/Models/WorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
+		A63D43549FE4494E570C5E5F /* AddRoutineExerciseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddRoutineExerciseSheet.swift; path = "1r0-pkm/Modules/1r0-gym/Views/AddRoutineExerciseSheet.swift"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfigView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/PlateConfigView.swift"; sourceTree = SOURCE_ROOT; };
 		D8674562A94FA124E9CEE71D /* PlateConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfig.swift; path = "1r0-pkm/Modules/1r0-gym/Models/PlateConfig.swift"; sourceTree = SOURCE_ROOT; };
@@ -231,6 +237,9 @@
 				3D7F4AFA951073018127E688 /* BodyMeasurement.swift */,
 				FB8540D8942B0227609A4C51 /* ProgressTabView.swift */,
 				636C4706B7AF7ACBB3ECCD1A /* AddMeasurementView.swift */,
+				442D414593C92BAF8038B209 /* RoutineDay.swift */,
+				421948979EBC11976D54E1D2 /* RoutineDetailView.swift */,
+				A63D43549FE4494E570C5E5F /* AddRoutineExerciseSheet.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -555,6 +564,9 @@
 				5D9446AEB37E9FD6C24722C0 /* BodyMeasurement.swift in Sources */,
 				A36440B5B7CFFF5C581D0867 /* ProgressTabView.swift in Sources */,
 				93A147E2BB606120AEA9A3DE /* AddMeasurementView.swift in Sources */,
+				DBBC4A529D46141A77F9B9D4 /* RoutineDay.swift in Sources */,
+				3BAB42BB8D275BF8F105CF92 /* RoutineDetailView.swift in Sources */,
+				1BAB4C4A81B0F447065F41B8 /* AddRoutineExerciseSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
