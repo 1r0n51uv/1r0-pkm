@@ -117,6 +117,32 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "calcolatore-piastre")
     }
 
+    /// 1r0-gym · ADR-0012: registra una rilevazione (peso + misura) e verifica
+    /// che compaia nei Progressi.
+    func testAddBodyMeasurement() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Progressi"].tap()
+        XCTAssertTrue(app.staticTexts["Progressi"].waitForExistence(timeout: 10))
+
+        app.buttons["addMeasurement"].tap()
+        let w = app.textFields["measWeight"]
+        XCTAssertTrue(w.waitForExistence(timeout: 5)); w.tap(); w.typeText("77.5")
+        let waist = app.textFields["meas_waistCm"]
+        waist.tap(); waist.typeText("81")
+        // chiudi la tastiera (scrollDismissesKeyboard .immediately) e porta su "Salva"
+        app.swipeUp()
+        let save = app.buttons["saveMeasurement"]
+        XCTAssertTrue(save.waitForExistence(timeout: 3))
+        save.tap()
+
+        XCTAssertTrue(app.staticTexts["77.5 kg"].waitForExistence(timeout: 5),
+                      "La rilevazione non compare nei Progressi")
+        sleep(1); attach(app, "progressi")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()

@@ -95,6 +95,37 @@ enum GymSync {
         } catch {}
     }
 
+    /// Scarica le rilevazioni corporee e fa upsert nello store locale.
+    @MainActor
+    static func pullMeasurements(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/body-measurements")
+            let rows = try JSONDecoder.api.decode([MeasurementDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let w = r.weight_kg.flatMap(Double.init)
+                let m = r.measurements ?? [:]
+                let existing = try context.fetch(
+                    FetchDescriptor<BodyMeasurement>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                if let bm = existing {
+                    bm.weightKg = w
+                    bm.measurements = m
+                    bm.syncedAt = .now
+                } else {
+                    context.insert(BodyMeasurement(
+                        id: uuid,
+                        recordedAt: JSONDecoder.iso.date(from: r.recorded_at) ?? .now,
+                        weightKg: w, measurements: m
+                    ))
+                    try context.fetch(FetchDescriptor<BodyMeasurement>(predicate: #Predicate { $0.id == uuid }))
+                        .first?.syncedAt = .now
+                }
+            }
+            try context.save()
+        } catch {}
+    }
+
     /// Svuota l'outbox spedendo ogni entry.
     @MainActor
     static func flushOutbox(_ context: ModelContext) async {
@@ -141,6 +172,8 @@ enum GymSync {
             return try id(await api.patch("v1/workout-sessions/\(sid)", json: entry.payload))
         case "setlog.create":
             return try id(await api.post("v1/set-logs", json: entry.payload))
+        case "measurement.create":
+            return try id(await api.post("v1/body-measurements", json: entry.payload))
         case "plateconfig.put":
             _ = try await api.put("v1/plate-config", json: entry.payload)
             return ""
@@ -169,6 +202,9 @@ enum GymSync {
         case "setlog.create":
             try? context.fetch(FetchDescriptor<SetLogEntry>(predicate: #Predicate { $0.id == uuid }))
                 .first?.syncedAt = .now
+        case "measurement.create":
+            try? context.fetch(FetchDescriptor<BodyMeasurement>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
         default:
             break
         }
@@ -196,6 +232,13 @@ struct RoutineDTO: Decodable {
 struct PlateConfigDTO: Decodable {
     let bar_weight_kg: String   // numeric arriva come stringa da pg
     let available_plates_kg: [Double]
+}
+
+struct MeasurementDTO: Decodable {
+    let id: String
+    let recorded_at: String
+    let weight_kg: String?      // numeric → stringa
+    let measurements: [String: Double]?
 }
 
 extension JSONDecoder {

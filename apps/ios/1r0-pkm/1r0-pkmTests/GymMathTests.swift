@@ -98,4 +98,29 @@ final class GymMathTests: XCTestCase {
         XCTAssertEqual(ramp[2].load.achievable, 80, accuracy: 0.0001)
         XCTAssertLessThan(ramp[0].load.achievable, ramp[2].load.achievable)
     }
+
+    // MARK: - trend peso corporeo (ADR-0012)
+
+    func testWeightTrend_lossOverTwoWeeks() {
+        let day = 86_400.0
+        let t0 = Date(timeIntervalSince1970: 0)
+        let pts: [(date: Date, kg: Double)] = [
+            (t0, 80), (t0.addingTimeInterval(14 * day), 78),
+        ]
+        let tr = GymMath.weightTrend(pts)!
+        XCTAssertEqual(tr.latestKg, 78, accuracy: 0.0001)
+        XCTAssertEqual(tr.deltaKg, -2, accuracy: 0.0001)
+        XCTAssertEqual(tr.perWeekKg, -1, accuracy: 0.0001)   // -2 kg in 2 settimane
+    }
+
+    func testWeightTrend_orderIndependentAndGuards() {
+        let day = 86_400.0
+        let t0 = Date(timeIntervalSince1970: 1_000_000)
+        let pts: [(date: Date, kg: Double)] = [
+            (t0.addingTimeInterval(7 * day), 79), (t0, 80),
+        ]
+        XCTAssertEqual(GymMath.weightTrend(pts)?.perWeekKg ?? .nan, -1, accuracy: 0.0001)
+        XCTAssertNil(GymMath.weightTrend([(t0, 80)]))            // 1 punto
+        XCTAssertNil(GymMath.weightTrend([(t0, 80), (t0, 79)]))  // stessa data
+    }
 }

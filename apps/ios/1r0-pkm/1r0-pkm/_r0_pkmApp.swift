@@ -19,7 +19,7 @@ struct _r0_pkmApp: App {
             container = try ModelContainer(
                 for: Exercise.self, Routine.self,
                 WorkoutSession.self, SetLogEntry.self,
-                PlateConfig.self, OutboxEntry.self,
+                PlateConfig.self, BodyMeasurement.self, OutboxEntry.self,
                 configurations: config
             )
         } catch {

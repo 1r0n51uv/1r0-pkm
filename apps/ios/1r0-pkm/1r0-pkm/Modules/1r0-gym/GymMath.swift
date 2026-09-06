@@ -78,4 +78,26 @@ enum GymMath {
                        load: platesPerSide(targetKg: working * pct, barKg: barKg, availablePlatesKg: plates))
         }
     }
+
+    // MARK: - Andamento peso corporeo (ADR-0012)
+
+    struct WeightTrend: Equatable {
+        let latestKg: Double
+        /// variazione dal primo all'ultimo punto del range
+        let deltaKg: Double
+        /// variazione media per settimana sul range
+        let perWeekKg: Double
+    }
+
+    /// Trend su punti (data, peso). Serve almeno un giorno di separazione fra
+    /// il primo e l'ultimo punto perché il tasso settimanale abbia senso.
+    /// L'ordine in input non conta.
+    static func weightTrend(_ points: [(date: Date, kg: Double)]) -> WeightTrend? {
+        let sorted = points.sorted { $0.date < $1.date }
+        guard let first = sorted.first, let last = sorted.last else { return nil }
+        let days = last.date.timeIntervalSince(first.date) / 86_400
+        guard days >= 1 else { return nil }
+        let delta = last.kg - first.kg
+        return WeightTrend(latestKg: last.kg, deltaKg: delta, perWeekKg: delta / days * 7)
+    }
 }

@@ -18,6 +18,9 @@ struct ContentView: View {
 
             NavigationStack { ExerciseListView() }
                 .tabItem { Label("Catalogo", systemImage: "dumbbell") }
+
+            NavigationStack { ProgressTabView() }
+                .tabItem { Label("Progressi", systemImage: "chart.xyaxis.line") }
         }
         .tint(Glass.accent)
         .preferredColorScheme(.dark)
