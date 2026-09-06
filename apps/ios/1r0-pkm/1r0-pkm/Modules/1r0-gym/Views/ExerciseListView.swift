@@ -18,6 +18,7 @@ struct ExerciseListView: View {
     @State private var showImport = false
     @State private var search = ""
     @State private var group: String? = nil          // filtro gruppo muscolare
+    @State private var selected: Exercise?            // scheda dettaglio (ADR-0005)
 
     private var pendingCount: Int { exercises.filter { $0.syncedAt == nil }.count }
     private var isFiltering: Bool {
@@ -89,6 +90,11 @@ struct ExerciseListView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
+        .sheet(item: $selected) { ex in
+            ExerciseDetailView(exercise: ex)
+                .presentationDetents([.large])
+                .presentationBackground(.ultraThinMaterial)
+        }
         .task {
             await GymSync.pullExercises(into: context)
             await GymSync.flushOutbox(context)
@@ -131,27 +137,35 @@ struct ExerciseListView: View {
     }
 
     private func row(_ ex: Exercise) -> some View {
-        HStack(spacing: 14) {
-            MuscleTile(groups: ex.muscleGroups, size: 44)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(ex.name)
-                    .font(Glass.body(14, .semibold))
-                    .lineLimit(1)
-                Text(subtitle(ex))
-                    .font(Glass.body(12))
-                    .foregroundStyle(Glass.ink.opacity(0.45))
-                    .lineLimit(1)
+        Button { selected = ex } label: {
+            HStack(spacing: 14) {
+                MuscleTile(groups: ex.muscleGroups, size: 44)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(ex.name)
+                        .font(Glass.body(14, .semibold))
+                        .lineLimit(1)
+                    Text(subtitle(ex))
+                        .font(Glass.body(12))
+                        .foregroundStyle(Glass.ink.opacity(0.45))
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 4)
+                if ex.videoURL?.isEmpty == false || ex.imageURL?.isEmpty == false {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 15))
+                        .foregroundStyle(Glass.ink.opacity(0.35))
+                }
+                sourceBadge(ex.source)
+                if ex.syncedAt == nil {
+                    Circle().fill(Glass.amber).frame(width: 6, height: 6)
+                        .accessibilityLabel("in coda")
+                }
             }
-            Spacer(minLength: 4)
-            sourceBadge(ex.source)
-            if ex.syncedAt == nil {
-                Circle().fill(Glass.amber).frame(width: 6, height: 6)
-                    .accessibilityLabel("in coda")
-            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .glassRow()
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .glassRow()
+        .buttonStyle(.plain)
     }
 
     private func subtitle(_ ex: Exercise) -> String {

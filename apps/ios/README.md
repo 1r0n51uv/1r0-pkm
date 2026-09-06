@@ -98,10 +98,14 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   `com.apple.developer.healthkit` + chiavi `NSHealth*UsageDescription`.
   Watch `HKWorkoutSession` + lettura passi/calorie: da fare.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
-  `ExerciseListView` (ricerca + badge fonte) / `AddExerciseView` /
-  `ImportExerciseView` (ADR-0005: "Cerca con AI" → `GymSync.aiImport`, o
-  "Sincronizza catalogo wger" → `GymSync.wgerSync`; avviso di duplicato per
-  nome normalizzato), `RoutineListView`/`AddRoutineView`,
+  `ExerciseListView` (ricerca + badge fonte; riga toccabile →
+  `ExerciseDetailView`) / `AddExerciseView` / `ImportExerciseView`
+  (ADR-0005: "Cerca con AI" → `GymSync.aiImport`, o "Sincronizza catalogo
+  wger" → `GymSync.wgerSync`; avviso di duplicato per nome normalizzato),
+  `ExerciseDetailView` (ADR-0005/0013: immagine `AsyncImage`, gruppi
+  muscolari, istruzioni, e — se c'è `videoURL` — la dimostrazione in-app
+  via `WebView`/`WKWebView`; raggiungibile anche dai blocchi esercizio in
+  `LiveSessionView`), `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
   1RM stimato, timer riposo visivo), `PlateCalculatorView`/`PlateConfigView`
   (ADR-0013, apribili dalla sessione), `ProgressTabView`/`AddMeasurementView`
@@ -190,8 +194,8 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
 route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`
 (`apps/api`), da deployare su EC2; l'AI import richiede `ANTHROPIC_API_KEY`
-(senza chiave la app mostra un avviso, non crasha). Demo video esercizio in
-UI: ancora da mostrare (il campo `videoURL` c'è).
+(senza chiave la app mostra un avviso, non crasha). Demo video/immagine
+esercizio: mostrata in `ExerciseDetailView` (catalogo + sessione).
 
 Fuori ADR-0013 per ora: Live Activities / Dynamic Island per il timer riposo
 (target widget-extension ActivityKit).

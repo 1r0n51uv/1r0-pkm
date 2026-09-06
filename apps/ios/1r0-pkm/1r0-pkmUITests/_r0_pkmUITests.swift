@@ -40,6 +40,33 @@ final class _r0_pkmUITests: XCTestCase {
         )
     }
 
+    /// 1r0-gym · ADR-0005: toccando un esercizio a catalogo si apre la
+    /// scheda dettaglio (istruzioni, fonte, eventuale dimostrazione).
+    func testExerciseDetailOpens() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Catalogo"].tap()
+        XCTAssertTrue(app.staticTexts["Catalogo"].waitForExistence(timeout: 10))
+
+        let unique = "Stacco \(Int(Date().timeIntervalSince1970))"
+        app.buttons["addExercise"].tap()
+        let nameField = app.textFields["exerciseName"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+        nameField.tap(); nameField.typeText(unique)
+        app.buttons["saveExercise"].tap()
+
+        let rowText = app.staticTexts[unique]
+        XCTAssertTrue(rowText.waitForExistence(timeout: 5))
+        rowText.tap()
+
+        XCTAssertTrue(app.staticTexts["Esecuzione"].waitForExistence(timeout: 5)
+                      || app.staticTexts["Creato da te"].waitForExistence(timeout: 5),
+                      "La scheda dettaglio esercizio non si è aperta")
+        sleep(1); attach(app, "exercise-detail")
+    }
+
     /// 1r0-gym · schede: crea una scheda con fase e verifica che compaia.
     func testAddRoutineAppearsInList() throws {
         let app = XCUIApplication()

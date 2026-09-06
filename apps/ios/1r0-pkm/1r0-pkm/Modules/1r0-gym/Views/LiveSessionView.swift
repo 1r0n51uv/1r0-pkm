@@ -16,6 +16,7 @@ struct LiveSessionView: View {
     @Bindable var session: WorkoutSession
 
     @Query(sort: \SetLogEntry.completedAt) private var allSets: [SetLogEntry]
+    @Query private var catalog: [Exercise]
     private var sessionSets: [SetLogEntry] {
         allSets.filter { $0.session?.id == session.id }
     }
@@ -23,6 +24,7 @@ struct LiveSessionView: View {
     @State private var showLog = false
     @State private var restEndsAt: Date?
     @State private var plateSeed: PlateSeed?
+    @State private var demoExercise: Exercise?
 
     private struct PlateSeed: Identifiable { let id = UUID(); let weight: Double }
     private var lastLoggedWeight: Double { sessionSets.last?.weightKg ?? 60 }
@@ -78,6 +80,20 @@ struct LiveSessionView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
+        .sheet(item: $demoExercise) { ex in
+            ExerciseDetailView(exercise: ex)
+                .presentationDetents([.large])
+                .presentationBackground(.ultraThinMaterial)
+        }
+    }
+
+    /// L'`Exercise` a catalogo che corrisponde alle serie loggate (per id,
+    /// poi per nome) — per mostrare la dimostrazione (ADR-0005/0013).
+    private func catalogMatch(_ sets: [SetLogEntry]) -> Exercise? {
+        guard let s = sets.first else { return nil }
+        if let byId = catalog.first(where: { $0.id == s.exerciseId }) { return byId }
+        let n = s.exerciseName.lowercased()
+        return catalog.first { $0.name.lowercased() == n }
     }
 
     private var header: some View {
@@ -120,6 +136,16 @@ struct LiveSessionView: View {
                 Text("1RM ~\(Int(best.rounded())) kg")
                     .font(Glass.body(12, .semibold))
                     .foregroundStyle(Glass.coralLight)
+                if let match = catalogMatch(sets),
+                   match.videoURL?.isEmpty == false || match.imageURL?.isEmpty == false {
+                    Button { demoExercise = match } label: {
+                        Image(systemName: "play.circle.fill")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Glass.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("demo")
+                }
                 Button {
                     plateSeed = PlateSeed(weight: sets.last?.weightKg ?? lastLoggedWeight)
                 } label: {
