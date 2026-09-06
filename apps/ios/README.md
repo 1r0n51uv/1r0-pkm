@@ -62,7 +62,8 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 
 - `Modules/1r0-gym/Models/` — `Exercise`, `Routine`, `RoutineDay`,
   `RoutineExercise`, `WorkoutSession` (+ `routineDayId`), `SetLogEntry`,
-  `PlateConfig`, `BodyMeasurement` (SwiftData). `SupersetGroup` da modellare.
+  `PlateConfig`, `BodyMeasurement` (+ `source` `manual`/`healthkit`, ADR-0004)
+  (SwiftData). `SupersetGroup` da modellare.
 - `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
   calcolatore piastre + warm-up (ADR-0013), trend peso corporeo (ADR-0012),
   double progression (ADR-0011), streak/costanza (ADR-0016). Unit test in
@@ -78,13 +79,23 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 - `Modules/1r0-gym/Intents/` — `StartWorkoutIntent` + `GymShortcuts`
   (ADR-0014: "Ehi Siri, inizia allenamento <Giorno>"). Container condiviso
   App/Intent in `GymData`; azione in `GymActions.startWorkout`.
+- `Modules/1r0-gym/HealthKit/` — `HealthKitService` (ADR-0004: salva ogni
+  allenamento completato in Apple Salute come workout di forza via
+  `HKWorkoutBuilder`; legge il peso corporeo più recente per l'andamento nei
+  Progressi) + `HealthKitOnboardingView` (spiega i permessi prima di
+  richiederli). `LiveSessionView.end()` e `WatchSyncBridge.endSession` salvano
+  in Salute solo le sessioni `completed`, non le `cancelled`. Entitlement
+  `com.apple.developer.healthkit` + chiavi `NSHealth*UsageDescription`.
+  Watch `HKWorkoutSession` + lettura passi/calorie: da fare.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
   `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
   1RM stimato, timer riposo visivo), `PlateCalculatorView`/`PlateConfigView`
   (ADR-0013, apribili dalla sessione), `ProgressTabView`/`AddMeasurementView`
-  (ADR-0012), `RoutineDetailView`/`AddRoutineExerciseSheet` (ADR-0011:
-  giorni/esercizi con target + suggerimento di progressione).
+  (ADR-0012; pulsante "import da Salute" → `HealthKitOnboardingView`, chip
+  `heart.fill` sulle rilevazioni importate, ADR-0004),
+  `RoutineDetailView`/`AddRoutineExerciseSheet` (ADR-0011: giorni/esercizi con
+  target + suggerimento di progressione).
 - Shell: `ContentView` = TabView (Sessione | Schede | Catalogo | Progressi).
 
 Fuori ADR-0013 per ora: demo video esercizio (serve import wger/AI,
