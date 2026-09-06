@@ -88,6 +88,25 @@ curl -s -X POST $BASE/v1/exercises/ai-import \
 # la app fa confermare/modificare all'utente, poi POST /v1/exercises con source:"ai"
 ```
 
+## Dieta — contacalorie (ADR-0017 slice 1)
+
+Alimento custom + pasto loggato. Client-supplied UUID, upsert idempotente
+(outbox, ADR-0006). Richiede la migration `0006_meal_item_food_name.sql`.
+
+```bash
+curl -s -X POST $BASE/v1/foods \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"name":"Petto di pollo alla griglia","source":"custom","caloriesPer100g":195,"proteinGPer100g":31,"carbsGPer100g":0,"fatGPer100g":7}'
+# -> {"id":...,"name":"Petto di pollo alla griglia","source":"custom",...}
+
+curl -s -X POST $BASE/v1/meal-entries \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"mealSlot":"lunch","items":[{"foodName":"Petto di pollo","quantityG":150,"calories":293,"proteinG":47,"carbsG":0,"fatG":11,"orderIndex":0}]}'
+# -> {"id":...,"meal_slot":"lunch",...}
+
+curl -s $BASE/v1/meal-entries -H "Authorization: Bearer $KEY" | jq '.[0]'
+```
+
 ## Not done yet
 
 - Provisioning automation (Terraform/CDK) — manual for now.

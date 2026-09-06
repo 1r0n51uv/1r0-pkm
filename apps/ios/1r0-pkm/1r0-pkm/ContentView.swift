@@ -2,7 +2,8 @@
 //  ContentView.swift
 //  1r0-pkm
 //
-//  Shell a tab del modulo 1r0-gym. Altre tab (sessione, progressi…) dopo.
+//  Shell a tab: moduli 1r0-gym (Sessione/Schede/Catalogo/Progressi) e
+//  1r0-diet (Dieta, ADR-0017) come sezioni di un'unica app (ADR-0008).
 //
 
 import SwiftUI
@@ -19,6 +20,9 @@ struct ContentView: View {
 
             NavigationStack { ExerciseListView() }
                 .tabItem { Label("Catalogo", systemImage: "dumbbell") }
+
+            NavigationStack { DietTabView() }
+                .tabItem { Label("Dieta", systemImage: "fork.knife") }
 
             NavigationStack { ProgressTabView() }
                 .tabItem { Label("Progressi", systemImage: "chart.xyaxis.line") }

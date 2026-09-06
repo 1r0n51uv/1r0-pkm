@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988633712155B9E1F8B5774C /* AddFoodView.swift */; };
+		FC89C3BE1C1E4342A8001AA8 /* LogFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */; };
+		BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24954145CE3772A2A0BA0C2 /* DietTabView.swift */; };
+		0776EE129749BE69AB4762A6 /* DietSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4066644EA1AE2764C9B705 /* DietSync.swift */; };
+		4200C8819C5C4B6808B3CF9A /* MealEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C804BC481B36898CCF0C1F43 /* MealEntry.swift */; };
+		560E925DB7AFCE127E0DEEA0 /* Food.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A10CD2EC5CE16D399461241 /* Food.swift */; };
 		0488416F8BC7541700D054C2 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F024674A3B635B2CD67922F /* SyncEngine.swift */; };
 		0C544C4A9589653D31BFDF6B /* Routine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D74F249ADC8ACF9CA0D4B7 /* Routine.swift */; };
 		0FAE46329C1212C6C6E65D8F /* WatchSyncBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAB4C3A98F838E31AFE4693 /* WatchSyncBridgeTests.swift */; };
@@ -122,6 +128,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		988633712155B9E1F8B5774C /* AddFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/AddFoodView.swift"; sourceTree = SOURCE_ROOT; };
+		06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LogFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/LogFoodView.swift"; sourceTree = SOURCE_ROOT; };
+		D24954145CE3772A2A0BA0C2 /* DietTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietTabView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietTabView.swift"; sourceTree = SOURCE_ROOT; };
+		1D4066644EA1AE2764C9B705 /* DietSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietSync.swift; path = "1r0-pkm/Modules/1r0-diet/Sync/DietSync.swift"; sourceTree = SOURCE_ROOT; };
+		C804BC481B36898CCF0C1F43 /* MealEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealEntry.swift; path = "1r0-pkm/Modules/1r0-diet/Models/MealEntry.swift"; sourceTree = SOURCE_ROOT; };
+		2A10CD2EC5CE16D399461241 /* Food.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Food.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Food.swift"; sourceTree = SOURCE_ROOT; };
 		0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitOnboardingView.swift; path = "1r0-pkm/Modules/1r0-gym/HealthKit/HealthKitOnboardingView.swift"; sourceTree = SOURCE_ROOT; };
 		1150416D9C7B193D0F2B6C0C /* WatchSyncBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSyncBridge.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/WatchSyncBridge.swift"; sourceTree = SOURCE_ROOT; };
 		129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPolicy.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/SyncPolicy.swift"; sourceTree = SOURCE_ROOT; };
@@ -230,6 +242,12 @@
 		ED3F6251304CD5CE000F4A2D = {
 			isa = PBXGroup;
 			children = (
+				988633712155B9E1F8B5774C /* AddFoodView.swift */,
+				06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */,
+				D24954145CE3772A2A0BA0C2 /* DietTabView.swift */,
+				1D4066644EA1AE2764C9B705 /* DietSync.swift */,
+				C804BC481B36898CCF0C1F43 /* MealEntry.swift */,
+				2A10CD2EC5CE16D399461241 /* Food.swift */,
 				ED3F625C304CD5CE000F4A2D /* 1r0-pkm */,
 				ED3F626E304CD5D1000F4A2D /* 1r0-pkmTests */,
 				ED3F6278304CD5D1000F4A2D /* 1r0-pkmUITests */,
@@ -582,6 +600,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */,
+				FC89C3BE1C1E4342A8001AA8 /* LogFoodView.swift in Sources */,
+				BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */,
+				0776EE129749BE69AB4762A6 /* DietSync.swift in Sources */,
+				4200C8819C5C4B6808B3CF9A /* MealEntry.swift in Sources */,
+				560E925DB7AFCE127E0DEEA0 /* Food.swift in Sources */,
 				ED3F6260304CD5CF000F4A2D /* ContentView.swift in Sources */,
 				ED3F625E304CD5CF000F4A2D /* _r0_pkmApp.swift in Sources */,
 				F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */,

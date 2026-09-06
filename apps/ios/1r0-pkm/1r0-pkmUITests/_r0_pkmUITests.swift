@@ -241,6 +241,47 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "import-esercizio")
     }
 
+    /// 1r0-diet · ADR-0017 slice 1: crea un alimento custom, loggalo a un
+    /// pasto e verifica che compaia nella dashboard giornaliera.
+    /// Offline-first (store in-memory, -uitest-reset).
+    func testLogFoodAppearsInDiet() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["addFood"].tap()
+        XCTAssertTrue(app.buttons["createFood"].waitForExistence(timeout: 5))
+        app.buttons["createFood"].tap()
+
+        let unique = "Pollo \(Int(Date().timeIntervalSince1970))"
+        let nf = app.textFields["foodName"]
+        XCTAssertTrue(nf.waitForExistence(timeout: 5)); nf.tap(); nf.typeText(unique)
+        let kf = app.textFields["foodKcal"]
+        kf.tap(); kf.typeText("165")
+        // il tastierino decimale copre "Salva": chiuderlo prima di salvare
+        if app.buttons["kbDone"].exists { app.buttons["kbDone"].tap() }
+        XCTAssertTrue(app.buttons["saveFood"].waitForExistence(timeout: 3))
+        app.buttons["saveFood"].tap()
+
+        // tornati al foglio: l'alimento è selezionato → card di composizione
+        let addToMeal = app.buttons["addToMeal"]
+        if !addToMeal.waitForExistence(timeout: 6) {
+            let row = app.staticTexts[unique]
+            if row.waitForExistence(timeout: 5) { row.tap() }
+        }
+        XCTAssertTrue(addToMeal.waitForExistence(timeout: 6),
+                      "La card di composizione non è comparsa dopo aver creato l'alimento")
+        addToMeal.tap()
+
+        // dashboard giornaliera: l'alimento loggato compare nel pasto
+        XCTAssertTrue(app.staticTexts[unique].waitForExistence(timeout: 8),
+                      "L'alimento loggato non compare nella dashboard")
+        sleep(1); attach(app, "dieta-oggi")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()

@@ -6,8 +6,9 @@ App personale a moduli — `1r0-pkm` è un'app della famiglia `1r0` (scope
 moduli in futuro. Ogni modulo vive come sezione dentro un'unica app (vedi
 `docs/adr/0008-single-app-module-architecture.md`).
 
-**Modulo in sviluppo ora: `1r0-gym`** (implementazione) **e `1r0-diet`**
-(domain-modeling completato, implementazione non ancora iniziata).
+**Moduli in sviluppo ora: `1r0-gym`** (implementazione avanzata) **e
+`1r0-diet`** (avviato — ADR-0017 slice 1: contacalorie/macro; pianificazione
+pasti, tracker e report più avanti).
 Prodotto iOS-first nativo (Swift/SwiftUI), con companion Apple Watch e
 integrazione HealthKit. Backend REST custom (Node.js/Fastify + Postgres)
 self-hosted su AWS EC2 — vedi ADR-0022.

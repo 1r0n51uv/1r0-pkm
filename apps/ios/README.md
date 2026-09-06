@@ -109,7 +109,29 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   `heart.fill` sulle rilevazioni importate, ADR-0004),
   `RoutineDetailView`/`AddRoutineExerciseSheet` (ADR-0011: giorni/esercizi con
   target + suggerimento di progressione).
-- Shell: `ContentView` = TabView (Sessione | Schede | Catalogo | Progressi).
+- Shell: `ContentView` = TabView (Sessione | Schede | Catalogo | Dieta |
+  Progressi).
+
+Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
+
+- `Modules/1r0-diet/Models/` — `Food` (macro per 100 g; `source`
+  `custom`/`openfoodfacts`/`usda`, slice 1 solo `custom`), `MealEntry` (+
+  `mealSlot` breakfast/lunch/dinner/snack) con `MealEntryItem` in cascade
+  che *snapshotta* nome + calorie/macro al log (ADR-0017). Registrati nello
+  stesso `GymData.schema` (container unico, ADR-0008).
+- `Modules/1r0-diet/Sync/DietSync.swift` — `pullFoods` / `pullMealEntries`
+  (GET `v1/foods`, `v1/meal-entries`) + azioni `createFood` / `logMeal`.
+  Outbox condiviso: kind `food.create` / `mealentry.create` gestiti in
+  `GymSync.send` (ADR-0006).
+- `Modules/1r0-diet/Views/` — `DietTabView` (mockup "GlassDiet", accento
+  ambra: anello calorie + barre macro + pasti della giornata),
+  `LogFoodView` ("GlassFoodSearch" + card di composizione "GlassMealLog":
+  slot, ricerca alimento, grammi con anteprima macro live), `AddFoodView`
+  (alimento custom). Obiettivo calorico: costante `DietGoal` fissa —
+  `NutritionGoal` append-only/TDEE/fase arriva con ADR-0019.
+- Fuori slice 1: barcode + OpenFoodFacts/USDA (ADR-0018), pianificazione
+  pasti / ricette / lista spesa, tracker acqua/caffeina/integratori,
+  report (ADR-0020), modulo su Watch.
 
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
 route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`
@@ -120,5 +142,7 @@ UI: ancora da mostrare (il campo `videoURL` c'è).
 Fuori ADR-0013 per ora: Live Activities / Dynamic Island per il timer riposo
 (target widget-extension ActivityKit).
 
-Schema: `supabase/migrations/0001_1r0-gym_schema.sql`; contratto nomi in
-`packages/shared/src/types/1r0-gym.ts`. Vedi ADR-0021.
+Schema: `supabase/migrations/0001_1r0-gym_schema.sql` (gym),
+`0004_1r0-diet_schema.sql` + `0006_meal_item_food_name.sql` (dieta);
+contratto nomi in `packages/shared/src/types/1r0-gym.ts` e `1r0-diet.ts`.
+Vedi ADR-0021.
