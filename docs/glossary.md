@@ -60,7 +60,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 ## Infrastruttura
 
 - **Self-hosted** — l'istanza Supabase (Postgres+Auth+Storage+Realtime+Functions) gira su un'istanza AWS EC2 di proprietà, non su Supabase Cloud (vedi ADR-0009).
-- **Edge Function** — funzione server-side Deno/TS deployata insieme allo stack Supabase, usata per logica che non deve girare sul client (es. proxy Claude API per l'import esercizi).
+- **Route server-side** — logica che non deve girare sul client (es. proxy Claude API per l'AI import esercizi, sync catalogo wger) esposta dal backend Fastify come route `/v1/...` (ADR-0022; era una Edge Function Deno prima di ADR-0022).
 - **Outbox** — coda locale (SwiftData) di mutazioni non ancora sincronizzate col backend, riprocessata quando torna la rete (vedi ADR-0006).
 
 ## Moduli futuri (non ancora modellati)

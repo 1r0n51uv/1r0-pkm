@@ -60,9 +60,11 @@ verrà introdotta quando si implementa il primo modulo:
 Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 `feat/1r0-gym-*`):
 
-- `Modules/1r0-gym/Models/` — `Exercise`, `Routine`, `RoutineDay`,
-  `RoutineExercise`, `WorkoutSession` (+ `routineDayId`), `SetLogEntry`,
-  `PlateConfig`, `BodyMeasurement` (+ `source` `manual`/`healthkit`, ADR-0004)
+- `Modules/1r0-gym/Models/` — `Exercise` (+ `source` `custom`/`wger`/`ai`,
+  `externalId`, `instructions`, `videoURL`, `imageURL`, ADR-0005), `Routine`,
+  `RoutineDay`, `RoutineExercise`, `WorkoutSession` (+ `routineDayId`),
+  `SetLogEntry`, `PlateConfig`,
+  `BodyMeasurement` (+ `source` `manual`/`healthkit`, ADR-0004)
   (SwiftData). `SupersetGroup` da modellare.
 - `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
   calcolatore piastre + warm-up (ADR-0013), trend peso corporeo (ADR-0012),
@@ -96,7 +98,10 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   `com.apple.developer.healthkit` + chiavi `NSHealth*UsageDescription`.
   Watch `HKWorkoutSession` + lettura passi/calorie: da fare.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
-  `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
+  `ExerciseListView` (ricerca + badge fonte) / `AddExerciseView` /
+  `ImportExerciseView` (ADR-0005: "Cerca con AI" → `GymSync.aiImport`, o
+  "Sincronizza catalogo wger" → `GymSync.wgerSync`; avviso di duplicato per
+  nome normalizzato), `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
   1RM stimato, timer riposo visivo), `PlateCalculatorView`/`PlateConfigView`
   (ADR-0013, apribili dalla sessione), `ProgressTabView`/`AddMeasurementView`
@@ -106,8 +111,13 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   target + suggerimento di progressione).
 - Shell: `ContentView` = TabView (Sessione | Schede | Catalogo | Progressi).
 
-Fuori ADR-0013 per ora: demo video esercizio (serve import wger/AI,
-ADR-0005), Live Activities / Dynamic Island per il timer riposo
+ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
+route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`
+(`apps/api`), da deployare su EC2; l'AI import richiede `ANTHROPIC_API_KEY`
+(senza chiave la app mostra un avviso, non crasha). Demo video esercizio in
+UI: ancora da mostrare (il campo `videoURL` c'è).
+
+Fuori ADR-0013 per ora: Live Activities / Dynamic Island per il timer riposo
 (target widget-extension ActivityKit).
 
 Schema: `supabase/migrations/0001_1r0-gym_schema.sql`; contratto nomi in
