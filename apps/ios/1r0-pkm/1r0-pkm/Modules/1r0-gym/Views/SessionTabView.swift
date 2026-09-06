@@ -90,14 +90,8 @@ struct SessionTabView: View {
         }
     }
 
+    @MainActor
     private func start() {
-        let s = WorkoutSession(source: "app")
-        context.insert(s)
-        if let data = try? JSONSerialization.data(withJSONObject: ["id": s.id.uuidString, "source": "app"]) {
-            context.insert(OutboxEntry(kind: "session.create", payload: data))
-        }
-        try? context.save()
-        let ctx = context
-        Task { await GymSync.flushOutbox(ctx) }
+        GymActions.startWorkout(in: context)
     }
 }

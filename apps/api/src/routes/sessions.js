@@ -31,6 +31,9 @@ export default async function sessions(app) {
     if (b.id != null && !UUID_RE.test(String(b.id))) {
       return reply.code(400).send({ error: "id non è un UUID" });
     }
+    if (b.routineDayId != null && !UUID_RE.test(String(b.routineDayId))) {
+      return reply.code(400).send({ error: "routineDayId non è un UUID" });
+    }
     const source = b.source === "watch" ? "watch" : "app";
     const notes = typeof b.notes === "string" && b.notes.trim() ? b.notes.trim() : null;
 
@@ -38,11 +41,11 @@ export default async function sessions(app) {
     try {
       const uid = await profileId(c);
       const { rows } = await c.query(
-        `insert into workout_sessions (id, user_id, source, notes, status)
-         values (coalesce($1, gen_random_uuid()), $2, $3, $4, 'active')
+        `insert into workout_sessions (id, user_id, source, notes, status, routine_day_id)
+         values (coalesce($1, gen_random_uuid()), $2, $3, $4, 'active', $5)
          on conflict (id) do update set notes = excluded.notes
-         returning id, status, source, started_at, ended_at, notes`,
-        [b.id ?? null, uid, source, notes],
+         returning id, status, source, started_at, ended_at, notes, routine_day_id`,
+        [b.id ?? null, uid, source, notes, b.routineDayId ?? null],
       );
       return reply.code(201).send(rows[0]);
     } finally {

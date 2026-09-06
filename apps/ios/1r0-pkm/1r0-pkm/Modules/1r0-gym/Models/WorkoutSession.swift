@@ -21,6 +21,8 @@ final class WorkoutSession {
     var statusRaw: String
     /// "app" | "watch"
     var source: String
+    /// giorno di scheda da cui è partita (opzionale — sessione libera se nil)
+    var routineDayId: UUID?
     var syncedAt: Date?
 
     @Relationship(deleteRule: .cascade, inverse: \SetLogEntry.session)
@@ -33,12 +35,13 @@ final class WorkoutSession {
 
     var isOpen: Bool { status == .active || status == .paused }
 
-    init(id: UUID = UUID(), startedAt: Date = .now, source: String = "app") {
+    init(id: UUID = UUID(), startedAt: Date = .now, source: String = "app", routineDayId: UUID? = nil) {
         self.id = id
         self.startedAt = startedAt
         self.endedAt = nil
         self.statusRaw = SessionStatus.active.rawValue
         self.source = source
+        self.routineDayId = routineDayId
         self.syncedAt = nil
     }
 }

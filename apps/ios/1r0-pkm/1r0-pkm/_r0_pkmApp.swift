@@ -14,25 +14,20 @@ struct _r0_pkmApp: App {
     init() {
         _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity
 
-        let reset = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
-        do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: reset)
-            container = try ModelContainer(
-                for: Exercise.self, Routine.self, RoutineDay.self, RoutineExercise.self,
-                WorkoutSession.self, SetLogEntry.self,
-                PlateConfig.self, BodyMeasurement.self, OutboxEntry.self,
-                configurations: config
+        if ProcessInfo.processInfo.arguments.contains("-uitest-reset") {
+            GymData.container = try! ModelContainer(
+                for: GymData.schema,
+                configurations: ModelConfiguration(isStoredInMemoryOnly: true)
             )
-        } catch {
-            fatalError("ModelContainer non creato: \(error)")
         }
+        // container unico condiviso con gli App Intents (ADR-0014)
+        container = GymData.container
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .task {
-                    // instrada le mutazioni di sessione dal Watch a SwiftData + outbox
                     if watchBridge == nil {
                         watchBridge = WatchSyncBridge(context: container.mainContext)
                     }
