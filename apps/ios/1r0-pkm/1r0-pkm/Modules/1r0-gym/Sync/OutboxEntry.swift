@@ -20,6 +20,11 @@ final class OutboxEntry {
     var createdAt: Date
     var attempts: Int
     var lastError: String?
+    /// Non riprovare prima di questo istante (backoff, ADR-0006). `nil` = subito.
+    var nextAttemptAt: Date?
+    /// Errore permanente (4xx) o troppi tentativi: parcheggiata, non blocca
+    /// più la coda in ordine. L'utente può forzare un nuovo tentativo.
+    var failedPermanently: Bool
 
     init(id: UUID = UUID(), kind: String, payload: Data, createdAt: Date = .now) {
         self.id = id
@@ -28,5 +33,7 @@ final class OutboxEntry {
         self.createdAt = createdAt
         self.attempts = 0
         self.lastError = nil
+        self.nextAttemptAt = nil
+        self.failedPermanently = false
     }
 }

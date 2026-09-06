@@ -179,7 +179,14 @@ enum GymSync {
         } catch {}
     }
 
-    /// Svuota l'outbox spedendo ogni entry.
+    /// Svuota l'outbox spedendo ogni entry in ordine (ADR-0006).
+    ///
+    /// - salta le entry già parcheggiate (`failedPermanently`);
+    /// - rispetta il backoff: se la testa della coda non è ancora "matura"
+    ///   si ferma, per non rompere l'ordine FIFO (un `setlog.create` non deve
+    ///   partire prima del suo `session.create`);
+    /// - un 4xx marca l'entry come fallita permanentemente e passa oltre,
+    ///   così una entry "poison" non blocca per sempre le successive.
     @MainActor
     static func flushOutbox(_ context: ModelContext) async {
         let pending: [OutboxEntry]
@@ -189,7 +196,12 @@ enum GymSync {
             )
         } catch { return }
 
-        for entry in pending {
+        let now = Date()
+        for entry in pending where !entry.failedPermanently {
+            if let next = entry.nextAttemptAt, next > now {
+                // testa della coda non ancora matura → riprova più tardi
+                return
+            }
             do {
                 let backendId = try await send(entry)
                 markSynced(kind: entry.kind, id: backendId, in: context)
@@ -198,11 +210,56 @@ enum GymSync {
             } catch {
                 entry.attempts += 1
                 entry.lastError = String(describing: error)
-                try? context.save()
-                // ferma il flush: mantiene l'ordine, riprova più tardi
-                return
+
+                let status = (error as? ApiClient.HTTPError)?.status ?? -1
+                let verdict = (error is ApiClient.HTTPError)
+                    ? SyncPolicy.classify(status: status)
+                    : .permanent // errore di serializzazione/logica: non migliorerà
+
+                switch verdict {
+                case .permanent:
+                    entry.failedPermanently = true
+                    entry.nextAttemptAt = nil
+                    try? context.save()
+                    continue // parcheggiata: prova comunque le successive
+                case .transient:
+                    if entry.attempts >= SyncPolicy.maxTransientAttempts {
+                        entry.failedPermanently = true
+                        entry.nextAttemptAt = nil
+                        try? context.save()
+                        continue
+                    }
+                    entry.nextAttemptAt = SyncPolicy.nextAttempt(after: now, attempts: entry.attempts)
+                    try? context.save()
+                    return // mantiene l'ordine, riprova dopo il backoff
+                }
             }
         }
+    }
+
+    /// Rimette in coda tutte le entry parcheggiate (l'utente ha toccato
+    /// "riprova") e rilancia il flush.
+    @MainActor
+    static func retryFailed(_ context: ModelContext) async {
+        let stuck = (try? context.fetch(FetchDescriptor<OutboxEntry>(
+            predicate: #Predicate { $0.failedPermanently }
+        ))) ?? []
+        for e in stuck {
+            e.failedPermanently = false
+            e.nextAttemptAt = nil
+            e.attempts = 0
+            e.lastError = nil
+        }
+        try? context.save()
+        await flushOutbox(context)
+    }
+
+    /// Conteggio entry in coda (in attesa o parcheggiate) — per la UI.
+    @MainActor
+    static func outboxCounts(_ context: ModelContext) -> (pending: Int, failed: Int) {
+        let all = (try? context.fetch(FetchDescriptor<OutboxEntry>())) ?? []
+        let failed = all.filter(\.failedPermanently).count
+        return (all.count - failed, failed)
     }
 
     private struct IdOnly: Decodable { let id: String }

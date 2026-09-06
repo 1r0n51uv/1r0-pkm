@@ -16,6 +16,16 @@
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>1r0-gym salva ogni allenamento completato in Apple Salute.</string>
 
+	<!-- Sync outbox in background (ADR-0006): BGAppRefreshTask. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>dev.1r0.pkm.sync</string>
+	</array>
+
 	<!-- TEMPORANEO: backend HTTP su IP nudo (niente dominio/TLS). Eccezione
 	     ATS solo per quell'host — togliere quando c'è dominio + HTTPS. -->
 	<key>NSAppTransportSecurity</key>
