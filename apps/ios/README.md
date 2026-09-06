@@ -65,12 +65,16 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   `BodyMeasurement` (SwiftData). `SupersetGroup` ancora da modellare.
 - `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
   calcolatore piastre + warm-up (ADR-0013), trend peso corporeo (ADR-0012),
-  double progression (ADR-0011). 22 unit test in `1r0-pkmTests/GymMathTests`.
+  double progression (ADR-0011), streak/costanza (ADR-0016). 28 unit test
+  in `GymMathTests` + `WatchSyncBridgeTests`.
 - `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
   `exercise.create`, `routine.create`, `session.create`, `session.update`,
   `setlog.create`, `plateconfig.put`, `measurement.create`,
   `routineday.create`, `routineexercise.create`. Retry con backoff /
   BackgroundTasks: da fare.
+- Watch: `WatchSessionModel` + `WatchConnector` (Watch→iPhone via
+  WatchConnectivity, ADR-0016); `WatchSyncBridge` lato iPhone instrada gli
+  eventi a SwiftData + outbox. UI: `WatchRootView`/`WatchLiveView`.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
   `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
