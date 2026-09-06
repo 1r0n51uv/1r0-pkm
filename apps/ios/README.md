@@ -61,18 +61,24 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 `feat/1r0-gym-*`):
 
 - `Modules/1r0-gym/Models/` — `Exercise`, `Routine`, `WorkoutSession`,
-  `SetLogEntry` (SwiftData). `RoutineDay`, `RoutineExercise`,
+  `SetLogEntry`, `PlateConfig` (SwiftData). `RoutineDay`, `RoutineExercise`,
   `SupersetGroup` ancora da modellare in codice.
-- `Modules/1r0-gym/GymMath.swift` — regole pure (Epley 1RM, volume),
-  unit test in `1r0-pkmTests/GymMathTests`.
+- `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
+  calcolatore piastre (`platesPerSide`), rampa warm-up 40/60/80%
+  (ADR-0013). 13 unit test in `1r0-pkmTests/GymMathTests`.
 - `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
   `exercise.create`, `routine.create`, `session.create`, `session.update`,
   `setlog.create`. Retry con backoff / BackgroundTasks: da fare.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
   `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
-  1RM stimato, timer riposo visivo).
+  1RM stimato, timer riposo visivo), `PlateCalculatorView`/`PlateConfigView`
+  (ADR-0013, apribili dalla sessione).
 - Shell: `ContentView` = TabView (Sessione | Schede | Catalogo).
+
+Fuori ADR-0013 per ora: demo video esercizio (serve import wger/AI,
+ADR-0005), Live Activities / Dynamic Island per il timer riposo
+(target widget-extension ActivityKit).
 
 Schema: `supabase/migrations/0001_1r0-gym_schema.sql`; contratto nomi in
 `packages/shared/src/types/1r0-gym.ts`. Vedi ADR-0021.
