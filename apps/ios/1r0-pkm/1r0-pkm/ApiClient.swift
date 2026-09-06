@@ -37,4 +37,8 @@ struct ApiClient {
     func post(_ path: String, json: Data) async throws -> Data {
         try await request("POST", path, body: json)
     }
+
+    func patch(_ path: String, json: Data) async throws -> Data {
+        try await request("PATCH", path, body: json)
+    }
 }

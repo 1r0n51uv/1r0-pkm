@@ -85,28 +85,8 @@ enum GymSync {
 
         for entry in pending {
             do {
-                switch entry.kind {
-                case "exercise.create":
-                    let data = try await ApiClient.shared.post("v1/exercises", json: entry.payload)
-                    let dto = try JSONDecoder.api.decode(ExerciseDTO.self, from: data)
-                    if let uuid = UUID(uuidString: dto.id),
-                       let e = try context.fetch(
-                        FetchDescriptor<Exercise>(predicate: #Predicate { $0.id == uuid })
-                       ).first {
-                        e.syncedAt = .now
-                    }
-                case "routine.create":
-                    let data = try await ApiClient.shared.post("v1/routines", json: entry.payload)
-                    let dto = try JSONDecoder.api.decode(RoutineDTO.self, from: data)
-                    if let uuid = UUID(uuidString: dto.id),
-                       let r = try context.fetch(
-                        FetchDescriptor<Routine>(predicate: #Predicate { $0.id == uuid })
-                       ).first {
-                        r.syncedAt = .now
-                    }
-                default:
-                    break
-                }
+                let dto = try await send(entry)
+                markSynced(kind: entry.kind, id: dto.id, in: context)
                 context.delete(entry)
                 try context.save()
             } catch {
@@ -116,6 +96,54 @@ enum GymSync {
                 // ferma il flush: mantiene l'ordine, riprova più tardi
                 return
             }
+        }
+    }
+
+    private struct IdOnly: Decodable { let id: String }
+
+    /// Spedisce un'entry e ritorna l'id della riga backend.
+    private static func send(_ entry: OutboxEntry) async throws -> IdOnly {
+        let api = ApiClient.shared
+        switch entry.kind {
+        case "exercise.create":
+            return try JSONDecoder.api.decode(IdOnly.self,
+                from: try await api.post("v1/exercises", json: entry.payload))
+        case "routine.create":
+            return try JSONDecoder.api.decode(IdOnly.self,
+                from: try await api.post("v1/routines", json: entry.payload))
+        case "session.create":
+            return try JSONDecoder.api.decode(IdOnly.self,
+                from: try await api.post("v1/workout-sessions", json: entry.payload))
+        case "session.update":
+            let id = try JSONDecoder.api.decode(IdOnly.self, from: entry.payload).id
+            return try JSONDecoder.api.decode(IdOnly.self,
+                from: try await api.patch("v1/workout-sessions/\(id)", json: entry.payload))
+        case "setlog.create":
+            return try JSONDecoder.api.decode(IdOnly.self,
+                from: try await api.post("v1/set-logs", json: entry.payload))
+        default:
+            throw ApiClient.HTTPError(status: -1, body: "kind sconosciuto: \(entry.kind)")
+        }
+    }
+
+    @MainActor
+    private static func markSynced(kind: String, id: String, in context: ModelContext) {
+        guard let uuid = UUID(uuidString: id) else { return }
+        switch kind {
+        case "exercise.create":
+            try? context.fetch(FetchDescriptor<Exercise>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "routine.create":
+            try? context.fetch(FetchDescriptor<Routine>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "session.create", "session.update":
+            try? context.fetch(FetchDescriptor<WorkoutSession>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "setlog.create":
+            try? context.fetch(FetchDescriptor<SetLogEntry>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        default:
+            break
         }
     }
 }

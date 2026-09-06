@@ -42,7 +42,7 @@ final class _r0_pkmUITests: XCTestCase {
         app.launchArguments += ["-uitest-reset"]
         app.launch()
 
-        // parte sulla tab Schede
+        app.tabBars.buttons["Schede"].tap()
         XCTAssertTrue(app.staticTexts["Schede"].waitForExistence(timeout: 10))
 
         let unique = "PPL \(Int(Date().timeIntervalSince1970))"
@@ -60,21 +60,54 @@ final class _r0_pkmUITests: XCTestCase {
         )
     }
 
-    /// Non è un test: cattura screenshot di entrambe le tab per la review.
+    /// 1r0-gym · sessione: crea esercizio → inizia sessione → logga una
+    /// serie → termina. Verifica che la serie compaia e la sessione chiuda.
+    func testLiveSessionFlow() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        // 1. un esercizio nel catalogo
+        app.tabBars.buttons["Catalogo"].tap()
+        XCTAssertTrue(app.staticTexts["Catalogo"].waitForExistence(timeout: 10))
+        let exName = "Stacco \(Int(Date().timeIntervalSince1970))"
+        app.buttons["addExercise"].tap()
+        let nf = app.textFields["exerciseName"]
+        XCTAssertTrue(nf.waitForExistence(timeout: 5)); nf.tap(); nf.typeText(exName)
+        app.buttons["saveExercise"].tap()
+        XCTAssertTrue(app.staticTexts[exName].waitForExistence(timeout: 8))
+
+        // 2. inizia sessione
+        app.tabBars.buttons["Sessione"].tap()
+        app.buttons["startSession"].tap()
+        XCTAssertTrue(app.buttons["addSet"].waitForExistence(timeout: 5))
+
+        // 3. logga una serie
+        app.buttons["addSet"].tap()
+        XCTAssertTrue(app.buttons["logSet"].waitForExistence(timeout: 5))
+        app.buttons["logSet"].tap()
+        let oneRM = app.staticTexts.matching(NSPredicate(format: "label CONTAINS '1RM'")).firstMatch
+        XCTAssertTrue(oneRM.waitForExistence(timeout: 5), "La serie loggata non compare")
+        sleep(1); attach(app, "sessione-live")
+
+        // 4. termina
+        app.buttons["endSession"].tap()
+        XCTAssertTrue(app.buttons["startSession"].waitForExistence(timeout: 5),
+                      "La sessione non è tornata allo stato iniziale")
+    }
+
+    /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()
         app.launch()
-        _ = app.staticTexts["Schede"].waitForExistence(timeout: 10)
-        sleep(2)
-        attach(app, "01-schede")
+        _ = app.buttons["startSession"].waitForExistence(timeout: 10)
+        sleep(1); attach(app, "01-sessione")
+        app.tabBars.buttons["Schede"].tap()
+        _ = app.staticTexts["Schede"].waitForExistence(timeout: 5)
+        sleep(2); attach(app, "02-schede")
         app.tabBars.buttons["Catalogo"].tap()
         _ = app.staticTexts["Catalogo"].waitForExistence(timeout: 5)
-        sleep(2)
-        attach(app, "02-catalogo")
-        app.buttons["addExercise"].tap()
-        _ = app.textFields["exerciseName"].waitForExistence(timeout: 5)
-        sleep(1)
-        attach(app, "03-nuovo-esercizio")
+        sleep(2); attach(app, "03-catalogo")
     }
 
     private func attach(_ app: XCUIApplication, _ name: String) {

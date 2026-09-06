@@ -10,6 +10,9 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
+            NavigationStack { SessionTabView() }
+                .tabItem { Label("Sessione", systemImage: "figure.strengthtraining.traditional") }
+
             NavigationStack { RoutineListView() }
                 .tabItem { Label("Schede", systemImage: "square.stack.3d.up") }
 

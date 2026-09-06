@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import { registerAuth } from "./auth.js";
 import health from "./routes/health.js";
 import profile from "./routes/profile.js";
+import sessions from "./routes/sessions.js";
 import setlogs from "./routes/setlogs.js";
 import exercises from "./routes/exercises.js";
 import routines from "./routes/routines.js";
@@ -21,6 +22,7 @@ registerAuth(app);
 
 await app.register(health);
 await app.register(profile);
+await app.register(sessions);
 await app.register(setlogs);
 await app.register(exercises);
 await app.register(routines);
