@@ -2,21 +2,30 @@
 //  _r0_pkmApp.swift
 //  1r0-pkm
 //
-//  Created by 1r0n51uv on 05/09/26.
-//
 
 import SwiftUI
+import SwiftData
 
 @main
 struct _r0_pkmApp: App {
-    // Activate WatchConnectivity at launch, not lazily on first view render —
-    // "sessione mai attivata" è il fallimento più comune di questo spike (issue #1).
-    @StateObject private var connector = PhoneConnector.shared
+    let container: ModelContainer
+
+    init() {
+        _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity per dopo
+
+        let reset = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
+        do {
+            let config = ModelConfiguration(isStoredInMemoryOnly: reset)
+            container = try ModelContainer(for: Exercise.self, OutboxEntry.self, configurations: config)
+        } catch {
+            fatalError("ModelContainer non creato: \(error)")
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(connector)
         }
+        .modelContainer(container)
     }
 }

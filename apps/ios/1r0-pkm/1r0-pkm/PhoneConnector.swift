@@ -2,60 +2,32 @@
 //  PhoneConnector.swift
 //  1r0-pkm
 //
-//  Created by 1r0n51uv on 05/09/26.
+//  WatchConnectivity: attiva la sessione all'avvio e riceve messaggi dal
+//  Watch. Toolchain validata negli spike #1/#6. Non usato ancora dalla UI
+//  del modulo 1r0-gym — resta come base per il log sessione da Watch
+//  (ADR-0016) via lo stesso outbox del telefono (ADR-0006).
 //
 
 import Foundation
 import WatchConnectivity
 
-/// Minimal WatchConnectivity wrapper for the Watch spike (issue #1).
-/// Not the final Sync/outbox architecture (ADR-0006) — just enough to
-/// prove the iPhone↔Watch toolchain works before building on top of it.
 final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = PhoneConnector()
 
-    @Published var lastReceivedMessage: String = "(nessun messaggio ricevuto)"
-    @Published var receivedCount: Int = 0
-    @Published var statusText: String = "Attivazione in corso..."
-    /// End-to-end spike (issue #6): result of forwarding a Watch set to the backend.
-    @Published var lastSyncResult: String = "(nessun set inviato)"
+    @Published private(set) var isActivated = false
+    /// Handler per i messaggi in arrivo dal Watch; impostato da chi consuma
+    /// il trasporto (es. il futuro sync sessione).
+    var onMessage: (([String: Any]) -> Void)?
 
     private override init() {
         super.init()
-        guard WCSession.isSupported() else {
-            statusText = "WatchConnectivity non supportato su questo device"
-            return
-        }
+        guard WCSession.isSupported() else { return }
         WCSession.default.delegate = self
         WCSession.default.activate()
     }
 
-    func sendHelloToWatch() {
-        let session = WCSession.default
-        guard session.activationState == .activated else {
-            statusText = "Sessione non ancora attiva"
-            return
-        }
-        guard session.isWatchAppInstalled else {
-            statusText = "App Watch non installata"
-            return
-        }
-        guard session.isReachable else {
-            statusText = "Watch non raggiungibile (fuori portata o app Watch non in foreground)"
-            return
-        }
-        session.sendMessage(["greeting": "Ciao dal iPhone"], replyHandler: nil) { [weak self] error in
-            DispatchQueue.main.async {
-                self?.statusText = "Errore invio: \(error.localizedDescription)"
-            }
-        }
-        statusText = "Messaggio inviato"
-    }
-
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        DispatchQueue.main.async {
-            self.statusText = error != nil ? "Errore attivazione: \(error!.localizedDescription)" : "Sessione attiva"
-        }
+        DispatchQueue.main.async { self.isActivated = (activationState == .activated && error == nil) }
     }
 
     func sessionDidBecomeInactive(_ session: WCSession) {}
@@ -65,23 +37,6 @@ final class PhoneConnector: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        if message["type"] as? String == "setLog" {
-            let weight = (message["weightKg"] as? NSNumber)?.doubleValue ?? 0
-            let reps = (message["reps"] as? NSNumber)?.intValue ?? 0
-            DispatchQueue.main.async {
-                self.lastReceivedMessage = "set dal Watch: \(weight)kg × \(reps)"
-                self.receivedCount += 1
-                self.lastSyncResult = "invio al backend…"
-            }
-            Task {
-                let result = await ApiClient.shared.postSetLog(weightKg: weight, reps: reps)
-                await MainActor.run { self.lastSyncResult = result }
-            }
-            return
-        }
-        DispatchQueue.main.async {
-            self.lastReceivedMessage = message["greeting"] as? String ?? "messaggio senza testo"
-            self.receivedCount += 1
-        }
+        DispatchQueue.main.async { self.onMessage?(message) }
     }
 }

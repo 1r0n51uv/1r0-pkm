@@ -2,7 +2,8 @@
 //  ContentView.swift
 //  1r0-pkm-w Watch App
 //
-//  Created by 1r0n51uv on 05/09/26.
+//  Placeholder — il log sessione da Watch (ADR-0016) si costruirà qui sul
+//  trasporto WatchConnector già validato.
 //
 
 import SwiftUI
@@ -11,25 +12,10 @@ struct ContentView: View {
     @EnvironmentObject private var connector: WatchConnector
 
     var body: some View {
-        VStack(spacing: 10) {
-            Text(connector.lastReceivedMessage)
-                .font(.footnote)
-                .multilineTextAlignment(.center)
-            if connector.receivedCount > 0 {
-                Text("ricevuti: \(connector.receivedCount)")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            Button("Invia a iPhone") {
-                connector.sendHelloToPhone()
-            }
-
-            Button("Logga set (100kg × 5)") {
-                connector.sendTestSetLog()
-            }
-
-            Text(connector.statusText)
+        VStack(spacing: 8) {
+            Text("1r0-gym")
+                .font(.headline)
+            Text(connector.isActivated ? "pronto" : "connessione…")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -38,6 +24,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .environmentObject(WatchConnector.shared)
+    ContentView().environmentObject(WatchConnector.shared)
 }

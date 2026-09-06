@@ -2,8 +2,6 @@
 //  _r0_pkmUITests.swift
 //  1r0-pkmUITests
 //
-//  Created by 1r0n51uv on 05/09/26.
-//
 
 import XCTest
 
@@ -13,26 +11,27 @@ final class _r0_pkmUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    /// Spike #1 — iOS side: session activates at launch, and the send path runs.
-    func testSessionActivatesAndSendRuns() throws {
+    /// 1r0-gym · catalogo esercizi: crea un esercizio offline-first e verifica
+    /// che compaia in lista. Store in-memory (-uitest-reset).
+    func testAddExerciseAppearsInList() throws {
         let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
         app.launch()
 
+        XCTAssertTrue(app.staticTexts["Catalogo"].waitForExistence(timeout: 10))
+
+        let unique = "Panca \(Int(Date().timeIntervalSince1970))"
+
+        app.buttons["addExercise"].tap()
+        let nameField = app.textFields["exerciseName"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+        nameField.tap()
+        nameField.typeText(unique)
+        app.buttons["saveExercise"].tap()
+
         XCTAssertTrue(
-            app.staticTexts["Sessione attiva"].waitForExistence(timeout: 10),
-            "WCSession non è passata ad attiva"
+            app.staticTexts[unique].waitForExistence(timeout: 5),
+            "L'esercizio creato non compare in lista"
         )
-
-        app.buttons["Invia \"Ciao\" al Watch"].tap()
-
-        // The send path ran without crashing if the status label changed away
-        // from the activation message to any outcome (sent, or a precise
-        // "not installed / not reachable" reason on an unpaired test clone).
-        let changed = NSPredicate(format:
-            "label == 'Messaggio inviato' OR label CONTAINS 'raggiungibile' OR label CONTAINS 'installata'")
-        let outcome = app.staticTexts.containing(changed).firstMatch
-        let appeared = outcome.waitForExistence(timeout: 5)
-        let observed = app.staticTexts.allElementsBoundByIndex.map { $0.label }
-        XCTAssertTrue(appeared, "Nessun aggiornamento di stato dopo il tap. Visti: \(observed)")
     }
 }

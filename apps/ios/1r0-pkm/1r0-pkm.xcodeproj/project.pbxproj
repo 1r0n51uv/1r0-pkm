@@ -7,9 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FC646509A6876E99A7AF7D4 /* SpaceGrotesk-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8FE746F3AB2181072C2880A5 /* SpaceGrotesk-Variable.ttf */; };
 		15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81184CE697A7F0353C1C751F /* Secrets.swift */; };
 		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
+		557E443B99C3337A7D982344 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */; };
+		882748F2BF64BE5C58C287EA /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82C2451F9532EB85881778F8 /* Exercise.swift */; };
+		ACEF43729CB557894293499D /* Manrope-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */; };
+		CA034C53A9DEAEFDAF8B73F0 /* AddExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88364768A43AEC6569D33CFA /* AddExerciseView.swift */; };
+		D0D343E292B539DDEE52089E /* GymSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF4E7CB31B6551914B2913 /* GymSync.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
 		ED3C9552304CE45800E8464E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED3C9551304CE45800E8464E /* Assets.xcassets */; };
@@ -26,6 +32,8 @@
 		ED3F627A304CD5D1000F4A2D /* _r0_pkmUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */; };
 		ED3F627C304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */; };
 		F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33394EDB88C37094051E27DE /* PhoneConnector.swift */; };
+		F5B94177A254EF3BC4A0BBAE /* ExerciseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826D4042BC2825E48C9489B3 /* ExerciseListView.swift */; };
+		F72F40659B74D4F1188F6690 /* GlassTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,9 +89,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20CF4E7CB31B6551914B2913 /* GymSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymSync.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/GymSync.swift"; sourceTree = SOURCE_ROOT; };
 		33394EDB88C37094051E27DE /* PhoneConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhoneConnector.swift; path = "1r0-pkm/PhoneConnector.swift"; sourceTree = SOURCE_ROOT; };
+		4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OutboxEntry.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/OutboxEntry.swift"; sourceTree = SOURCE_ROOT; };
 		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
 		81184CE697A7F0353C1C751F /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Secrets.swift; path = "1r0-pkm/Secrets.swift"; sourceTree = SOURCE_ROOT; };
+		826D4042BC2825E48C9489B3 /* ExerciseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExerciseListView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/ExerciseListView.swift"; sourceTree = SOURCE_ROOT; };
+		82C2451F9532EB85881778F8 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Exercise.swift; path = "1r0-pkm/Modules/1r0-gym/Models/Exercise.swift"; sourceTree = SOURCE_ROOT; };
+		88364768A43AEC6569D33CFA /* AddExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddExerciseView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/AddExerciseView.swift"; sourceTree = SOURCE_ROOT; };
+		8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file.ttf; name = "Manrope-Variable.ttf"; path = "1r0-pkm/Resources/Fonts/Manrope-Variable.ttf"; sourceTree = SOURCE_ROOT; };
+		8FE746F3AB2181072C2880A5 /* SpaceGrotesk-Variable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file.ttf; name = "SpaceGrotesk-Variable.ttf"; path = "1r0-pkm/Resources/Fonts/SpaceGrotesk-Variable.ttf"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wApp.swift; sourceTree = "<group>"; };
@@ -106,6 +121,7 @@
 		ED3F6275304CD5D1000F4A2D /* 1r0-pkmUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "1r0-pkmUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITests.swift; sourceTree = "<group>"; };
 		ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassTheme.swift; path = "1r0-pkm/Modules/1r0-gym/Views/GlassTheme.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -159,6 +175,14 @@
 				B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */,
 				54B54FD4AD90693086FD751B /* ApiClient.swift */,
 				81184CE697A7F0353C1C751F /* Secrets.swift */,
+				82C2451F9532EB85881778F8 /* Exercise.swift */,
+				4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */,
+				20CF4E7CB31B6551914B2913 /* GymSync.swift */,
+				FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */,
+				826D4042BC2825E48C9489B3 /* ExerciseListView.swift */,
+				88364768A43AEC6569D33CFA /* AddExerciseView.swift */,
+				8FE746F3AB2181072C2880A5 /* SpaceGrotesk-Variable.ttf */,
+				8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */,
 			);
 			sourceTree = "<group>";
 		};
@@ -404,6 +428,8 @@
 			files = (
 				ED3F6266304CD5D0000F4A2D /* Preview Assets.xcassets in Resources */,
 				ED3F6262304CD5D0000F4A2D /* Assets.xcassets in Resources */,
+				0FC646509A6876E99A7AF7D4 /* SpaceGrotesk-Variable.ttf in Resources */,
+				ACEF43729CB557894293499D /* Manrope-Variable.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +486,12 @@
 				F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */,
 				2375415E863C85E094782F1E /* ApiClient.swift in Sources */,
 				15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */,
+				882748F2BF64BE5C58C287EA /* Exercise.swift in Sources */,
+				557E443B99C3337A7D982344 /* OutboxEntry.swift in Sources */,
+				D0D343E292B539DDEE52089E /* GymSync.swift in Sources */,
+				F72F40659B74D4F1188F6690 /* GlassTheme.swift in Sources */,
+				F5B94177A254EF3BC4A0BBAE /* ExerciseListView.swift in Sources */,
+				CA034C53A9DEAEFDAF8B73F0 /* AddExerciseView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

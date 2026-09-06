@@ -4,6 +4,7 @@ import { registerAuth } from "./auth.js";
 import health from "./routes/health.js";
 import profile from "./routes/profile.js";
 import setlogs from "./routes/setlogs.js";
+import exercises from "./routes/exercises.js";
 import ai from "./routes/ai.js";
 import { pool } from "./db.js";
 
@@ -20,6 +21,7 @@ registerAuth(app);
 await app.register(health);
 await app.register(profile);
 await app.register(setlogs);
+await app.register(exercises);
 await app.register(ai);
 
 const port = Number(process.env.PORT ?? 8080);
