@@ -16,6 +16,7 @@ struct AddRoutineExerciseSheet: View {
 
     @Query(sort: \Exercise.name) private var exercises: [Exercise]
     @State private var picked: Exercise?
+    @State private var showPicker = false
     @State private var sets = 3
     @State private var repMin = 8
     @State private var repMax = 12
@@ -28,20 +29,51 @@ struct AddRoutineExerciseSheet: View {
                     .font(Glass.display(22, .bold)).padding(.top, 8)
 
                 labelled("ESERCIZIO") {
-                    Menu {
-                        ForEach(exercises) { e in Button(e.name) { picked = e } }
-                    } label: {
-                        HStack {
-                            Text(picked?.name ?? "Scegli…")
-                                .foregroundStyle(picked == nil ? Glass.textSecondary : Glass.textPrimary)
-                            Spacer()
-                            Image(systemName: "chevron.up.chevron.down").font(.caption)
+                    VStack(spacing: 0) {
+                        Button {
+                            withAnimation(.snappy(duration: 0.18)) { showPicker.toggle() }
+                        } label: {
+                            HStack {
+                                Text(picked?.name ?? "Scegli…")
+                                    .foregroundStyle(picked == nil ? Glass.textSecondary : Glass.textPrimary)
+                                Spacer()
+                                Image(systemName: showPicker ? "chevron.up" : "chevron.down").font(.caption)
+                            }
+                            .font(Glass.body(16)).padding(14)
+                            .contentShape(Rectangle())
                         }
-                        .font(Glass.body(16)).padding(14)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("pickRoutineExercise")
+
+                        if showPicker {
+                            Divider().overlay(Glass.hairline)
+                            ScrollView {
+                                VStack(spacing: 0) {
+                                    ForEach(exercises) { e in
+                                        Button {
+                                            picked = e
+                                            withAnimation(.snappy(duration: 0.18)) { showPicker = false }
+                                        } label: {
+                                            HStack {
+                                                Text(e.name).font(Glass.body(15))
+                                                    .foregroundStyle(Glass.textPrimary)
+                                                Spacer()
+                                                if picked?.id == e.id {
+                                                    Image(systemName: "checkmark").font(.caption).foregroundStyle(Glass.accent)
+                                                }
+                                            }
+                                            .padding(.horizontal, 14).padding(.vertical, 11)
+                                            .contentShape(Rectangle())
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                            .frame(maxHeight: 220)
+                        }
                     }
-                    .accessibilityIdentifier("pickRoutineExercise")
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Glass.hairline))
                 }
 
                 HStack(spacing: 12) {
