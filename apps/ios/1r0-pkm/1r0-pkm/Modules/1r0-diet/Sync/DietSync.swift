@@ -133,6 +133,77 @@ enum DietSync {
         return m
     }
 
+    // MARK: - Obiettivo nutrizionale (ADR-0019, append-only)
+
+    @MainActor
+    static func pullGoals(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/nutrition-goals")
+            let rows = try JSONDecoder.api.decode([NutritionGoalDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id),
+                      let mode = GoalMode(rawValue: r.mode) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<NutritionGoal>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let g = existing ?? NutritionGoal(id: uuid, mode: mode, macros: .zero)
+                g.mode = mode
+                g.caloriesTarget = num(r.calories_target) ?? 0
+                g.proteinGTarget = num(r.protein_g_target) ?? 0
+                g.carbsGTarget = num(r.carbs_g_target) ?? 0
+                g.fatGTarget = num(r.fat_g_target) ?? 0
+                g.waterMlTarget = num(r.water_ml_target)
+                g.effectiveFrom = date(r.effective_from) ?? g.effectiveFrom
+                g.activityLevelRaw = r.activity_level
+                g.sourceNote = r.source_note
+                g.syncedAt = .now
+                if existing == nil { context.insert(g) }
+            }
+            try context.save()
+        } catch { }
+    }
+
+    /// Inserisce una NUOVA riga obiettivo (mai update — ADR-0019) + accoda
+    /// `nutritiongoal.create`.
+    @MainActor
+    @discardableResult
+    static func setGoal(mode: GoalMode, macros: Macros, waterMl: Double? = nil,
+                        activity: ActivityLevel? = nil, note: String? = nil,
+                        in context: ModelContext) -> NutritionGoal {
+        let g = NutritionGoal(mode: mode, macros: macros, waterMlTarget: waterMl,
+                              effectiveFrom: Calendar.current.startOfDay(for: .now),
+                              activityLevel: activity, sourceNote: note)
+        context.insert(g)
+        var payload: [String: Any] = [
+            "id": g.id.uuidString, "mode": mode.rawValue,
+            "caloriesTarget": macros.kcal, "proteinGTarget": macros.proteinG,
+            "carbsGTarget": macros.carbsG, "fatGTarget": macros.fatG,
+            "effectiveFrom": isoDate(g.effectiveFrom),
+        ]
+        if let waterMl { payload["waterMlTarget"] = waterMl }
+        if let activity { payload["activityLevel"] = activity.rawValue }
+        if let note { payload["sourceNote"] = note }
+        enqueue("nutritiongoal.create", payload, in: context)
+        return g
+    }
+
+    /// Obiettivo "corrente": la riga più recente con `effectiveFrom <= oggi`.
+    static func current(_ goals: [NutritionGoal], on day: Date = .now) -> NutritionGoal? {
+        let end = Calendar.current.startOfDay(for: day)
+        return goals
+            .filter { $0.effectiveFrom <= end }
+            .max { ($0.effectiveFrom, $0.createdAt) < ($1.effectiveFrom, $1.createdAt) }
+    }
+
+    private static func date(_ s: String) -> Date? {
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; f.timeZone = .init(identifier: "UTC")
+        return f.date(from: String(s.prefix(10)))
+    }
+    private static func isoDate(_ d: Date) -> String {
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; f.timeZone = .init(identifier: "UTC")
+        return f.string(from: d)
+    }
+
     // MARK: - Ricerca esterna (ADR-0018)
 
     /// Ricerca testuale su OpenFoodFacts + USDA (via backend). Ritorna
@@ -260,6 +331,19 @@ struct FoodDTO: Decodable {
     let carbs_g_per_100g: Num?
     let fat_g_per_100g: Num?
     let caffeine_mg_per_100g: Num?
+}
+
+struct NutritionGoalDTO: Decodable {
+    let id: String
+    let mode: String
+    let calories_target: FoodDTO.Num?
+    let protein_g_target: FoodDTO.Num?
+    let carbs_g_target: FoodDTO.Num?
+    let fat_g_target: FoodDTO.Num?
+    let water_ml_target: FoodDTO.Num?
+    let effective_from: String
+    let activity_level: String?
+    let source_note: String?
 }
 
 struct MealEntryDTO: Decodable {

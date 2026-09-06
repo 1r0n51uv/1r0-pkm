@@ -22,7 +22,10 @@ enum DietGoal {
 struct DietTabView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \MealEntry.consumedAt, order: .reverse) private var allMeals: [MealEntry]
+    @Query(sort: \NutritionGoal.effectiveFrom, order: .reverse) private var goals: [NutritionGoal]
+    @Query(sort: \Routine.createdAt, order: .reverse) private var routines: [Routine]
     @State private var logSlot: MealSlot?
+    @State private var showGoal = false
 
     private var today: [MealEntry] {
         allMeals.filter { Calendar.current.isDateInToday($0.consumedAt) }
@@ -34,10 +37,43 @@ struct DietTabView: View {
         today.reduce(.zero) { $0 + $1.totals }
     }
 
+    /// Obiettivo corrente (ADR-0019) o il default fisso se non ne è stato
+    /// ancora impostato uno.
+    private var goal: Macros {
+        DietSync.current(goals)?.macros
+            ?? Macros(kcal: DietGoal.kcal, proteinG: DietGoal.proteinG,
+                      carbsG: DietGoal.carbsG, fatG: DietGoal.fatG)
+    }
+    /// Se l'obiettivo è "legato alla scheda" e la fase attiva è cambiata
+    /// rispetto a quella registrata, l'app propone (non applica) di aggiornarlo.
+    private var phaseNudge: RoutinePhase? {
+        guard let g = DietSync.current(goals), g.mode == .phase_linked,
+              let active = routines.first(where: { $0.phase != nil })?.phase
+        else { return nil }
+        return (g.sourceNote ?? "").contains(active.rawValue) ? nil : active
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
+                if let p = phaseNudge {
+                    Button { showGoal = true } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("Fase attiva: «\(p.label)» — aggiorna l'obiettivo")
+                                .font(Glass.body(13, .semibold))
+                            Spacer(minLength: 4)
+                            Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold))
+                        }
+                        .foregroundStyle(Glass.amberText)
+                        .padding(.horizontal, 16).padding(.vertical, 12)
+                        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Glass.amber.opacity(0.12)))
+                        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Glass.amber.opacity(0.35)))
+                    }
+                    .buttonStyle(.plain)
+                }
                 summaryCard
                 VStack(spacing: 12) {
                     ForEach(MealSlot.allCases) { slot in mealCard(slot) }
@@ -59,26 +95,37 @@ struct DietTabView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
+        .sheet(isPresented: $showGoal) {
+            NutritionGoalView()
+                .presentationDetents([.large])
+                .presentationBackground(.ultraThinMaterial)
+        }
         .task {
             await DietSync.pullFoods(into: context)
             await DietSync.pullMealEntries(into: context)
+            await DietSync.pullGoals(into: context)
             await GymSync.flushOutbox(context)
         }
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Oggi")
-                .font(Glass.display(28, .bold)).tracking(-0.5)
-            Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized)
-                .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Oggi")
+                    .font(Glass.display(28, .bold)).tracking(-0.5)
+                Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized)
+                    .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
+            }
+            Spacer(minLength: 8)
+            GlassIconButton(systemName: "target") { showGoal = true }
+                .accessibilityIdentifier("editGoal")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var summaryCard: some View {
         let t = dayTotals
-        let frac = min(1, DietGoal.kcal > 0 ? t.kcal / DietGoal.kcal : 0)
+        let g = goal
+        let frac = min(1, g.kcal > 0 ? t.kcal / g.kcal : 0)
         return VStack(spacing: 20) {
             ZStack {
                 Circle().stroke(Color.white.opacity(0.10), lineWidth: 14)
@@ -89,7 +136,7 @@ struct DietTabView: View {
                 VStack(spacing: 2) {
                     Text(kcalString(t.kcal))
                         .font(Glass.display(36, .bold)).tracking(-0.5).monospacedDigit()
-                    Text("di \(kcalString(DietGoal.kcal)) kcal")
+                    Text("di \(kcalString(g.kcal)) kcal")
                         .font(Glass.body(13)).foregroundStyle(Glass.ink.opacity(0.55))
                 }
             }
@@ -97,9 +144,9 @@ struct DietTabView: View {
             .padding(.top, 4)
 
             VStack(spacing: 14) {
-                macroBar("Proteine", t.proteinG, DietGoal.proteinG, Glass.ink)
-                macroBar("Carboidrati", t.carbsG, DietGoal.carbsG, Glass.ink.opacity(0.6))
-                macroBar("Grassi", t.fatG, DietGoal.fatG, Glass.ink.opacity(0.6))
+                macroBar("Proteine", t.proteinG, g.proteinG, Glass.ink)
+                macroBar("Carboidrati", t.carbsG, g.carbsG, Glass.ink.opacity(0.6))
+                macroBar("Grassi", t.fatG, g.fatG, Glass.ink.opacity(0.6))
             }
         }
         .padding(24)

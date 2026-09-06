@@ -115,18 +115,21 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
 Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
 
 - `Modules/1r0-diet/Models/` — `Food` (macro per 100 g; `source`
-  `custom`/`openfoodfacts`/`usda`, slice 1 solo `custom`), `MealEntry` (+
-  `mealSlot` breakfast/lunch/dinner/snack) con `MealEntryItem` in cascade
-  che *snapshotta* nome + calorie/macro al log (ADR-0017). Registrati nello
-  stesso `GymData.schema` (container unico, ADR-0008).
-- `Modules/1r0-diet/Sync/DietSync.swift` — `pullFoods` / `pullMealEntries`
-  (GET `v1/foods`, `v1/meal-entries`) + azioni `createFood` / `logMeal`.
-  ADR-0018: `searchRemote(_:)` (GET `v1/foods/search` — OpenFoodFacts + USDA
-  via backend), `lookupBarcode(_:)` (GET `v1/foods/barcode/:code` — cache poi
-  OFF), `materialize(_:)` che trasforma un `FoodCandidate` transitorio in un
-  `Food` locale (riuso per barcode/external_id) + `food.create`. Outbox
-  condiviso: kind `food.create` / `mealentry.create` in `GymSync.send`
-  (ADR-0006).
+  `custom`/`openfoodfacts`/`usda`), `MealEntry` (+ `mealSlot`) con
+  `MealEntryItem` in cascade che *snapshotta* nome + calorie/macro al log
+  (ADR-0017), `NutritionGoal` (ADR-0019: append-only, `mode`
+  manual/phase_linked/tdee, target in grammi assoluti; + `NutritionMath`
+  puro per TDEE ≈ peso×fattore e preset di fase bulk/cut/deload). Registrati
+  nello stesso `GymData.schema` (container unico, ADR-0008).
+- `Modules/1r0-diet/Sync/DietSync.swift` — `pullFoods` / `pullMealEntries` /
+  `pullGoals` + azioni `createFood` / `logMeal` / `setGoal` (sempre INSERT,
+  mai update — ADR-0019) + `current(_:)` (riga più recente con
+  `effectiveFrom <= oggi`). ADR-0018: `searchRemote(_:)` (GET
+  `v1/foods/search` — OpenFoodFacts + USDA via backend), `lookupBarcode(_:)`
+  (GET `v1/foods/barcode/:code` — cache poi OFF), `materialize(_:)`
+  (`FoodCandidate` transitorio → `Food` locale, riuso per barcode/
+  external_id). Outbox condiviso: kind `food.create` / `mealentry.create` /
+  `nutritiongoal.create` in `GymSync.send` (ADR-0006).
 - `Modules/1r0-diet/Views/` — `DietTabView` (mockup "GlassDiet", accento
   ambra: anello calorie + barre macro + pasti della giornata),
   `LogFoodView` ("GlassFoodSearch" + card di composizione "GlassMealLog":
@@ -134,9 +137,15 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   anteprima macro live), `BarcodeScannerView` (VisionKit
   `DataScannerViewController`; fallback a codice manuale dove la fotocamera
   non c'è — es. simulatore; `NSCameraUsageDescription` in Info.plist),
-  `AddFoodView` (alimento custom). Obiettivo calorico: costante `DietGoal`
-  fissa — `NutritionGoal` append-only/TDEE/fase arriva con ADR-0019.
-- Fuori slice 1 / 0018: pianificazione pasti / ricette / lista spesa,
+  `AddFoodView` (alimento custom), `NutritionGoalView` (ADR-0019, mockup
+  "GlassNutritionGoals": segmented Manuale/Fase/TDEE, target editabili in
+  manuale / calcolati read-only altrove, "Salva" = nuova riga). L'anello e
+  le barre in `DietTabView` usano `DietSync.current(goals)` (fallback
+  `DietGoal` fisso); banner "fase cambiata → aggiorna l'obiettivo" quando
+  `mode == phase_linked` e la fase della scheda non combacia.
+  TDEE è una stima grezza (peso × fattore attività): manca sesso/età/altezza
+  nel profilo, da aggiungere se serve un Mifflin-St Jeor vero.
+- Fuori 0017/0018/0019: pianificazione pasti / ricette / lista spesa,
   tracker acqua/caffeina/integratori, report (ADR-0020), modulo su Watch.
 
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:

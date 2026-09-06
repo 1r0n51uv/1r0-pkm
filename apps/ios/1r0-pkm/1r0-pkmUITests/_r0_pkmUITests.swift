@@ -284,6 +284,37 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "dieta-oggi")
     }
 
+    /// 1r0-diet · ADR-0019: imposta un obiettivo manuale e verifica che la
+    /// dashboard (anello calorie) rifletta il nuovo target.
+    func testSetNutritionGoal() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["editGoal"].tap()
+        XCTAssertTrue(app.staticTexts["Obiettivo nutrizionale"].waitForExistence(timeout: 5))
+
+        let kf = app.textFields["goal_Calorie"]
+        XCTAssertTrue(kf.waitForExistence(timeout: 5))
+        if app.buttons["clear_Calorie"].exists { app.buttons["clear_Calorie"].tap() }
+        kf.tap()
+        kf.typeText("1950")
+
+        app.buttons["saveGoal"].tap()
+
+        XCTAssertTrue(app.tabBars.buttons["Dieta"].waitForExistence(timeout: 8),
+                      "Il foglio obiettivo non si è chiuso")
+        XCTAssertTrue(
+            app.staticTexts.matching(NSPredicate(format: "label CONTAINS '1.950'")).firstMatch
+                .waitForExistence(timeout: 6),
+            "L'anello calorie non mostra il nuovo obiettivo (1.950 kcal)"
+        )
+        sleep(1); attach(app, "diet-goal")
+    }
+
     /// 1r0-diet · ADR-0018: il foglio "Aggiungi alimento" ha ricerca +
     /// scansione barcode; il pulsante scan apre lo scanner (sul simulatore
     /// niente fotocamera → inserimento manuale del codice).

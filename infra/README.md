@@ -125,6 +125,19 @@ curl -s "$BASE/v1/foods/barcode/3017620422003" -H "Authorization: Bearer $KEY"
 # 404 se non trovato; q < 2 char -> []
 ```
 
+## Obiettivo nutrizionale — append-only (ADR-0019)
+
+`nutrition_goals` non si aggiorna mai: ogni cambio è una nuova riga con
+`effective_from`. Il client sceglie la "corrente" (più recente con
+`effective_from <= oggi`). Richiede la migration `0007`.
+
+```bash
+curl -s -X POST $BASE/v1/nutrition-goals -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"mode":"manual","caloriesTarget":2400,"proteinGTarget":180,"carbsGTarget":260,"fatGTarget":75,"sourceNote":"manuale"}'
+# mode: manual | phase_linked | tdee ; activityLevel (solo tdee): sedentary|moderate|active
+curl -s "$BASE/v1/nutrition-goals" -H "Authorization: Bearer $KEY" | jq '.[0]'   # più recente prima
+```
+
 ## Not done yet
 
 - Provisioning automation (Terraform/CDK) — manual for now.
