@@ -68,7 +68,8 @@ Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
   (ADR-0012). 15 unit test in `1r0-pkmTests/GymMathTests`.
 - `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
   `exercise.create`, `routine.create`, `session.create`, `session.update`,
-  `setlog.create`. Retry con backoff / BackgroundTasks: da fare.
+  `setlog.create`, `plateconfig.put`, `measurement.create`. Retry con
+  backoff / BackgroundTasks: da fare.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
   `ExerciseListView`/`AddExerciseView`, `RoutineListView`/`AddRoutineView`,
   `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
