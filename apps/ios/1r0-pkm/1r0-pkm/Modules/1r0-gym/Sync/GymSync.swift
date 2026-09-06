@@ -350,6 +350,16 @@ enum GymSync {
             return try id(await api.post("v1/recipes", json: entry.payload))
         case "plannedmeal.create":
             return try id(await api.post("v1/planned-meals", json: entry.payload))
+        case "shoppingitem.put":
+            return try id(await api.post("v1/shopping-list", json: entry.payload))
+        case "waterlog.create":
+            return try id(await api.post("v1/water-logs", json: entry.payload))
+        case "supplement.put":
+            return try id(await api.post("v1/supplements", json: entry.payload))
+        case "supplementlog.put":
+            return try id(await api.post("v1/supplement-logs", json: entry.payload))
+        case "caffeinelog.create":
+            return try id(await api.post("v1/caffeine-logs", json: entry.payload))
         default:
             throw ApiClient.HTTPError(status: -1, body: "kind sconosciuto: \(entry.kind)")
         }
@@ -398,6 +408,21 @@ enum GymSync {
                 .first?.syncedAt = .now
         case "plannedmeal.create":
             try? context.fetch(FetchDescriptor<PlannedMeal>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "shoppingitem.put":
+            try? context.fetch(FetchDescriptor<ShoppingListItem>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "waterlog.create":
+            try? context.fetch(FetchDescriptor<WaterLog>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "supplement.put":
+            try? context.fetch(FetchDescriptor<Supplement>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "supplementlog.put":
+            try? context.fetch(FetchDescriptor<SupplementLog>(predicate: #Predicate { $0.id == uuid }))
+                .first?.syncedAt = .now
+        case "caffeinelog.create":
+            try? context.fetch(FetchDescriptor<CaffeineLog>(predicate: #Predicate { $0.id == uuid }))
                 .first?.syncedAt = .now
         default:
             break

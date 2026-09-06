@@ -45,4 +45,9 @@ struct ApiClient {
     func put(_ path: String, json: Data) async throws -> Data {
         try await request("PUT", path, body: json)
     }
+
+    @discardableResult
+    func delete(_ path: String) async throws -> Data {
+        try await request("DELETE", path, body: nil)
+    }
 }

@@ -21,6 +21,7 @@ struct MealPlanView: View {
     @State private var selectedDay = Calendar.current.startOfDay(for: .now)
     @State private var composeSlot: MealSlot?
     @State private var showRecipes = false
+    @State private var showShopping = false
 
     private var foodMap: [UUID: Food] { Dictionary(foods.map { ($0.id, $0) }) { a, _ in a } }
     private let cal = Calendar.current
@@ -50,6 +51,7 @@ struct MealPlanView: View {
             .glassScreen(.warm)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showRecipes) { RecipeListView() }
+            .navigationDestination(isPresented: $showShopping) { ShoppingListView() }
             .sheet(item: $composeSlot) { slot in
                 PlanMealSheet(day: selectedDay, slot: slot)
                     .presentationDetents([.large])
@@ -78,6 +80,8 @@ struct MealPlanView: View {
             Spacer()
             Text("Pianificazione").font(Glass.display(16, .semibold))
             Spacer()
+            GlassIconButton(systemName: "cart") { showShopping = true }
+                .accessibilityIdentifier("openShopping")
             GlassIconButton(systemName: "book.closed") { showRecipes = true }
                 .accessibilityIdentifier("openRecipes")
         }

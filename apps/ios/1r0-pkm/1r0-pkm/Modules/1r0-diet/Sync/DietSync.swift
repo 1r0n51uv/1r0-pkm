@@ -385,6 +385,245 @@ enum DietSync {
         return f.string(from: d)
     }
 
+    // MARK: - Lista della spesa (ADR-0017 slice 3)
+
+    @MainActor
+    static func pullShoppingList(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/shopping-list")
+            let rows = try JSONDecoder.api.decode([ShoppingItemDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<ShoppingListItem>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let it = existing ?? ShoppingListItem(id: uuid, customName: r.custom_name ?? "")
+                if existing == nil { context.insert(it) }
+                it.foodId = r.food_id.flatMap(UUID.init(uuidString:))
+                it.customName = r.custom_name ?? ""
+                it.quantityText = r.quantity_text
+                it.isChecked = r.is_checked ?? false
+                it.source = ShoppingSource(rawValue: r.source ?? "manual") ?? .manual
+                it.syncedAt = .now
+            }
+            try context.save()
+        } catch { }
+    }
+
+    @MainActor
+    @discardableResult
+    static func addShoppingItem(name: String, quantity: String? = nil,
+                                foodId: UUID? = nil, source: ShoppingSource = .manual,
+                                in context: ModelContext) -> ShoppingListItem {
+        let it = ShoppingListItem(foodId: foodId, customName: name,
+                                  quantityText: quantity, source: source)
+        context.insert(it)
+        enqueueShoppingItem(it, in: context)
+        return it
+    }
+
+    @MainActor
+    static func setShoppingChecked(_ it: ShoppingListItem, _ checked: Bool,
+                                   in context: ModelContext) {
+        it.isChecked = checked
+        it.syncedAt = nil
+        enqueueShoppingItem(it, in: context)
+    }
+
+    @MainActor
+    static func deleteShoppingItem(_ it: ShoppingListItem, in context: ModelContext) {
+        let id = it.id.uuidString
+        context.delete(it)
+        try? context.save()
+        Task { try? await ApiClient.shared.delete("v1/shopping-list/\(id)") }
+    }
+
+    /// Aggiunge alla lista gli alimenti dei pasti pianificati passati che non
+    /// sono già presenti (per nome). Non tocca le voci esistenti.
+    @MainActor
+    @discardableResult
+    static func generateShoppingList(from planned: [PlannedMeal],
+                                     existing: [ShoppingListItem],
+                                     in context: ModelContext) -> Int {
+        var have = Set(existing.map { $0.displayName.lowercased() })
+        var added = 0
+        for p in planned where p.status != .skipped {
+            for item in p.items {
+                let key = item.foodName.lowercased()
+                guard !key.isEmpty, !have.contains(key) else { continue }
+                have.insert(key)
+                _ = addShoppingItem(name: item.foodName,
+                                    quantity: "\(Int(item.quantityG)) g",
+                                    foodId: item.foodId, source: .generated, in: context)
+                added += 1
+            }
+        }
+        return added
+    }
+
+    @MainActor
+    private static func enqueueShoppingItem(_ it: ShoppingListItem, in context: ModelContext) {
+        var payload: [String: Any] = [
+            "id": it.id.uuidString, "customName": it.customName,
+            "isChecked": it.isChecked, "source": it.source.rawValue,
+        ]
+        if let f = it.foodId { payload["foodId"] = f.uuidString }
+        if let q = it.quantityText { payload["quantityText"] = q }
+        enqueue("shoppingitem.put", payload, in: context)
+    }
+
+    // MARK: - Tracker: acqua / integratori / caffeina (ADR-0017 slice 4)
+
+    @MainActor
+    static func pullWaterLogs(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/water-logs")
+            let rows = try JSONDecoder.api.decode([WaterLogDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<WaterLog>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let w = existing ?? WaterLog(id: uuid, amountMl: 0)
+                if existing == nil { context.insert(w) }
+                w.loggedAt = JSONDecoder.iso.date(from: r.logged_at) ?? w.loggedAt
+                w.amountMl = num(r.amount_ml) ?? 0
+                w.syncedAt = .now
+            }
+            try context.save()
+        } catch { }
+    }
+
+    @MainActor
+    @discardableResult
+    static func addWater(ml: Double, in context: ModelContext) -> WaterLog {
+        let w = WaterLog(amountMl: ml)
+        context.insert(w)
+        enqueue("waterlog.create", [
+            "id": w.id.uuidString, "amountMl": ml,
+            "loggedAt": ISO8601DateFormatter().string(from: w.loggedAt),
+        ], in: context)
+        return w
+    }
+
+    @MainActor
+    static func pullSupplements(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/supplements")
+            let rows = try JSONDecoder.api.decode([SupplementDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<Supplement>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let s = existing ?? Supplement(id: uuid, name: r.name)
+                if existing == nil { context.insert(s) }
+                s.name = r.name
+                s.doseText = r.dose_text
+                s.scheduleText = r.schedule_text
+                s.active = r.active ?? true
+                s.syncedAt = .now
+            }
+            try context.save()
+        } catch { }
+    }
+
+    @MainActor
+    static func pullSupplementLogs(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/supplement-logs")
+            let rows = try JSONDecoder.api.decode([SupplementLogDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id),
+                      let sid = UUID(uuidString: r.supplement_id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<SupplementLog>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let l = existing ?? SupplementLog(id: uuid, supplementId: sid)
+                if existing == nil { context.insert(l) }
+                l.supplementId = sid
+                l.loggedAt = JSONDecoder.iso.date(from: r.logged_at) ?? l.loggedAt
+                l.taken = r.taken ?? true
+                l.syncedAt = .now
+            }
+            try context.save()
+        } catch { }
+    }
+
+    @MainActor
+    @discardableResult
+    static func addSupplement(name: String, dose: String? = nil, schedule: String? = nil,
+                              in context: ModelContext) -> Supplement {
+        let s = Supplement(name: name, doseText: dose, scheduleText: schedule)
+        context.insert(s)
+        var payload: [String: Any] = ["id": s.id.uuidString, "name": name, "active": true]
+        if let dose { payload["doseText"] = dose }
+        if let schedule { payload["scheduleText"] = schedule }
+        enqueue("supplement.put", payload, in: context)
+        return s
+    }
+
+    @MainActor
+    static func deleteSupplement(_ s: Supplement, in context: ModelContext) {
+        let id = s.id.uuidString
+        context.delete(s)
+        try? context.save()
+        Task { try? await ApiClient.shared.delete("v1/supplements/\(id)") }
+    }
+
+    /// La spunta di oggi per un integratore (crea o aggiorna la riga del giorno).
+    @MainActor
+    static func setSupplementTaken(_ supp: Supplement, taken: Bool,
+                                   logs: [SupplementLog], on day: Date = .now,
+                                   in context: ModelContext) {
+        let sid = supp.id
+        let existing = logs.first {
+            $0.supplementId == sid && Calendar.current.isDate($0.loggedAt, inSameDayAs: day)
+        }
+        let l = existing ?? SupplementLog(supplementId: sid, loggedAt: day, taken: taken)
+        if existing == nil { context.insert(l) }
+        l.taken = taken
+        l.syncedAt = nil
+        enqueue("supplementlog.put", [
+            "id": l.id.uuidString, "supplementId": sid.uuidString,
+            "taken": taken, "loggedAt": ISO8601DateFormatter().string(from: l.loggedAt),
+        ], in: context)
+    }
+
+    @MainActor
+    static func pullCaffeineLogs(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/caffeine-logs")
+            let rows = try JSONDecoder.api.decode([CaffeineLogDTO].self, from: data)
+            for r in rows {
+                guard let uuid = UUID(uuidString: r.id) else { continue }
+                let existing = try context.fetch(
+                    FetchDescriptor<CaffeineLog>(predicate: #Predicate { $0.id == uuid })
+                ).first
+                let ca = existing ?? CaffeineLog(id: uuid, sourceName: "", caffeineMg: 0)
+                if existing == nil { context.insert(ca) }
+                ca.loggedAt = JSONDecoder.iso.date(from: r.logged_at) ?? ca.loggedAt
+                ca.sourceName = r.source_name ?? "caffè"
+                ca.caffeineMg = num(r.caffeine_mg) ?? 0
+                ca.syncedAt = .now
+            }
+            try context.save()
+        } catch { }
+    }
+
+    @MainActor
+    @discardableResult
+    static func addCaffeine(mg: Double, source: String = "Caffè",
+                            in context: ModelContext) -> CaffeineLog {
+        let ca = CaffeineLog(sourceName: source, caffeineMg: mg)
+        context.insert(ca)
+        enqueue("caffeinelog.create", [
+            "id": ca.id.uuidString, "sourceName": source, "caffeineMg": mg,
+            "loggedAt": ISO8601DateFormatter().string(from: ca.loggedAt),
+        ], in: context)
+        return ca
+    }
+
     // MARK: - Ricerca esterna (ADR-0018)
 
     /// Ricerca testuale su OpenFoodFacts + USDA (via backend). Ritorna
@@ -570,4 +809,41 @@ struct PlannedMealDTO: Decodable {
     let status: String?
     let meal_entry_id: String?
     let items: [PlanItemDTO]?
+}
+
+struct ShoppingItemDTO: Decodable {
+    let id: String
+    let food_id: String?
+    let custom_name: String?
+    let quantity_text: String?
+    let is_checked: Bool?
+    let source: String?
+}
+
+struct WaterLogDTO: Decodable {
+    let id: String
+    let logged_at: String
+    let amount_ml: FoodDTO.Num?
+}
+
+struct SupplementDTO: Decodable {
+    let id: String
+    let name: String
+    let dose_text: String?
+    let schedule_text: String?
+    let active: Bool?
+}
+
+struct SupplementLogDTO: Decodable {
+    let id: String
+    let supplement_id: String
+    let logged_at: String
+    let taken: Bool?
+}
+
+struct CaffeineLogDTO: Decodable {
+    let id: String
+    let logged_at: String
+    let source_name: String?
+    let caffeine_mg: FoodDTO.Num?
 }

@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */; };
+		7147FC77662D4822BF51EF1A /* TrackersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B03C6BFF944DF79D2DCDD0 /* TrackersView.swift */; };
+		58B86DC9FF0D4D22BD04AF8C /* ShoppingListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF9D775FB254281A107B41A /* ShoppingListView.swift */; };
+		70B4A25C6A704FE19C6470C3 /* Trackers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B5D6EE853345868DAEE75B /* Trackers.swift */; };
+		F8658B7DC3B34CFA89CFC1C1 /* ShoppingListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05106DA08A2943199C91C9DA /* ShoppingListItem.swift */; };
 		82091FD5FC934AD0B3A6A91A /* MealPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75F149E62524030BE1EC58F /* MealPlanView.swift */; };
 		B45A7DCE5D974C478D17072A /* RecipeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */; };
 		B5FED695F6FC49D2860194A0 /* FoodBasketEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */; };
@@ -139,6 +143,10 @@
 
 /* Begin PBXFileReference section */
 		0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoalView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/NutritionGoalView.swift"; sourceTree = SOURCE_ROOT; };
+		84B03C6BFF944DF79D2DCDD0 /* TrackersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrackersView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/TrackersView.swift"; sourceTree = SOURCE_ROOT; };
+		7DF9D775FB254281A107B41A /* ShoppingListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShoppingListView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/ShoppingListView.swift"; sourceTree = SOURCE_ROOT; };
+		56B5D6EE853345868DAEE75B /* Trackers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Trackers.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Trackers.swift"; sourceTree = SOURCE_ROOT; };
+		05106DA08A2943199C91C9DA /* ShoppingListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShoppingListItem.swift; path = "1r0-pkm/Modules/1r0-diet/Models/ShoppingListItem.swift"; sourceTree = SOURCE_ROOT; };
 		E75F149E62524030BE1EC58F /* MealPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealPlanView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/MealPlanView.swift"; sourceTree = SOURCE_ROOT; };
 		33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecipeListView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/RecipeListView.swift"; sourceTree = SOURCE_ROOT; };
 		A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FoodBasketEditor.swift; path = "1r0-pkm/Modules/1r0-diet/Views/FoodBasketEditor.swift"; sourceTree = SOURCE_ROOT; };
@@ -263,6 +271,10 @@
 			isa = PBXGroup;
 			children = (
 				0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */,
+				84B03C6BFF944DF79D2DCDD0 /* TrackersView.swift */,
+				7DF9D775FB254281A107B41A /* ShoppingListView.swift */,
+				56B5D6EE853345868DAEE75B /* Trackers.swift */,
+				05106DA08A2943199C91C9DA /* ShoppingListItem.swift */,
 				E75F149E62524030BE1EC58F /* MealPlanView.swift */,
 				33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */,
 				A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */,
@@ -631,6 +643,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */,
+				7147FC77662D4822BF51EF1A /* TrackersView.swift in Sources */,
+				58B86DC9FF0D4D22BD04AF8C /* ShoppingListView.swift in Sources */,
+				70B4A25C6A704FE19C6470C3 /* Trackers.swift in Sources */,
+				F8658B7DC3B34CFA89CFC1C1 /* ShoppingListItem.swift in Sources */,
 				82091FD5FC934AD0B3A6A91A /* MealPlanView.swift in Sources */,
 				B45A7DCE5D974C478D17072A /* RecipeListView.swift in Sources */,
 				B5FED695F6FC49D2860194A0 /* FoodBasketEditor.swift in Sources */,

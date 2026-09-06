@@ -131,6 +131,26 @@ curl -s "$BASE/v1/planned-meals?from=2026-09-06&to=2026-09-13" -H "Authorization
 # conferma: re-POST con {"id":<stesso>,"status":"completed","mealEntryId":"<uuid del meal_entry>"}
 ```
 
+## Dieta — lista spesa + tracker (ADR-0017 slice 3/4)
+
+Nessuna migration nuova (le tabelle sono già in `0004`). Client-supplied
+UUID, upsert idempotente (outbox, ADR-0006).
+
+```bash
+# lista della spesa (source: generated|manual). Toggle spunta = re-POST.
+curl -s -X POST $BASE/v1/shopping-list -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d '{"id":"<uuid>","customName":"Pane","quantityText":"1","source":"manual"}'
+curl -s $BASE/v1/shopping-list -H "Authorization: Bearer $KEY" | jq '.[0]'
+curl -s -X POST $BASE/v1/shopping-list/clear-checked -H "Authorization: Bearer $KEY"   # -> {"deleted":N}
+
+# tracker: acqua / integratori / spunte / caffeina (GET + POST upsert)
+curl -s -X POST $BASE/v1/water-logs      -H "Authorization: Bearer $KEY" -H 'content-type: application/json' -d '{"id":"<uuid>","amountMl":250}'
+curl -s -X POST $BASE/v1/supplements     -H "Authorization: Bearer $KEY" -H 'content-type: application/json' -d '{"id":"<uuid>","name":"Creatina","doseText":"5g"}'
+curl -s -X POST $BASE/v1/supplement-logs -H "Authorization: Bearer $KEY" -H 'content-type: application/json' -d '{"id":"<uuid>","supplementId":"<uuid supplement>","taken":true}'
+curl -s -X POST $BASE/v1/caffeine-logs   -H "Authorization: Bearer $KEY" -H 'content-type: application/json' -d '{"id":"<uuid>","sourceName":"Espresso","caffeineMg":80}'
+# DELETE /v1/shopping-list/:id e /v1/supplements/:id ; gli altri sono append-only
+```
+
 ## Ricerca alimenti — OpenFoodFacts + USDA (ADR-0018)
 
 Il backend fa da proxy alle due fonti e normalizza a un `FoodCandidate`

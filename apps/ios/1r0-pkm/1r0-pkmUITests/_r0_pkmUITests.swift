@@ -436,6 +436,66 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "meal-plan")
     }
 
+    /// 1r0-diet · ADR-0017 slice 3: aggiungi una voce alla lista della spesa
+    /// e spuntala (passa nella sezione "nel carrello").
+    func testShoppingList() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+        app.buttons["openPlan"].tap()
+        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
+        app.buttons["openShopping"].tap()
+        XCTAssertTrue(app.staticTexts["Lista della spesa"].waitForExistence(timeout: 5))
+
+        let f = app.textFields["newShoppingItem"]
+        XCTAssertTrue(f.waitForExistence(timeout: 5))
+        f.tap(); f.typeText("Pane integrale")
+        app.buttons["addShoppingItem"].tap()
+
+        XCTAssertTrue(app.staticTexts["Pane integrale"].waitForExistence(timeout: 5),
+                      "La voce aggiunta non compare")
+        app.buttons["check_Pane integrale"].tap()
+        XCTAssertTrue(app.buttons["clearChecked"].waitForExistence(timeout: 5),
+                      "La voce spuntata non è passata in 'Nel carrello'")
+        sleep(1); attach(app, "shopping-list")
+    }
+
+    /// 1r0-diet · ADR-0017 slice 4: quick-add acqua/caffeina sul cruscotto e
+    /// checklist integratori (aggiungi + spunta).
+    func testTrackers() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["water250"].tap()
+        XCTAssertTrue(app.staticTexts["250 ml"].waitForExistence(timeout: 5),
+                      "Il totale acqua non si è aggiornato")
+        app.buttons["caff80"].tap()
+        XCTAssertTrue(app.staticTexts["80 mg oggi"].waitForExistence(timeout: 5),
+                      "Il totale caffeina non si è aggiornato")
+
+        app.buttons["manageSupplements"].tap()
+        let sn = app.textFields["supplementName"]
+        XCTAssertTrue(sn.waitForExistence(timeout: 5))
+        sn.tap(); sn.typeText("Creatina")
+        app.buttons["addSupplement"].tap()
+        XCTAssertTrue(app.staticTexts["Creatina"].waitForExistence(timeout: 5))
+        app.buttons["Fine"].tap()
+
+        let toggle = app.buttons["supp_Creatina"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        toggle.tap()
+        XCTAssertTrue(app.staticTexts["1/1 presi"].waitForExistence(timeout: 5),
+                      "La spunta integratore non è stata registrata")
+        sleep(1); attach(app, "trackers")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()

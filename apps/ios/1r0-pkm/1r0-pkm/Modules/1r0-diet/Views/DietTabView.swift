@@ -80,6 +80,7 @@ struct DietTabView: View {
                 VStack(spacing: 12) {
                     ForEach(MealSlot.allCases) { slot in mealCard(slot) }
                 }
+                TrackersCard(waterTargetMl: DietSync.current(goals)?.waterMlTarget)
                 GlassPrimaryButton(title: "Aggiungi alimento", systemImage: "plus",
                                    fill: Glass.amber, onInk: Color(red: 0.12, green: 0.06, blue: 0),
                                    height: 56) {

@@ -122,8 +122,11 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   puro per TDEE ≈ peso×fattore e preset di fase bulk/cut/deload),
   `Recipe`/`RecipeItem` + `PlannedMeal`/`PlannedMealItem` (ADR-0017
   slice 2: pasti riutilizzabili e pianificati per data, `status`
-  planned/completed/skipped). Registrati nello stesso `GymData.schema`
-  (container unico, ADR-0008).
+  planned/completed/skipped), `ShoppingListItem` (slice 3: `source`
+  generated/manual), `WaterLog` / `Supplement` / `SupplementLog` /
+  `CaffeineLog` (slice 4: tracker semplici, aggregati "di oggi" sul
+  client). Registrati nello stesso `GymData.schema` (container unico,
+  ADR-0008).
 - `Modules/1r0-diet/Sync/DietSync.swift` — `pullFoods` / `pullMealEntries` /
   `pullGoals` + azioni `createFood` / `logMeal` / `setGoal` (sempre INSERT,
   mai update — ADR-0019) + `current(_:)` (riga più recente con
@@ -133,9 +136,17 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   (`FoodCandidate` transitorio → `Food` locale, riuso per barcode/
   external_id). ADR-0017 slice 2: `pullRecipes` / `pullPlannedMeals(from:to:)`
   + `saveRecipe` / `planMeal` / `completePlannedMeal` (crea il `MealEntry` +
-  stato `completed`) / `skipPlannedMeal`. Outbox condiviso: kind
-  `food.create` / `mealentry.create` / `nutritiongoal.create` /
-  `recipe.create` / `plannedmeal.create` in `GymSync.send` (ADR-0006).
+  stato `completed`) / `skipPlannedMeal`. Slice 3: `pullShoppingList` +
+  `addShoppingItem` / `setShoppingChecked` / `deleteShoppingItem` /
+  `generateShoppingList(from:existing:)` (aggiunge dai pasti pianificati, non
+  rigenera). Slice 4: `pullWaterLogs` / `pullSupplements` /
+  `pullSupplementLogs` / `pullCaffeineLogs` + `addWater` / `addCaffeine` /
+  `addSupplement` / `deleteSupplement` / `setSupplementTaken`. Outbox
+  condiviso: kind `food.create` / `mealentry.create` / `nutritiongoal.create`
+  / `recipe.create` / `plannedmeal.create` / `shoppingitem.put` /
+  `waterlog.create` / `supplement.put` / `supplementlog.put` /
+  `caffeinelog.create` in `GymSync.send` (ADR-0006). Le date civili
+  (`effective_from` / `planned_date`) usano il calendario locale.
 - `Modules/1r0-diet/DietReport.swift` — funzioni pure di aggregazione per il
   report (ADR-0020): serie giornaliera calorie/macro sulla finestra
   (30/90 gg), obiettivo storicamente attivo per giorno
@@ -167,9 +178,14 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   crea un `MealEntry` / "Salta"), `RecipeListView` + `AddRecipeView` (CRUD
   ricette), `FoodBasketEditor` (paniere alimenti+grammi riusato da ricette e
   pianificazione). Ingresso dall'header di `DietTabView` (icona `calendar`).
-- Fuori 0017/0018/0019/0020: lista spesa, tracker acqua/caffeina/integratori,
-  modulo dieta su Watch. (ADR-0017 slice 2: ricette + pianificazione fatte;
-  lista spesa e tracker restano.)
+- `Modules/1r0-diet/Views/` (slice 3/4) — `ShoppingListView` (lista
+  spuntabile + "genera dai pasti pianificati"; icona `cart` nell'header di
+  `MealPlanView`), `TrackersCard` (sul cruscotto `DietTabView`: acqua con
+  barra vs `waterMlTarget` + quick-add, caffeina mg/oggi + quick-add,
+  checklist integratori) + `ManageSupplementsView` (aggiungi/rimuovi
+  integratori).
+- Fuori 0017/0018/0019/0020: modulo dieta su Watch. (ADR-0017 completo:
+  slice 1 contacalorie, 2 ricette+pianificazione, 3 lista spesa, 4 tracker.)
 
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
 route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`
