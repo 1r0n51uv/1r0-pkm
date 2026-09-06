@@ -276,8 +276,10 @@ final class _r0_pkmUITests: XCTestCase {
                       "La card di composizione non è comparsa dopo aver creato l'alimento")
         addToMeal.tap()
 
-        // dashboard giornaliera: l'alimento loggato compare nel pasto
-        XCTAssertTrue(app.staticTexts[unique].waitForExistence(timeout: 8),
+        // il foglio si chiude → dashboard: l'alimento loggato compare nel pasto
+        XCTAssertTrue(app.tabBars.buttons["Dieta"].waitForExistence(timeout: 10),
+                      "Il foglio non si è chiuso dopo 'Aggiungi al pasto'")
+        XCTAssertTrue(app.staticTexts[unique].waitForExistence(timeout: 6),
                       "L'alimento loggato non compare nella dashboard")
         sleep(1); attach(app, "dieta-oggi")
     }
