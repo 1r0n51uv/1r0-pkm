@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		06564A0AA86E916B6869F2D0 /* SpikeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE241B1AC29783A56CA21B5 /* SpikeConfig.swift */; };
+		15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81184CE697A7F0353C1C751F /* Secrets.swift */; };
 		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
@@ -81,9 +81,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1CE241B1AC29783A56CA21B5 /* SpikeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpikeConfig.swift; path = "1r0-pkm/SpikeConfig.swift"; sourceTree = SOURCE_ROOT; };
 		33394EDB88C37094051E27DE /* PhoneConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhoneConnector.swift; path = "1r0-pkm/PhoneConnector.swift"; sourceTree = SOURCE_ROOT; };
 		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
+		81184CE697A7F0353C1C751F /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Secrets.swift; path = "1r0-pkm/Secrets.swift"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wApp.swift; sourceTree = "<group>"; };
@@ -106,60 +106,7 @@
 		ED3F6275304CD5D1000F4A2D /* 1r0-pkmUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "1r0-pkmUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITests.swift; sourceTree = "<group>"; };
 		ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		ED3F628C304CD65A000F4A2D /* 1r0-pkm-watch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = "1r0-pkm-watch.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		ED3C9548304CE45600E8464E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3C9557304CE45800E8464E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3C9561304CE45800E8464E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3F6257304CD5CE000F4A2D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3F6268304CD5D1000F4A2D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3F6272304CD5D1000F4A2D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3F6289304CD65A000F4A2D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		ED3C954C304CE45600E8464E /* 1r0-pkm-w Watch App */ = {
@@ -210,8 +157,8 @@
 				ED3F625B304CD5CE000F4A2D /* Products */,
 				33394EDB88C37094051E27DE /* PhoneConnector.swift */,
 				B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */,
-				1CE241B1AC29783A56CA21B5 /* SpikeConfig.swift */,
 				54B54FD4AD90693086FD751B /* ApiClient.swift */,
+				81184CE697A7F0353C1C751F /* Secrets.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -221,7 +168,6 @@
 				ED3F625A304CD5CE000F4A2D /* 1r0-pkm.app */,
 				ED3F626B304CD5D1000F4A2D /* 1r0-pkmTests.xctest */,
 				ED3F6275304CD5D1000F4A2D /* 1r0-pkmUITests.xctest */,
-				ED3F628C304CD65A000F4A2D /* 1r0-pkm-watch.appex */,
 				ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */,
 				ED3C955A304CE45800E8464E /* 1r0-pkm-w Watch AppTests.xctest */,
 				ED3C9564304CE45800E8464E /* 1r0-pkm-w Watch AppUITests.xctest */,
@@ -274,7 +220,6 @@
 			buildConfigurationList = ED3C956F304CE45800E8464E /* Build configuration list for PBXNativeTarget "1r0-pkm-w Watch App" */;
 			buildPhases = (
 				ED3C9547304CE45600E8464E /* Sources */,
-				ED3C9548304CE45600E8464E /* Frameworks */,
 				ED3C9549304CE45600E8464E /* Resources */,
 			);
 			buildRules = (
@@ -291,7 +236,6 @@
 			buildConfigurationList = ED3C9573304CE45800E8464E /* Build configuration list for PBXNativeTarget "1r0-pkm-w Watch AppTests" */;
 			buildPhases = (
 				ED3C9556304CE45800E8464E /* Sources */,
-				ED3C9557304CE45800E8464E /* Frameworks */,
 				ED3C9558304CE45800E8464E /* Resources */,
 			);
 			buildRules = (
@@ -309,7 +253,6 @@
 			buildConfigurationList = ED3C9576304CE45800E8464E /* Build configuration list for PBXNativeTarget "1r0-pkm-w Watch AppUITests" */;
 			buildPhases = (
 				ED3C9560304CE45800E8464E /* Sources */,
-				ED3C9561304CE45800E8464E /* Frameworks */,
 				ED3C9562304CE45800E8464E /* Resources */,
 			);
 			buildRules = (
@@ -327,7 +270,6 @@
 			buildConfigurationList = ED3F627F304CD5D1000F4A2D /* Build configuration list for PBXNativeTarget "1r0-pkm" */;
 			buildPhases = (
 				ED3F6256304CD5CE000F4A2D /* Sources */,
-				ED3F6257304CD5CE000F4A2D /* Frameworks */,
 				ED3F6258304CD5CE000F4A2D /* Resources */,
 				ED3C9572304CE45800E8464E /* Embed Watch Content */,
 			);
@@ -346,7 +288,6 @@
 			buildConfigurationList = ED3F6282304CD5D1000F4A2D /* Build configuration list for PBXNativeTarget "1r0-pkmTests" */;
 			buildPhases = (
 				ED3F6267304CD5D1000F4A2D /* Sources */,
-				ED3F6268304CD5D1000F4A2D /* Frameworks */,
 				ED3F6269304CD5D1000F4A2D /* Resources */,
 			);
 			buildRules = (
@@ -364,7 +305,6 @@
 			buildConfigurationList = ED3F6285304CD5D1000F4A2D /* Build configuration list for PBXNativeTarget "1r0-pkmUITests" */;
 			buildPhases = (
 				ED3F6271304CD5D1000F4A2D /* Sources */,
-				ED3F6272304CD5D1000F4A2D /* Frameworks */,
 				ED3F6273304CD5D1000F4A2D /* Resources */,
 			);
 			buildRules = (
@@ -376,23 +316,6 @@
 			productName = "1r0-pkmUITests";
 			productReference = ED3F6275304CD5D1000F4A2D /* 1r0-pkmUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
-		};
-		ED3F628B304CD65A000F4A2D /* 1r0-pkm-watch */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = ED3F6293304CD65A000F4A2D /* Build configuration list for PBXNativeTarget "1r0-pkm-watch" */;
-			buildPhases = (
-				ED3F6288304CD65A000F4A2D /* Sources */,
-				ED3F6289304CD65A000F4A2D /* Frameworks */,
-				ED3F628A304CD65A000F4A2D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "1r0-pkm-watch";
-			productName = "1r0-pkm-watch";
-			productReference = ED3F628C304CD65A000F4A2D /* 1r0-pkm-watch.appex */;
-			productType = "com.apple.product-type.extensionkit-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -426,9 +349,6 @@
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = ED3F6259304CD5CE000F4A2D;
 					};
-					ED3F628B304CD65A000F4A2D = {
-						CreatedOnToolsVersion = 15.4;
-					};
 				};
 			};
 			buildConfigurationList = ED3F6255304CD5CE000F4A2D /* Build configuration list for PBXProject "1r0-pkm" */;
@@ -447,7 +367,6 @@
 				ED3F6259304CD5CE000F4A2D /* 1r0-pkm */,
 				ED3F626A304CD5D1000F4A2D /* 1r0-pkmTests */,
 				ED3F6274304CD5D1000F4A2D /* 1r0-pkmUITests */,
-				ED3F628B304CD65A000F4A2D /* 1r0-pkm-watch */,
 				ED3C954A304CE45600E8464E /* 1r0-pkm-w Watch App */,
 				ED3C9559304CE45800E8464E /* 1r0-pkm-w Watch AppTests */,
 				ED3C9563304CE45800E8464E /* 1r0-pkm-w Watch AppUITests */,
@@ -502,13 +421,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ED3F628A304CD65A000F4A2D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -546,8 +458,8 @@
 				ED3F6260304CD5CF000F4A2D /* ContentView.swift in Sources */,
 				ED3F625E304CD5CF000F4A2D /* _r0_pkmApp.swift in Sources */,
 				F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */,
-				06564A0AA86E916B6869F2D0 /* SpikeConfig.swift in Sources */,
 				2375415E863C85E094782F1E /* ApiClient.swift in Sources */,
+				15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,13 +477,6 @@
 			files = (
 				ED3F627A304CD5D1000F4A2D /* _r0_pkmUITests.swift in Sources */,
 				ED3F627C304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ED3F6288304CD65A000F4A2D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1023,61 +928,6 @@
 			};
 			name = Release;
 		};
-		ED3F6294304CD65A000F4A2D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "1r0-pkm-watch/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "1r0-pkm-watch";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.legacyextension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.5;
-			};
-			name = Debug;
-		};
-		ED3F6295304CD65A000F4A2D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "1r0-pkm-watch/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "1r0-pkm-watch";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.1r0.pkm.legacyextension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 10.5;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1140,15 +990,6 @@
 			buildConfigurations = (
 				ED3F6286304CD5D1000F4A2D /* Debug */,
 				ED3F6287304CD5D1000F4A2D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		ED3F6293304CD65A000F4A2D /* Build configuration list for PBXNativeTarget "1r0-pkm-watch" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				ED3F6294304CD65A000F4A2D /* Debug */,
-				ED3F6295304CD65A000F4A2D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -16,3 +16,6 @@ xcuserdata/
 DerivedData/
 *.xcscmblueprint
 *.xccheckout
+
+# Secrets — copy Secrets.example.swift -> Secrets.swift locally (ADR-0022)
+apps/ios/1r0-pkm/1r0-pkm/Secrets.swift

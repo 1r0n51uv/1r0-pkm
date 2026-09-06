@@ -2,13 +2,26 @@
 
 Vedi `docs/adr/0010-swift-native-ios-watch.md`.
 
-Il progetto Xcode **esiste** ora — creato per lo spike #1 (Watch↔iPhone):
-`apps/ios/1r0-pkm/1r0-pkm.xcodeproj`, con i target `1r0-pkm` (app iOS),
-`1r0-pkm-w Watch App` (app watchOS, companion `1r0n51uv.1r0-pkm`) e i
-rispettivi target di test. Bundle id prefix `1r0n51uv.1r0-pkm`. Il
-`.xcodeproj` è binario/generato da Xcode: va modificato lì, non a mano da
-qui. Lo spike #1 è implementato in questi target — vedi
-`apps/ios/spike-watch-hello-world/README.md`.
+`apps/ios/1r0-pkm/1r0-pkm.xcodeproj` — target `1r0-pkm` (app iOS),
+`1r0-pkm-w Watch App` (app watchOS, companion `dev.1r0.pkm`) e i rispettivi
+target di test. Bundle id prefix `dev.1r0.pkm`. Il `.xcodeproj` è
+binario/generato da Xcode: va modificato lì, non a mano da qui.
+
+Gli spike #1 (Watch↔iPhone, `WatchConnectivity`) e #6 (end-to-end verso il
+backend) sono validati in questi target: `PhoneConnector`/`WatchConnector`
+(trasporto) e `ApiClient` (client REST) restano come base per il modulo
+`1r0-gym`; il resto della UI è ancora demo.
+
+### Setup su un checkout pulito
+
+```
+cp "apps/ios/1r0-pkm/1r0-pkm/Secrets.example.swift" \
+   "apps/ios/1r0-pkm/1r0-pkm/Secrets.swift"
+```
+Poi compila i valori (URL backend + API key). `Secrets.swift` è gitignored
+(ADR-0022). Finché il backend è HTTP su IP nudo, `Info.plist` ha
+un'eccezione ATS mirata a quell'host — da togliere quando c'è un dominio +
+HTTPS.
 
 ## Struttura cartelle attesa
 
@@ -28,7 +41,7 @@ verrà introdotta quando si implementa il primo modulo:
   Shared/
     HealthKit/
     API/                 client REST minimale (URLSession), auth via API key statica (ADR-0022)
-1r0-pkm-watch/
+1r0-pkm-w Watch App/
   Modules/1r0-gym/       avvio/log sessione da Watch, SwiftData locale
 ```
 
@@ -39,16 +52,12 @@ verrà introdotta quando si implementa il primo modulo:
 - Dipendenze via Swift Package Manager: nessuna libreria di rete esterna
   necessaria per ora — `URLSession` nativo basta per un client REST con
   API key statica (ADR-0022, niente più `supabase-swift`).
-- `.env`/secrets: URL del servizio backend e API key statica (ADR-0022)
-  in un file di config non committato (es. `Config.xcconfig`
-  ignorato da git, o `Secrets.swift` generato a build time).
+- Secrets: URL backend + API key statica (ADR-0022) in `Secrets.swift`
+  (gitignored, template in `Secrets.example.swift`).
 
 ## Stato
 
-Progetto Xcode creato per lo spike #1; nessun codice di modulo ancora
-scritto. Il modulo `1r0-gym` (schema in
-`supabase/migrations/0001_1r0-gym_schema.sql`, tipi di riferimento in
-`packages/shared/src/types/1r0-gym.ts` — utile come riferimento anche se
-non importabile da Swift) è il primo da implementare, ma resta bloccato
-dagli spike #1 (Watch↔iPhone) e #2 (backend raggiungibile) finché non
-sono validati — vedi ADR-0021.
+Toolchain validata (spike #1, #2, #6). Prossimo: implementazione del
+modulo `1r0-gym` — schema in `supabase/migrations/0001_1r0-gym_schema.sql`,
+tipi di riferimento in `packages/shared/src/types/1r0-gym.ts` (non
+importabili da Swift ma utili come contratto dei nomi). Vedi ADR-0021.

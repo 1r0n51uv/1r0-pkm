@@ -26,9 +26,9 @@ struct ApiClient {
 
     /// POST /v1/set-logs — returns a short human summary for the UI.
     func postSetLog(weightKg: Double, reps: Int) async -> String {
-        var req = URLRequest(url: SpikeConfig.apiBaseURL.appendingPathComponent("v1/set-logs"))
+        var req = URLRequest(url: Secrets.apiBaseURL.appendingPathComponent("v1/set-logs"))
         req.httpMethod = "POST"
-        req.setValue("Bearer \(SpikeConfig.apiKey)", forHTTPHeaderField: "Authorization")
+        req.setValue("Bearer \(Secrets.apiKey)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try? JSONSerialization.data(withJSONObject: ["weightKg": weightKg, "reps": reps])
 
