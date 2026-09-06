@@ -130,8 +130,18 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   (`FoodCandidate` transitorio → `Food` locale, riuso per barcode/
   external_id). Outbox condiviso: kind `food.create` / `mealentry.create` /
   `nutritiongoal.create` in `GymSync.send` (ADR-0006).
+- `Modules/1r0-diet/DietReport.swift` — funzioni pure di aggregazione per il
+  report (ADR-0020): serie giornaliera calorie/macro sulla finestra
+  (30/90 gg), obiettivo storicamente attivo per giorno
+  (`nutrition_goals.effective_from`), media + trend kcal, aderenza al target
+  (±150 kcal), serie peso da `body_measurements` + delta. Nessuna tabella
+  nuova, tutto lato client.
 - `Modules/1r0-diet/Views/` — `DietTabView` (mockup "GlassDiet", accento
-  ambra: anello calorie + barre macro + pasti della giornata),
+  ambra: anello calorie + barre macro + pasti della giornata; header con
+  `chart.line.uptrend.xyaxis` → `DietReportView` e `target` → obiettivo),
+  `DietReportView` (mockup "GlassDietReports": fasce 30/90 gg, card calorie
+  con line chart `MiniLineChart` + linea target tratteggiata + media/trend,
+  anello aderenza "X giorni su Y nel target", card peso/calorie con delta),
   `LogFoodView` ("GlassFoodSearch" + card di composizione "GlassMealLog":
   slot, ricerca cache+remota con debounce, pulsante scansione, grammi con
   anteprima macro live), `BarcodeScannerView` (VisionKit
@@ -145,8 +155,8 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   `mode == phase_linked` e la fase della scheda non combacia.
   TDEE è una stima grezza (peso × fattore attività): manca sesso/età/altezza
   nel profilo, da aggiungere se serve un Mifflin-St Jeor vero.
-- Fuori 0017/0018/0019: pianificazione pasti / ricette / lista spesa,
-  tracker acqua/caffeina/integratori, report (ADR-0020), modulo su Watch.
+- Fuori 0017/0018/0019/0020: pianificazione pasti / ricette / lista spesa,
+  tracker acqua/caffeina/integratori, modulo dieta su Watch.
 
 ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
 route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */; };
+		59CD4B6D8FC847F2886CAFFE /* DietReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3AA36288814E159C189B3E /* DietReportView.swift */; };
+		9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F725248DB437980EF296A /* DietReport.swift */; };
 		66F69909C8E97D894A348BF2 /* NutritionGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6952FB3A11858434A98160 /* NutritionGoal.swift */; };
 		5EDB87C294F3AC058F11B139 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */; };
 		28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988633712155B9E1F8B5774C /* AddFoodView.swift */; };
@@ -132,6 +134,8 @@
 
 /* Begin PBXFileReference section */
 		0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoalView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/NutritionGoalView.swift"; sourceTree = SOURCE_ROOT; };
+		DD3AA36288814E159C189B3E /* DietReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReportView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietReportView.swift"; sourceTree = SOURCE_ROOT; };
+		B98F725248DB437980EF296A /* DietReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReport.swift; path = "1r0-pkm/Modules/1r0-diet/DietReport.swift"; sourceTree = SOURCE_ROOT; };
 		4C6952FB3A11858434A98160 /* NutritionGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoal.swift; path = "1r0-pkm/Modules/1r0-diet/Models/NutritionGoal.swift"; sourceTree = SOURCE_ROOT; };
 		EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BarcodeScannerView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/BarcodeScannerView.swift"; sourceTree = SOURCE_ROOT; };
 		988633712155B9E1F8B5774C /* AddFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/AddFoodView.swift"; sourceTree = SOURCE_ROOT; };
@@ -249,6 +253,8 @@
 			isa = PBXGroup;
 			children = (
 				0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */,
+				DD3AA36288814E159C189B3E /* DietReportView.swift */,
+				B98F725248DB437980EF296A /* DietReport.swift */,
 				4C6952FB3A11858434A98160 /* NutritionGoal.swift */,
 				EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */,
 				988633712155B9E1F8B5774C /* AddFoodView.swift */,
@@ -610,6 +616,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */,
+				59CD4B6D8FC847F2886CAFFE /* DietReportView.swift in Sources */,
+				9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */,
 				66F69909C8E97D894A348BF2 /* NutritionGoal.swift in Sources */,
 				5EDB87C294F3AC058F11B139 /* BarcodeScannerView.swift in Sources */,
 				28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */,

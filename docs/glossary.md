@@ -56,6 +56,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Water Log / Supplement (Log) / Caffeine Log** — tre tracker semplici e separati dal log pasti: acqua in ml, integratori come checklist giornaliera, caffeina come voce rapida dedicata.
 - **Nutrition Goal** — obiettivo calorico/macro in grammi assoluti, con una `mode` attiva alla volta (`manual`, `phase_linked`, `tdee`). Tabella *append-only*: cambiare obiettivo inserisce una nuova riga (`effective_from`), non sovrascrive la precedente — necessario per calcolare correttamente l'aderenza storica.
 - **Fase collegata (phase_linked)** — l'obiettivo nutrizionale segue la fase della Routine attiva (bulk/cut/deload/maintenance, ADR-0015), ma solo su conferma esplicita dell'utente ad ogni cambio fase.
+- **Andamento (report dieta)** — viste di sintesi calcolate lato client (ADR-0020, nessuna tabella nuova): serie giornaliera calorie/macro su 30/90 giorni, **aderenza al piano** (% giorni entro ±150 kcal dall'obiettivo *storicamente attivo* quel giorno), correlazione peso/calorie sullo stesso asse temporale.
 
 ## Infrastruttura
 

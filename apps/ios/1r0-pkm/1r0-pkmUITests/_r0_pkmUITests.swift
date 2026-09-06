@@ -340,6 +340,32 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "barcode-scan")
     }
 
+    /// 1r0-diet · ADR-0020: dalla dashboard dieta si apre il report
+    /// "Andamento" con le fasce temporali e le sezioni calorie / aderenza /
+    /// peso.
+    func testDietReport() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["showReport"].tap()
+        XCTAssertTrue(app.staticTexts["Andamento"].waitForExistence(timeout: 5),
+                      "Il report dieta non si è aperto")
+        XCTAssertTrue(app.staticTexts["Media calorie giornaliere"].exists,
+                      "Manca la card calorie")
+        XCTAssertTrue(app.staticTexts["Aderenza al piano"].exists,
+                      "Manca la sezione aderenza")
+
+        // le fasce temporali cambiano la finestra
+        app.buttons["90 giorni"].tap()
+        XCTAssertTrue(app.staticTexts["Peso e calorie"].waitForExistence(timeout: 3))
+
+        sleep(1); attach(app, "diet-report")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()
