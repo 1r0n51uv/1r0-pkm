@@ -222,6 +222,25 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "healthkit-onboarding")
     }
 
+    /// 1r0-gym · ADR-0005: apre "Importa esercizio" dal catalogo e verifica
+    /// che ci siano sia la ricerca AI sia il pulsante di sync wger. Non tocca
+    /// la rete (nessuna chiave AI in CI).
+    func testImportExerciseSheet() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Catalogo"].tap()
+        XCTAssertTrue(app.buttons["importExercise"].waitForExistence(timeout: 10))
+        app.buttons["importExercise"].tap()
+
+        XCTAssertTrue(app.textFields["aiQuery"].waitForExistence(timeout: 5),
+                      "Manca il campo di ricerca AI")
+        XCTAssertTrue(app.buttons["wgerSync"].exists, "Manca il sync wger")
+        XCTAssertTrue(app.staticTexts["Importa esercizio"].exists)
+        sleep(1); attach(app, "import-esercizio")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()

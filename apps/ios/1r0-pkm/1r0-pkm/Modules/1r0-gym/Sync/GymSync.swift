@@ -28,11 +28,17 @@ enum GymSync {
                     e.name = r.name
                     e.muscleGroups = r.muscle_groups
                     e.equipment = r.equipment
+                    e.source = r.source
+                    e.externalId = r.external_id
+                    e.instructions = r.instructions
+                    e.videoURL = r.video_url
+                    e.imageURL = r.image_url
                     e.syncedAt = .now
                 } else {
                     let e = Exercise(
                         id: uuid, name: r.name, muscleGroups: r.muscle_groups,
-                        equipment: r.equipment,
+                        equipment: r.equipment, source: r.source, externalId: r.external_id,
+                        instructions: r.instructions, videoURL: r.video_url, imageURL: r.image_url,
                         createdAt: JSONDecoder.iso.date(from: r.created_at) ?? .now,
                         syncedAt: .now
                     )
@@ -42,6 +48,49 @@ enum GymSync {
             try context.save()
         } catch {
             // offline / backend giù: si riprova al prossimo giro. Silenzioso.
+        }
+    }
+
+    /// Import una tantum del catalogo wger lato backend, poi ripull locale
+    /// (ADR-0005). Ritorna il conteggio, o `nil` se la chiamata fallisce.
+    struct WgerSyncResult: Decodable { let inserted: Int; let updated: Int; let skipped: Int }
+
+    @MainActor
+    @discardableResult
+    static func wgerSync(into context: ModelContext) async -> WgerSyncResult? {
+        do {
+            let body = try JSONSerialization.data(withJSONObject: ["max": 1000])
+            let data = try await ApiClient.shared.post("v1/exercises/wger-sync", json: body)
+            let res = try JSONDecoder.api.decode(WgerSyncResult.self, from: data)
+            await pullExercises(into: context)
+            return res
+        } catch {
+            return nil
+        }
+    }
+
+    /// Proposta strutturata di Claude per un esercizio non a catalogo (ADR-0005).
+    struct AiExerciseProposal: Decodable {
+        let name: String
+        let muscleGroups: [String]
+        let equipment: String?
+        let instructions: String?
+    }
+
+    enum AiImportError: Error { case notConfigured, failed }
+
+    /// Chiede a Claude (via backend) i dati di un esercizio. NON salva niente:
+    /// la conferma/modifica dell'utente avviene nella UI prima del POST.
+    static func aiImport(query: String) async -> Result<AiExerciseProposal, AiImportError> {
+        do {
+            let body = try JSONSerialization.data(withJSONObject: ["query": query])
+            let data = try await ApiClient.shared.post("v1/exercises/ai-import", json: body)
+            let p = try JSONDecoder.api.decode(AiExerciseProposal.self, from: data)
+            return .success(p)
+        } catch let e as ApiClient.HTTPError where e.status == 500 {
+            return .failure(.notConfigured) // ANTHROPIC_API_KEY assente
+        } catch {
+            return .failure(.failed)
         }
     }
 
@@ -337,8 +386,12 @@ struct ExerciseDTO: Decodable {
     let id: String
     let name: String
     let source: String
+    let external_id: String?
     let muscle_groups: [String]
     let equipment: String?
+    let instructions: String?
+    let video_url: String?
+    let image_url: String?
     let created_at: String
 }
 

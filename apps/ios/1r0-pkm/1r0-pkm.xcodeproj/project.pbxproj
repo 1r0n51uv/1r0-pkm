@@ -17,6 +17,7 @@
 		1EB7419B9E262618D12A1F1B /* HealthKitOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */; };
 		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		2B094869A349674F22DCF8DD /* SessionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC994C5085C6F4838B6CB02B /* SessionTabView.swift */; };
+		2EC9412198C37A9FB41E3465 /* ImportExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB80442DAC7CCE49AE6A6F98 /* ImportExerciseView.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
 		3BAB42BB8D275BF8F105CF92 /* RoutineDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421948979EBC11976D54E1D2 /* RoutineDetailView.swift */; };
 		3F7D4B20A3F6A0B4219EC83A /* PlateConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8674562A94FA124E9CEE71D /* PlateConfig.swift */; };
@@ -153,6 +154,7 @@
 		96724B90BEEE9BDF3F52CCFE /* RoutineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineListView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/RoutineListView.swift"; sourceTree = SOURCE_ROOT; };
 		9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkoutSession.swift; path = "1r0-pkm/Modules/1r0-gym/Models/WorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
 		A63D43549FE4494E570C5E5F /* AddRoutineExerciseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddRoutineExerciseSheet.swift; path = "1r0-pkm/Modules/1r0-gym/Views/AddRoutineExerciseSheet.swift"; sourceTree = SOURCE_ROOT; };
+		AB80442DAC7CCE49AE6A6F98 /* ImportExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImportExerciseView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/ImportExerciseView.swift"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfigView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/PlateConfigView.swift"; sourceTree = SOURCE_ROOT; };
 		BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSessionModel.swift; path = "1r0-pkm-w Watch App/WatchSessionModel.swift"; sourceTree = SOURCE_ROOT; };
@@ -279,6 +281,7 @@
 				129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */,
 				1F024674A3B635B2CD67922F /* SyncEngine.swift */,
 				519F45C98B2D084737AE170F /* SyncPolicyTests.swift */,
+				AB80442DAC7CCE49AE6A6F98 /* ImportExerciseView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -616,6 +619,7 @@
 				1EB7419B9E262618D12A1F1B /* HealthKitOnboardingView.swift in Sources */,
 				C5B647558DFAE1B917B29152 /* SyncPolicy.swift in Sources */,
 				0488416F8BC7541700D054C2 /* SyncEngine.swift in Sources */,
+				2EC9412198C37A9FB41E3465 /* ImportExerciseView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
