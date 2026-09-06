@@ -26,4 +26,56 @@ enum GymMath {
     static func bestEstimated1RM<S: Sequence>(_ sets: S) -> Double where S.Element == (weightKg: Double, reps: Int) {
         sets.reduce(0) { max($0, epley1RM(weightKg: $1.weightKg, reps: $1.reps)) }
     }
+
+    // MARK: - Calcolatore piastre (ADR-0013)
+
+    struct PlateLoad: Equatable {
+        /// dischi per lato, dal più pesante al più leggero (con ripetizioni)
+        let perSide: [Double]
+        /// peso effettivamente caricabile (bilanciere + 2 × somma per lato)
+        let achievable: Double
+        /// quanto manca al target (>= 0)
+        var leftover: Double
+    }
+
+    /// Dischi da mettere per lato per avvicinarsi a `targetKg`. I `plates`
+    /// sono denominazioni disponibili (quantità illimitata per denominazione,
+    /// come un vero calcolatore da palestra). Sceglie greedy dal più pesante.
+    static func platesPerSide(targetKg: Double, barKg: Double, availablePlatesKg plates: [Double]) -> PlateLoad {
+        guard targetKg > barKg else {
+            return PlateLoad(perSide: [], achievable: barKg, leftover: max(0, targetKg - barKg))
+        }
+        let denom = plates.filter { $0 > 0 }.sorted(by: >)
+        var remainingPerSide = (targetKg - barKg) / 2.0
+        var side: [Double] = []
+        // tolleranza numerica per i floating (0.001 kg)
+        let eps = 0.001
+        for p in denom {
+            while remainingPerSide + eps >= p {
+                side.append(p)
+                remainingPerSide -= p
+            }
+        }
+        let achievable = barKg + 2.0 * side.reduce(0, +)
+        return PlateLoad(perSide: side, achievable: achievable, leftover: max(0, targetKg - achievable))
+    }
+
+    // MARK: - Warm-up automatico (ADR-0013)
+
+    /// Percentuali fisse standard del peso di lavoro.
+    static let warmupPercentages: [Double] = [0.4, 0.6, 0.8]
+
+    struct WarmupStep: Equatable {
+        let percent: Double
+        let load: PlateLoad
+    }
+
+    /// Rampa di riscaldamento: per ogni percentuale, il peso caricabile più
+    /// vicino (per difetto) con bilanciere + dischi disponibili.
+    static func warmupRamp(workingWeightKg working: Double, barKg: Double, availablePlatesKg plates: [Double]) -> [WarmupStep] {
+        warmupPercentages.map { pct in
+            WarmupStep(percent: pct,
+                       load: platesPerSide(targetKg: working * pct, barKg: barKg, availablePlatesKg: plates))
+        }
+    }
 }

@@ -22,6 +22,10 @@ struct LiveSessionView: View {
 
     @State private var showLog = false
     @State private var restEndsAt: Date?
+    @State private var plateSeed: PlateSeed?
+
+    private struct PlateSeed: Identifiable { let id = UUID(); let weight: Double }
+    private var lastLoggedWeight: Double { sessionSets.last?.weightKg ?? 60 }
 
     private var byExercise: [(name: String, sets: [SetLogEntry])] {
         Dictionary(grouping: sessionSets, by: { $0.exerciseId })
@@ -68,6 +72,14 @@ struct LiveSessionView: View {
         }
         .scrollIndicators(.hidden)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    plateSeed = PlateSeed(weight: lastLoggedWeight)
+                } label: {
+                    Image(systemName: "circle.hexagongrid.fill")
+                }
+                .accessibilityIdentifier("openPlateCalc")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Termina", action: end)
                     .font(Glass.body(15, .semibold))
@@ -77,6 +89,11 @@ struct LiveSessionView: View {
         .sheet(isPresented: $showLog) {
             LogSetSheet(session: session) { restEndsAt = Date().addingTimeInterval(90) }
                 .presentationDetents([.medium])
+                .presentationBackground(.ultraThinMaterial)
+        }
+        .sheet(item: $plateSeed) { seed in
+            PlateCalculatorView(initialWeightKg: seed.weight)
+                .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
     }
@@ -112,6 +129,13 @@ struct LiveSessionView: View {
                     Text("1RM ~\(Int(best.rounded())) kg")
                         .font(Glass.body(12, .medium))
                         .foregroundStyle(Glass.accent)
+                    Button {
+                        plateSeed = PlateSeed(weight: sets.last?.weightKg ?? lastLoggedWeight)
+                    } label: {
+                        Image(systemName: "circle.hexagongrid")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Glass.textSecondary)
+                    }
                 }
                 ForEach(sets) { s in
                     HStack(spacing: 10) {

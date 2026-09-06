@@ -96,6 +96,27 @@ final class _r0_pkmUITests: XCTestCase {
                       "La sessione non è tornata allo stato iniziale")
     }
 
+    /// 1r0-gym · ADR-0013: apre il calcolatore piastre in sessione e verifica
+    /// che mostri il carico per lato e la rampa di warm-up.
+    func testPlateCalculatorInSession() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Sessione"].tap()
+        app.buttons["startSession"].tap()
+        XCTAssertTrue(app.buttons["openPlateCalc"].waitForExistence(timeout: 5))
+        app.buttons["openPlateCalc"].tap()
+
+        XCTAssertTrue(app.staticTexts["PER LATO"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["WARM-UP"].exists)
+        let loadable = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS 'caricabile'")
+        ).firstMatch
+        XCTAssertTrue(loadable.waitForExistence(timeout: 3))
+        sleep(1); attach(app, "calcolatore-piastre")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()

@@ -73,6 +73,28 @@ enum GymSync {
         } catch {}
     }
 
+    /// Scarica la config piastre e fa upsert nella riga singleton locale.
+    @MainActor
+    static func pullPlateConfig(into context: ModelContext) async {
+        do {
+            let data = try await ApiClient.shared.get("v1/plate-config")
+            let dto = try JSONDecoder.api.decode(PlateConfigDTO.self, from: data)
+            let bar = Double(dto.bar_weight_kg) ?? 20
+            let plates = dto.available_plates_kg.sorted()
+            let existing = try context.fetch(FetchDescriptor<PlateConfig>()).first
+            if let cfg = existing {
+                cfg.barWeightKg = bar
+                cfg.availablePlatesKg = plates
+                cfg.syncedAt = .now
+            } else {
+                let cfg = PlateConfig(barWeightKg: bar, availablePlatesKg: plates)
+                cfg.syncedAt = .now
+                context.insert(cfg)
+            }
+            try context.save()
+        } catch {}
+    }
+
     /// Svuota l'outbox spedendo ogni entry.
     @MainActor
     static func flushOutbox(_ context: ModelContext) async {
@@ -85,8 +107,8 @@ enum GymSync {
 
         for entry in pending {
             do {
-                let dto = try await send(entry)
-                markSynced(kind: entry.kind, id: dto.id, in: context)
+                let backendId = try await send(entry)
+                markSynced(kind: entry.kind, id: backendId, in: context)
                 context.delete(entry)
                 try context.save()
             } catch {
@@ -101,26 +123,27 @@ enum GymSync {
 
     private struct IdOnly: Decodable { let id: String }
 
-    /// Spedisce un'entry e ritorna l'id della riga backend.
-    private static func send(_ entry: OutboxEntry) async throws -> IdOnly {
+    /// Spedisce un'entry e ritorna l'id della riga backend (o "" se non ha id).
+    private static func send(_ entry: OutboxEntry) async throws -> String {
         let api = ApiClient.shared
+        func id(_ data: Data) throws -> String {
+            try JSONDecoder.api.decode(IdOnly.self, from: data).id
+        }
         switch entry.kind {
         case "exercise.create":
-            return try JSONDecoder.api.decode(IdOnly.self,
-                from: try await api.post("v1/exercises", json: entry.payload))
+            return try id(await api.post("v1/exercises", json: entry.payload))
         case "routine.create":
-            return try JSONDecoder.api.decode(IdOnly.self,
-                from: try await api.post("v1/routines", json: entry.payload))
+            return try id(await api.post("v1/routines", json: entry.payload))
         case "session.create":
-            return try JSONDecoder.api.decode(IdOnly.self,
-                from: try await api.post("v1/workout-sessions", json: entry.payload))
+            return try id(await api.post("v1/workout-sessions", json: entry.payload))
         case "session.update":
-            let id = try JSONDecoder.api.decode(IdOnly.self, from: entry.payload).id
-            return try JSONDecoder.api.decode(IdOnly.self,
-                from: try await api.patch("v1/workout-sessions/\(id)", json: entry.payload))
+            let sid = try JSONDecoder.api.decode(IdOnly.self, from: entry.payload).id
+            return try id(await api.patch("v1/workout-sessions/\(sid)", json: entry.payload))
         case "setlog.create":
-            return try JSONDecoder.api.decode(IdOnly.self,
-                from: try await api.post("v1/set-logs", json: entry.payload))
+            return try id(await api.post("v1/set-logs", json: entry.payload))
+        case "plateconfig.put":
+            _ = try await api.put("v1/plate-config", json: entry.payload)
+            return ""
         default:
             throw ApiClient.HTTPError(status: -1, body: "kind sconosciuto: \(entry.kind)")
         }
@@ -128,6 +151,10 @@ enum GymSync {
 
     @MainActor
     private static func markSynced(kind: String, id: String, in context: ModelContext) {
+        if kind == "plateconfig.put" {
+            try? context.fetch(FetchDescriptor<PlateConfig>()).first?.syncedAt = .now
+            return
+        }
         guard let uuid = UUID(uuidString: id) else { return }
         switch kind {
         case "exercise.create":
@@ -164,6 +191,11 @@ struct RoutineDTO: Decodable {
     let name: String
     let phase: String?
     let created_at: String
+}
+
+struct PlateConfigDTO: Decodable {
+    let bar_weight_kg: String   // numeric arriva come stringa da pg
+    let available_plates_kg: [Double]
 }
 
 extension JSONDecoder {

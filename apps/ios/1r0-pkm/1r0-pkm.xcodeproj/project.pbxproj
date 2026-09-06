@@ -14,9 +14,11 @@
 		2375415E863C85E094782F1E /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B54FD4AD90693086FD751B /* ApiClient.swift */; };
 		2B094869A349674F22DCF8DD /* SessionTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC994C5085C6F4838B6CB02B /* SessionTabView.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
+		3F7D4B20A3F6A0B4219EC83A /* PlateConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8674562A94FA124E9CEE71D /* PlateConfig.swift */; };
 		557E443B99C3337A7D982344 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */; };
 		632B47C7BE8A10C16A029B55 /* LiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835F43B5870342A3BF890AD0 /* LiveSessionView.swift */; };
 		650E46A081AA17029C3EA43B /* LogSetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CF42F8A42ACCC09F9B8CF1 /* LogSetSheet.swift */; };
+		6B024022BA531D93DB13AD53 /* PlateCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18F4033B588C189F079C74E /* PlateCalculatorView.swift */; };
 		7E9A4A8F83BCA23A955AAF82 /* RoutineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96724B90BEEE9BDF3F52CCFE /* RoutineListView.swift */; };
 		882748F2BF64BE5C58C287EA /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82C2451F9532EB85881778F8 /* Exercise.swift */; };
 		ACEF43729CB557894293499D /* Manrope-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */; };
@@ -25,6 +27,7 @@
 		D0D343E292B539DDEE52089E /* GymSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF4E7CB31B6551914B2913 /* GymSync.swift */; };
 		D3C34778A961B0896EE48FF4 /* AddRoutineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C5947A3A1313C8B63C79CCB /* AddRoutineView.swift */; };
 		D9594F6E835A7CA16D9517F6 /* WorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */; };
+		DA4A4D5282051F309B513328 /* PlateConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */; };
 		EAA34873A0DAD527D7CC5120 /* SetLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67C048CA9A5CB9A7E3AA639D /* SetLogEntry.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
@@ -118,6 +121,8 @@
 		96724B90BEEE9BDF3F52CCFE /* RoutineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoutineListView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/RoutineListView.swift"; sourceTree = SOURCE_ROOT; };
 		9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkoutSession.swift; path = "1r0-pkm/Modules/1r0-gym/Models/WorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
+		B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfigView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/PlateConfigView.swift"; sourceTree = SOURCE_ROOT; };
+		D8674562A94FA124E9CEE71D /* PlateConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateConfig.swift; path = "1r0-pkm/Modules/1r0-gym/Models/PlateConfig.swift"; sourceTree = SOURCE_ROOT; };
 		DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymMathTests.swift; path = "1r0-pkmTests/GymMathTests.swift"; sourceTree = SOURCE_ROOT; };
 		DC994C5085C6F4838B6CB02B /* SessionTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SessionTabView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/SessionTabView.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -141,6 +146,7 @@
 		ED3F6275304CD5D1000F4A2D /* 1r0-pkmUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "1r0-pkmUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITests.swift; sourceTree = "<group>"; };
 		ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		F18F4033B588C189F079C74E /* PlateCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlateCalculatorView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/PlateCalculatorView.swift"; sourceTree = SOURCE_ROOT; };
 		FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassTheme.swift; path = "1r0-pkm/Modules/1r0-gym/Views/GlassTheme.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -213,6 +219,9 @@
 				835F43B5870342A3BF890AD0 /* LiveSessionView.swift */,
 				93CF42F8A42ACCC09F9B8CF1 /* LogSetSheet.swift */,
 				DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */,
+				D8674562A94FA124E9CEE71D /* PlateConfig.swift */,
+				F18F4033B588C189F079C74E /* PlateCalculatorView.swift */,
+				B7A64B06A3F5EA25E368FDAC /* PlateConfigView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -531,6 +540,9 @@
 				2B094869A349674F22DCF8DD /* SessionTabView.swift in Sources */,
 				632B47C7BE8A10C16A029B55 /* LiveSessionView.swift in Sources */,
 				650E46A081AA17029C3EA43B /* LogSetSheet.swift in Sources */,
+				3F7D4B20A3F6A0B4219EC83A /* PlateConfig.swift in Sources */,
+				6B024022BA531D93DB13AD53 /* PlateCalculatorView.swift in Sources */,
+				DA4A4D5282051F309B513328 /* PlateConfigView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
