@@ -1,7 +1,9 @@
 # ADR-0014: Siri Shortcuts per avviare un allenamento
 
 ## Status
-Accettata
+**Superseded da [ADR-0027](0027-stop-expo-hub-modulare-nativo.md).** Il modulo `gym` non
+avvia più sessioni di allenamento (diventa import-CSV + grafici), quindi non c'è più nulla
+da avviare via Siri. `StartWorkoutIntent` / `GymShortcuts` vanno rimossi.
 
 ## Contesto
 Vuoi poter dire "Ehi Siri, inizia allenamento Push" senza aprire l'app.

@@ -1,7 +1,9 @@
 # ADR-0005: Catalogo esercizi — wger API + import assistito da AI
 
 ## Status
-Accettata
+**Superseded da [ADR-0027](0027-stop-expo-hub-modulare-nativo.md).** Il modulo `gym` diventa
+import-CSV (Liftin') + storico + grafici: niente catalogo esercizi in-app, niente import
+wger, niente import assistito da AI. Gli esercizi restano stringhe libere prese dal CSV.
 
 ## Contesto
 Serve un catalogo esercizi ricco senza doverlo scrivere a mano, ma anche la possibilità di aggiungere esercizi non presenti nel catalogo standard.

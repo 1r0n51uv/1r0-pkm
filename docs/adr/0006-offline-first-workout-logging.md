@@ -16,3 +16,15 @@ In palestra spesso non c'è rete. Il log di una Workout Session (Set Log) deve f
 ## Conseguenze
 - Introduce uno strato di sync client-side non banale (outbox + retry, gestito con `BackgroundTasks`/`URLSession` background) da costruire prima di poter dire "il modulo `1r0-gym` è affidabile".
 - Essendo il backend self-hosted (non gestito), un downtime dell'istanza AWS si comporta esattamente come "nessuna rete" lato client — l'outbox deve già gestire bene questo caso, quindi nessuna logica aggiuntiva richiesta per l'assenza di backup automatico (ADR-0009).
+
+## Amendment (ADR-0027)
+Il modulo `gym` **non logga più in-app**: niente sessione live, niente `SetLog` creati
+dall'utente. I dati di allenamento entrano **solo via import CSV** (Liftin') e si
+persistono in SwiftData + backend come "nostra copia" read-only, con re-import a **merge
+deduplicato** su `(Date + Exercise + Set)`. `WorkoutSession`/`SetLogEntry` perdono il
+lifecycle `active/paused/completed` (sempre importati/`completed`).
+
+L'**outbox** (`OutboxEntry`, `SyncEngine`, `SyncPolicy`) resta valido e utile: si
+generalizza e si sposta in `Modules/Shared/Sync/`, usato da `diet` e `documenti` (e
+dall'import `gym` per il push al backend). L'offline-first non è più guidato da "in
+palestra non c'è rete" ma dal fatto che il backend self-hosted può essere irraggiungibile.

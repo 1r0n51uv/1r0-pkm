@@ -5,65 +5,65 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 ## Generali
 
 - **1r0** — l'ombrello: la famiglia di app personali. Ogni app è un `1r0-<scope>`; questo repo è `1r0-pkm`. `1r0` da solo non è un'app, è la famiglia.
-- **1r0-pkm** — questa app. Scope *personal knowledge management* inteso in senso ampio (gestione della vita personale): fa da bundle ai moduli `1r0-gym`, `1r0-note`, `1r0-diet` e ad altri moduli configurabili.
-- **Modulo** — un `1r0-<scope>` (es. `1r0-gym`, `1r0-note`, `1r0-diet`, ...) incluso nell'app `1r0-pkm` e vissuto come tab dentro un'unica app. Unità di prima classe, potenzialmente attivabile/configurabile, non un'app separata da installare.
-- **Utente / Profile** — singolo utente autenticato (`auth.users` di Supabase + riga `profiles`). L'app è single-user ma richiede login minimo per sincronizzare iOS ↔ Watch ↔ web.
+- **1r0-pkm** — questa app. Scope *personal knowledge management* inteso in senso ampio (gestione della vita personale): un'unica app nativa iOS che fa da bundle a più **moduli**.
+- **Modulo** — una sezione dell'app `1r0-pkm` (tab), con dati e funzioni propri; i moduli condividono infrastruttura (motore Promemoria, gateway HealthKit, sync/outbox, design system) sotto `Modules/Shared/`. Moduli v1: `1r0-gym`, `1r0-diet`, `1r0-documenti` (ADR-0027).
+- **Utente / Profile** — singolo utente. L'app è single-user; il backend (`apps/api`, ADR-0022) autentica con una **chiave statica** (nessun login utente). La riga `profiles` è il singleton lato server.
 
-## Modulo 1r0-gym
+## Modulo 1r0-gym (ADR-0027: import + storico + grafici)
 
-- **Exercise** — un esercizio del catalogo (es. "Panca piana"). Può avere `source`: `wger` (importato dall'API wger), `ai` (importato/strutturato via Claude), `custom` (inserito manualmente).
-- **Routine** — una scheda di allenamento, composta da uno o più **Routine Day** (giorni: es. Push/Pull/Legs).
-- **Routine Day** — un giorno della scheda, contiene una lista ordinata di **Routine Exercise**.
-- **Routine Exercise** — un esercizio pianificato dentro un Routine Day, con target (serie, reps, riposo). Può appartenere a un **Superset Group**.
-- **Superset Group** — raggruppamento di 2+ Routine Exercise eseguiti in sequenza senza riposo tra loro (es. A1/A2).
-- **Workout Session** — un allenamento eseguito realmente, con `started_at`/`ended_at`. Può nascere dall'app o dal Watch (`source`).
-- **Set Log** — una singola serie eseguita e loggata (peso in kg, reps, RPE opzionale), sempre modificabile/cancellabile anche a posteriori.
-- **PR (Personal Record) / 1RM stimato** — massimale stimato per esercizio, calcolato dai Set Log (formula Epley), aggiornato ad ogni sessione.
-- **Volume** — somma di (peso × reps) per esercizio/sessione/settimana, usato per i grafici di progresso.
-- **Rest Timer** — cronometro di riposo tra serie, con notifica locale a fine countdown.
-
-## Integrazioni
-
-- **HealthKit sync** — scrittura di Workout Session verso Apple Health e lettura di peso corporeo/passi/calorie attive da Health verso i moduli `1r0-diet`/`1r0-gym`.
-- **Watch companion** — target nativo watchOS (non Expo) che avvia/logga una Workout Session e sincronizza con l'app iOS via WatchConnectivity.
-- **AI import** — ricerca di un esercizio via Claude API che propone dati strutturati (nome, gruppo muscolare, istruzioni) da confermare manualmente prima del salvataggio come `Exercise` con `source = 'ai'`.
-
-## Progressione e coaching
-
-- **Double progression** — regola algoritmica (no AI): aumenta peso quando l'utente completa tutte le serie al massimo reps del range target, altrimenti aumenta reps. Calcolo locale, offline.
-- **Coaching Suggestion** — proposta di modifica a una `Routine` generata periodicamente da Claude (analisi dello storico), con stato `pending`/`accepted`/`rejected`. Mai applicata automaticamente.
-- **Fase (Routine Phase)** — etichetta informativa su una `Routine`: `bulk`, `cut`, `deload`, `maintenance`. Non altera automaticamente i target.
-
-## App Watch
-
-- **Sessione pausata/annullata** — `WorkoutSession.status`: `paused` è ripresa più tardi, `cancelled` esclude la sessione da statistiche/streak/HealthKit ma non cancella i `SetLog` già inseriti.
-- **Modifica "solo per oggi" vs template** — quando aggiungi una serie extra o cambi un peso dal Watch, l'app chiede sempre se applicarlo anche a `RoutineExercise` (le prossime volte) o solo alla sessione corrente.
-- **Watch Settings** — preferenze haptics globali (`profiles.watch_settings`), sovrascrivibili per singolo esercizio (`RoutineExercise.hapticsOverride`).
-
-## Corpo e strumenti
-
-- **Body Measurement** — rilevazione periodica di peso, misure a nastro (chiavi libere) e foto, correlabile con volume/PR per vedere l'effetto degli allenamenti.
-- **Plate Set Config** — bilanciere e dischi realmente disponibili all'utente, usati dal calcolatore piastre in-sessione.
-- **Warm-up ramp** — serie di riscaldamento suggerite a percentuali fisse (40/60/80%) del peso di lavoro.
+- **Import CSV (Liftin')** — il modulo non logga allenamenti in-app: importa un CSV esportato dall'app **Liftin'** (`Date;Duration;Routine;Exercise;Set;Warmup;Weight;Reps/Time;Goal;Perception`, delimitatore `;`). Le righe si persistono in SwiftData + backend ("la nostra copia"). Re-import = **merge deduplicato** su `(Date + Exercise + Set)`.
+- **Exercise** — solo un **nome** (stringa libera dal CSV, catalogo Liftin', misto IT/EN). Niente più catalogo in-app, niente `source` (wger/ai/custom), niente import wger/AI (ADR-0005 superseded).
+- **Routine** — etichetta della scheda del giorno così com'è nel CSV (colonna `Routine`). **Non** è più un'entità editabile con giorni/esercizi: `RoutineDay`/`RoutineExercise`/`Superset Group` sono rimossi.
+- **Workout Session** — un allenamento **importato** (read-only), identificato da `(Date, Routine)`. Non ha più lifecycle `active/paused/completed`: è sempre un record storico.
+- **Set Log** — una singola serie importata: `weightKg`, `reps` (opzionale) **oppure** `durationSeconds` (esercizi a tempo, `Reps/Time` in `mm:ss`), `isWarmup`. Read-only.
+- **PR (Personal Record) / 1RM stimato** — massimale stimato per esercizio, calcolato dai Set Log importati (formula Epley, `GymMath`).
+- **Volume** — somma di (peso × reps) per esercizio/sessione/settimana per i grafici di progresso; ignora le serie `isWarmup` e quelle a 0 kg / a tempo.
+- **Body Measurement** — rilevazione periodica di peso e misure a nastro (chiavi libere). Il peso corporeo per i grafici `gym` si legge da **HealthKit** (il CSV Liftin' non lo contiene).
 
 ## Modulo 1r0-diet
 
 - **Food** — un alimento del catalogo, con macro per 100g. `source`: `openfoodfacts`, `usda`, `custom`.
 - **Recipe** — pasto riutilizzabile (template), composto da uno o più **Recipe Item** (food + quantità).
-- **Meal Entry** — un pasto effettivamente consumato e loggato, con `meal_slot` (breakfast/lunch/dinner/snack). Composto da **Meal Entry Item**, che *snapshotta* calorie/macro al momento del log (non ricalcola da `Food` in seguito).
+- **Meal Entry** — un pasto effettivamente consumato e loggato, con `meal_slot` a 5 valori (`breakfast` / `morning_snack` / `lunch` / `afternoon_snack` / `dinner`; `snack` generico rimosso, ADR-0024). Composto da **Meal Entry Item**, che *snapshotta* calorie/macro al momento del log (non ricalcola da `Food` in seguito).
+- **Meal Slot Ack** — flag "slot ok oggi" (`{ data, slot }`): registrato quando l'utente risponde **Sì** al Promemoria pasto mancante. Silenzia il promemoria di quello slot per la giornata **senza** creare un Meal Entry (ADR-0027).
 - **Planned Meal** — un pasto pianificato per una data futura; confermato diventa un Meal Entry collegato (`status: completed`), altrimenti resta `planned` o passa a `skipped`.
 - **Shopping List Item** — voce di una lista della spesa persistente e spuntabile, generabile dai Planned Meal ma modificabile liberamente dopo.
 - **Water Log / Supplement (Log) / Caffeine Log** — tre tracker semplici e separati dal log pasti: acqua in ml, integratori come checklist giornaliera, caffeina come voce rapida dedicata.
-- **Nutrition Goal** — obiettivo calorico/macro in grammi assoluti, con una `mode` attiva alla volta (`manual`, `phase_linked`, `tdee`). Tabella *append-only*: cambiare obiettivo inserisce una nuova riga (`effective_from`), non sovrascrive la precedente — necessario per calcolare correttamente l'aderenza storica.
-- **Fase collegata (phase_linked)** — l'obiettivo nutrizionale segue la fase della Routine attiva (bulk/cut/deload/maintenance, ADR-0015), ma solo su conferma esplicita dell'utente ad ogni cambio fase.
-- **Andamento (report dieta)** — viste di sintesi calcolate lato client (ADR-0020, nessuna tabella nuova): serie giornaliera calorie/macro su 30/90 giorni, **aderenza al piano** (% giorni entro ±150 kcal dall'obiettivo *storicamente attivo* quel giorno), correlazione peso/calorie sullo stesso asse temporale.
+- **Nutrition Goal** — obiettivo calorico/macro in grammi assoluti, con una `mode` attiva alla volta (`manual`, `phase_linked`, `tdee`). Tabella *append-only*: cambiare obiettivo inserisce una nuova riga (`effective_from`).
+- **Quota giornaliera** — l'obiettivo calorico del **giorno corrente**, pari al Nutrition Goal di base aggiustato per l'**energia attiva** letta da HealthKit (ADR-0019 amendata). Non modifica la riga `nutrition_goals`.
+- **Andamento (report dieta)** — viste di sintesi calcolate lato client (ADR-0020): serie giornaliera calorie/macro su 30/90 giorni, **aderenza al piano**, correlazione peso/calorie.
+
+## Modulo 1r0-documenti (ADR-0027 / ADR-0028)
+
+- **Documento** — un documento d'identità archiviato: `tipo` (**TipoDocumento**), campi testuali **fissi per tipo**, una o più **immagini** (fronte/retro), `dataScadenza` opzionale, `preavvisi` (giorni prima della scadenza, default 90/30).
+- **TipoDocumento** — enum: `cartaIdentita`, `patente`, `passaporto`, `tesseraSanitaria`, … Determina i campi del form.
+- **Acquisizione** — scanner documenti nativo (`VNDocumentCameraViewController`, ritaglio automatico) o libreria foto. Si salvano i **byte compressi originali** (HEIC/JPEG) con **Data Protection**, non bitmap decodificate.
+- **Export PDF** — un PDF generato da immagini + campi del Documento, condivisibile.
+- **Storage** — **solo su device, cifrato**, finché il backend non è su HTTPS (ADR-0028); poi sync cifrato via `apps/api` (`documento.*`). Non rispecchiato su `apps/web`.
+- **Preavviso scadenza** — Promemoria (vedi sotto) generato dai `preavvisi` di un Documento con `dataScadenza`. Nessuna scrittura nel Calendario iOS.
+
+## Promemoria e notifiche
+
+- **Promemoria** — regola di dominio che rileva quando l'utente doveva fare qualcosa e non l'ha fatto, valutata sui dati già presenti (Water Log / HealthKit acqua, Meal Entry, Meal Slot Ack, `Documento.dataScadenza`, …). Concetto cross-modulo; il motore vive in `Modules/Shared/Reminders/`.
+- **Notifica** — il messaggio di sistema (locale, sul device) con cui un Promemoria viene comunicato. Un Promemoria può essere valutato senza produrre una Notifica (condizione già soddisfatta).
+- **Notifica azionabile** — Notifica con azioni (`UNNotificationAction`). Es. "Hai mangiato a &lt;slot&gt;?" con **Sì** (registra un Meal Slot Ack, gestito in background senza aprire l'app) e **Rimanda** (ri-schedula a +30 min).
+- **Promemoria acqua** — valutato a cadenza fissa nella fascia diurna; notifica se il totale acqua di oggi (Water Log + HealthKit) è sotto la quota proporzionata all'ora. Se `waterMlTarget` non è impostato usa un default.
+- **Promemoria pasto mancante** — uno per ciascuno dei 5 Meal Slot, vicino al suo orario atteso (default sovrascrivibile dall'utente). Notifica se a quell'ora non esiste un Meal Entry **né** un Meal Slot Ack per quello slot in giornata.
+- **Preavviso documento** — vedi modulo `1r0-documenti`.
+- **Impostazioni notifiche** — un interruttore per categoria di Promemoria (es. "Acqua", "Pasto mancante", "Documenti"), non per singola istanza.
+
+## Integrazioni
+
+- **HealthKit** — gateway condiviso (`Modules/Shared/HealthKit/`). `diet` **scrive** energia alimentare + macro (`dietary*`) per ogni pasto e **legge** peso corporeo, acqua ed energia attiva. `gym` **legge** solo il peso corporeo. Nessuna scrittura di workout (il `gym` non crea più sessioni). Vedi ADR-0004 amendata.
+- **Watch companion** — *congelato* (ADR-0016 superseded): il target `1r0-pkm-w Watch App` esiste nel repo ma è fuori dalla build (non distribuibile via sideload sul piano gratuito).
 
 ## Infrastruttura
 
-- **Self-hosted** — l'istanza Supabase (Postgres+Auth+Storage+Realtime+Functions) gira su un'istanza AWS EC2 di proprietà, non su Supabase Cloud (vedi ADR-0009).
-- **Route server-side** — logica che non deve girare sul client (es. proxy Claude API per l'AI import esercizi, sync catalogo wger) esposta dal backend Fastify come route `/v1/...` (ADR-0022; era una Edge Function Deno prima di ADR-0022).
-- **Outbox** — coda locale (SwiftData) di mutazioni non ancora sincronizzate col backend, riprocessata quando torna la rete (vedi ADR-0006).
+- **Backend** — `apps/api` (Node/Fastify + Postgres, ADR-0022) su un'istanza AWS EC2 di proprietà (ADR-0009). Auth a chiave statica. Da portare su **HTTPS + backup** prima del sync `documenti` (ADR-0028).
+- **Route server-side** — logica esposta dal backend Fastify come route `/v1/...` (ADR-0022).
+- **Outbox** — coda locale (SwiftData) di mutazioni non ancora sincronizzate col backend, riprocessata quando torna la rete (ADR-0006 amendata). Condivisa da tutti i moduli (`Modules/Shared/Sync/`).
 
-## Moduli futuri (non ancora modellati)
+## Moduli futuri / rimandati
 
+- **1r0-clipboard** — lista di "ritagli" (testi/immagini salvati a mano via Share Extension). Rimandato: iOS non consente la cattura automatica della clipboard (ADR-0027).
 - **1r0-note** — appunti collegabili (backlink), tag.

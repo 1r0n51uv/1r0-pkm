@@ -23,3 +23,15 @@ La prima ipotesi era Expo/React Native con un modulo nativo custom per il target
 - **Learning curve**: Swift/SwiftUI da imparare da zero — rischio noto e accettato, mitigato costruendo il modulo `1r0-gym` come primo terreno di apprendimento pratico.
 - **Toolchain**: serve macOS (VM o hardware) per build/dev/test — è vero per il 100% dello sviluppo mobile, non solo per il target Watch.
 - Nessuna dipendenza da versioni Expo SDK/RN da tenere allineate al codice nativo: un solo ecosistema (Apple) da seguire.
+
+## Amendment (ADR-0027)
+- **HealthKit NON è paid-only.** Il presupposto usato più tardi da ADR-0025 per proporre
+  Expo era sbagliato: HealthKit, notifiche locali, background modes, App Intents, WidgetKit,
+  Live Activities (update locali) e App Groups funzionano su un **Personal Team gratuito**.
+  Restano paid-only Push/APNs, iCloud/CloudKit, Sign in with Apple, Associated Domains.
+- **Watch fuori.** L'app Watch resta nativa *in teoria* ma non è distribuibile via
+  SideStore/AltStore (solo `.ipa` iOS) → congelata (ADR-0016 superseded). La motivazione
+  "Watch è day-1, Expo non ha watchOS" di questo ADR non è più operante: il Watch è
+  rimandato al Developer Program.
+- La scelta **nativo** è confermata e rafforzata da ADR-0027 (Expo abbandonato): resta un
+  solo ecosistema Apple.

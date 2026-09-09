@@ -18,3 +18,12 @@ L'obiettivo calorico/macro deve poter essere impostato a mano, calcolato da TDEE
 ## Conseguenze
 - `body_measurements` (ADR-0012) passa da "tabella del modulo `1r0-gym`" a tabella trasversale — nessuna migrazione di dati necessaria, era già strutturata per `user_id`, solo la proprietà concettuale cambia (documentata qui, non nello schema).
 - Il calcolo TDEE richiede una stima del livello di attività: da modellare come parte del profilo utente quando si implementa (non ancora in schema — rimandato ai dettagli implementativi).
+
+## Amendment (ADR-0027)
+**Riaperto il collegamento con l'energia attiva.** Con l'integrazione HealthKit (ADR-0004
+amendata), l'obiettivo calorico **del giorno** viene aggiustato in base all'energia attiva
+letta da HealthKit (es. giorno con molta attività → target del giorno più alto). Resta un
+aggiustamento *sul giorno corrente*, non modifica la riga `nutrition_goals` (che resta
+append-only e rappresenta l'obiettivo "di base"). La decisione originale "nessun
+collegamento con le calorie bruciate" vale ancora per l'obiettivo di base, non per la quota
+giornaliera mostrata.

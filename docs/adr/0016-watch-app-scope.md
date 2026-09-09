@@ -1,7 +1,11 @@
 # ADR-0016: Scope dell'app Watch
 
 ## Status
-Accettata
+**Superseded da [ADR-0027](0027-stop-expo-hub-modulare-nativo.md).** Sul piano gratuito
+Apple l'app Watch non è distribuibile (SideStore/AltStore installano solo l'`.ipa` iOS) e
+il modulo `gym` non ha più una sessione live da rispecchiare al polso. Il target
+`1r0-pkm-w Watch App` viene congelato e rimosso dalla build. Da riprendere solo se ci si
+iscrive al Developer Program.
 
 ## Contesto
 ADR-0010 stabilisce che l'app Watch è nativa (SwiftUI, non un bridge Expo), ADR-0006 che l'iPhone resta l'hub verso Supabase. Restava da definire cosa l'app Watch fa concretamente durante un allenamento.
