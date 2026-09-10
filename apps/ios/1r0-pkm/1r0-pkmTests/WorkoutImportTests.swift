@@ -26,6 +26,9 @@ final class WorkoutImportTests: XCTestCase {
     private func sets(_ ctx: ModelContext) -> [SetLogEntry] {
         (try? ctx.fetch(FetchDescriptor<SetLogEntry>())) ?? []
     }
+    private func outbox(_ ctx: ModelContext) -> [OutboxEntry] {
+        (try? ctx.fetch(FetchDescriptor<OutboxEntry>())) ?? []
+    }
 
     func testFreshImportCreatesSessionsAndSets() throws {
         let ctx = try makeContext()
@@ -58,13 +61,17 @@ final class WorkoutImportTests: XCTestCase {
         2026-03-01;;Push;Panca piana;2;false;80;7;;
         """
         _ = try WorkoutImport.merge(csv: csv, into: ctx)
-        let second = try WorkoutImport.merge(csv: csv, into: ctx)
+        XCTAssertEqual(outbox(ctx).filter { $0.kind == "workout.import" }.count, 1,
+                       "il primo import accoda una entry outbox")
 
+        let second = try WorkoutImport.merge(csv: csv, into: ctx)
         XCTAssertEqual(second.sessionsCreated, 0)
         XCTAssertEqual(second.setsCreated, 0)
         XCTAssertEqual(second.setsUpdated, 0)
         XCTAssertEqual(sessions(ctx).count, 1)
         XCTAssertEqual(sets(ctx).count, 2)
+        XCTAssertEqual(outbox(ctx).filter { $0.kind == "workout.import" }.count, 1,
+                       "un re-import identico non accoda nulla di nuovo")
     }
 
     func testReimportWithChangedWeightUpdatesInPlace() throws {

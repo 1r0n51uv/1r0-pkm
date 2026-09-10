@@ -45,9 +45,11 @@ ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
       GymMath.swift       regole pure (Epley 1RM, volume, trend peso, …)
       Models/            SwiftData: WorkoutSession, SetLogEntry (record
                           importati read-only), BodyMeasurement
+      GymStats.swift      aggregazioni per lo storico (1RM/volume nel tempo)
       Import/            LiftinCSV (parser) + WorkoutImport (merge dedup)
       Sync/GymSync.swift  solo pullMeasurements (il resto è in Shared/)
-      Views/             ProgressTabView, AddMeasurementView, ImportWorkoutsView
+      Views/             GymHistoryView (tab Palestra), ImportWorkoutsView,
+                          ProgressTabView, AddMeasurementView
     1r0-diet/
       Reminders/         MissingMealReminder + MealSlotAck (ADR-0027 step 2)
       …                  resto invariato (ADR-0017/0018/0019/0020)
@@ -80,9 +82,9 @@ ADR-0024 quando esisteranno.
 Modulo `1r0-gym` ridimensionato da ADR-0027 a **storico + grafici**: sessione
 live, catalogo esercizi (wger/AI import), editor schede e calcolatore
 piastre sono stati **rimossi** (non solo disabilitati), insieme ai relativi
-Siri Shortcut e al bridge Watch→sessione. Al loro posto: **import CSV da
-Liftin'** — data layer + parser + merge fatti (step 3, slice locale); vista
-storico/grafici e sync backend ancora da fare (vedi `docs/roadmap.md`).
+Siri Shortcut e al bridge Watch→sessione. Al loro posto (step 3 completo):
+**import CSV da Liftin'** (parser + merge dedup + outbox `workout.import`) e
+la tab **Palestra** con storico e grafici per esercizio.
 
 - `Modules/1r0-gym/Models/` — `WorkoutSession`/`SetLogEntry` sono ora record
   **importati read-only** (ADR-0027): niente lifecycle, `WorkoutSession` con
@@ -94,21 +96,25 @@ storico/grafici e sync backend ancora da fare (vedi `docs/roadmap.md`).
 - `Modules/1r0-gym/Import/` — `LiftinCSV` (parser puro dell'export Liftin':
   colonne per nome, `Reps/Time` duale reps/`mm:ss`, `Warmup` truthy) +
   `WorkoutImport.merge(csv:into:)` (dedup su giorno · routine · esercizio
-  normalizzato · set; ri-import aggiorna, non duplica). Solo SwiftData per
-  ora — outbox + route backend nel prossimo slice. Unit test in
-  `LiftinCSVTests` + `WorkoutImportTests`.
-- `Modules/1r0-gym/Views/ImportWorkoutsView` — file picker
-  (`Modules/Shared/UI/DocumentPicker`) + riepilogo import; raggiungibile
-  dall'header dei Progressi (`square.and.arrow.down`).
+  normalizzato · set; ri-import aggiorna, non duplica) + accoda una entry
+  outbox `workout.import` con le sole righe toccate → `POST /v1/workout-import`
+  (`Outbox`, migration 0009). Unit test: `LiftinCSVTests` +
+  `WorkoutImportTests`.
+- `Modules/1r0-gym/Views/GymHistoryView` — tab **Palestra**: lista
+  allenamenti + `WorkoutSessionDetailView` (serie per esercizio) + grafici
+  1RM stimato / volume per esercizio (`GymStats` sopra `GymMath`, ignora
+  warmup / a tempo / 0 kg, `MiniLineChart`). `ImportWorkoutsView` (file
+  picker `Modules/Shared/UI/DocumentPicker` + riepilogo) si apre dal suo
+  header (`square.and.arrow.down`). Unit test: `GymStatsTests`.
 - `Modules/1r0-gym/GymMath.swift` — **invariato** (ADR-0027): Epley 1RM,
   volume, calcolatore piastre + warm-up (ADR-0013, formule pure anche se la
   UI che le usava è stata tolta), trend peso corporeo (ADR-0012), double
   progression (ADR-0011), streak/costanza (ADR-0016).
 - `Modules/1r0-gym/Sync/GymSync.swift` — solo `pullMeasurements` (misure
   corporee). Il processore dell'outbox è `Modules/Shared/Sync/Outbox.swift`
-  (`enum Outbox`): kind `session.create`/`session.update`/`setlog.create`/
-  `measurement.create` + tutti i kind `1r0-diet` (quelli di catalogo/schede/
-  piastre sono stati tolti da `send`/`markSynced`). Retry/backoff (ADR-0006)
+  (`enum Outbox`): kind `workout.import` + `measurement.create` + tutti i
+  kind `1r0-diet` (i kind sessione-live/catalogo sono spariti con la relativa
+  route). Retry/backoff (ADR-0006)
   invariato in `Modules/Shared/Sync/`: `SyncPolicy` (backoff esponenziale
   tetto 1h, classificazione transient/permanent); `Outbox.flushOutbox`
   rispetta il backoff e parcheggia le entry "poison"; `Outbox.retryFailed` le
@@ -129,7 +135,8 @@ storico/grafici e sync backend ancora da fare (vedi `docs/roadmap.md`).
 - `Modules/1r0-gym/Views/` — `ProgressTabView`/`AddMeasurementView` (ADR-0012;
   pulsante "import da Salute" → `HealthKitOnboardingView`, chip `heart.fill`
   sulle rilevazioni importate, ADR-0004).
-- Shell: `ContentView` = TabView (Dieta | Progressi) — niente più Sessione/
+- Shell: `ContentView` = TabView (**Palestra** = `GymHistoryView` | **Dieta**
+  = `DietTabView` | **Progressi** = `ProgressTabView`) — niente più Sessione/
   Schede/Catalogo.
 
 Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):

@@ -2,9 +2,9 @@
 //  ContentView.swift
 //  1r0-pkm
 //
-//  Shell a tab: 1r0-gym (Progressi — storico/grafici, ADR-0027: l'import CSV
-//  Liftin' arriva col gym reshape) e 1r0-diet (Dieta, ADR-0017) come sezioni
-//  di un'unica app (ADR-0008).
+//  Shell a tab (ADR-0008): 1r0-gym come **Palestra** (storico + grafici degli
+//  allenamenti importati da Liftin', ADR-0027) e **Progressi** (peso/misure,
+//  ADR-0012), 1r0-diet come **Dieta** (ADR-0017).
 //
 
 import SwiftUI
@@ -13,6 +13,9 @@ import SwiftData
 struct ContentView: View {
     var body: some View {
         TabView {
+            NavigationStack { GymHistoryView() }
+                .tabItem { Label("Palestra", systemImage: "figure.strengthtraining.traditional") }
+
             NavigationStack { DietTabView() }
                 .tabItem { Label("Dieta", systemImage: "fork.knife") }
 

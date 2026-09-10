@@ -15,7 +15,6 @@ struct ProgressTabView: View {
     @Query(sort: \BodyMeasurement.recordedAt, order: .reverse) private var items: [BodyMeasurement]
     @State private var showAdd = false
     @State private var showHealth = false
-    @State private var showImport = false
     @State private var healthNote: String?
 
     private var weightPoints: [(date: Date, kg: Double)] {
@@ -54,11 +53,6 @@ struct ProgressTabView: View {
                 .presentationDetents([.medium, .large])
                 .presentationBackground(.ultraThinMaterial)
         }
-        .sheet(isPresented: $showImport) {
-            NavigationStack { ImportWorkoutsView() }
-                .presentationDetents([.large])
-                .presentationBackground(.ultraThinMaterial)
-        }
         .alert("Apple Salute", isPresented: .constant(healthNote != nil)) {
             Button("OK") { healthNote = nil }
         } message: { Text(healthNote ?? "") }
@@ -78,8 +72,6 @@ struct ProgressTabView: View {
             }
             Spacer(minLength: 8)
             HStack(spacing: 8) {
-                GlassIconButton(systemName: "square.and.arrow.down") { showImport = true }
-                    .accessibilityIdentifier("importWorkouts")
                 GlassIconButton(systemName: "heart.text.square") { importFromHealth() }
                     .accessibilityIdentifier("healthImport")
                 GlassIconButton(systemName: "plus", tint: Glass.green) { showAdd = true }

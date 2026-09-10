@@ -38,7 +38,11 @@ enum Outbox {
             }
             do {
                 let backendId = try await send(entry)
-                markSynced(kind: entry.kind, id: backendId, in: context)
+                if entry.kind == "workout.import" {
+                    markImportSynced(entry.payload, in: context)
+                } else {
+                    markSynced(kind: entry.kind, id: backendId, in: context)
+                }
                 context.delete(entry)
                 try context.save()
             } catch {
@@ -105,13 +109,9 @@ enum Outbox {
             try JSONDecoder.api.decode(IdOnly.self, from: data).id
         }
         switch entry.kind {
-        case "session.create":
-            return try id(await api.post("v1/workout-sessions", json: entry.payload))
-        case "session.update":
-            let sid = try JSONDecoder.api.decode(IdOnly.self, from: entry.payload).id
-            return try id(await api.patch("v1/workout-sessions/\(sid)", json: entry.payload))
-        case "setlog.create":
-            return try id(await api.post("v1/set-logs", json: entry.payload))
+        case "workout.import":
+            _ = try await api.post("v1/workout-import", json: entry.payload)
+            return ""   // batch: nessun id singolo, marcatura in markImportSynced
         case "measurement.create":
             return try id(await api.post("v1/body-measurements", json: entry.payload))
         case "food.create":
@@ -139,16 +139,34 @@ enum Outbox {
         }
     }
 
+    /// Marca `syncedAt` su tutte le sessioni/serie contenute nel payload di
+    /// una entry `workout.import` (batch, senza id singolo di ritorno).
+    @MainActor
+    private static func markImportSynced(_ payload: Data, in context: ModelContext) {
+        struct Ack: Decodable {
+            struct S: Decodable { let id: String; let sets: [E] }
+            struct E: Decodable { let id: String }
+            let sessions: [S]
+        }
+        guard let ack = try? JSONDecoder().decode(Ack.self, from: payload) else { return }
+        for s in ack.sessions {
+            if let sid = UUID(uuidString: s.id) {
+                try? context.fetch(FetchDescriptor<WorkoutSession>(predicate: #Predicate { $0.id == sid }))
+                    .first?.syncedAt = .now
+            }
+            for e in s.sets {
+                if let eid = UUID(uuidString: e.id) {
+                    try? context.fetch(FetchDescriptor<SetLogEntry>(predicate: #Predicate { $0.id == eid }))
+                        .first?.syncedAt = .now
+                }
+            }
+        }
+    }
+
     @MainActor
     private static func markSynced(kind: String, id: String, in context: ModelContext) {
         guard let uuid = UUID(uuidString: id) else { return }
         switch kind {
-        case "session.create", "session.update":
-            try? context.fetch(FetchDescriptor<WorkoutSession>(predicate: #Predicate { $0.id == uuid }))
-                .first?.syncedAt = .now
-        case "setlog.create":
-            try? context.fetch(FetchDescriptor<SetLogEntry>(predicate: #Predicate { $0.id == uuid }))
-                .first?.syncedAt = .now
         case "measurement.create":
             try? context.fetch(FetchDescriptor<BodyMeasurement>(predicate: #Predicate { $0.id == uuid }))
                 .first?.syncedAt = .now

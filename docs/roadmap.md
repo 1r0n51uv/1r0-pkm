@@ -60,7 +60,7 @@ Ancora da fare (step 4): regola acqua (HealthKit), override utente degli
 orari, schermata impostazioni notifiche, promuovere `MealSlotAck` a modello
 se serve ai report. Step 6: `DocumentExpiryReminder`.
 
-## 3. `gym` reshape — **parziale (data layer + import locale)**
+## 3. `gym` reshape — **fatto**
 
 - [x] **Modelli read-only.** `WorkoutSession` — niente più lifecycle
   `active/paused/completed`, `+routineLabel`/`durationSeconds`, `source =
@@ -74,18 +74,24 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
 - [x] **Merge deduplicato** — `WorkoutImport.merge(csv:into:)`: dedup su
   `(giorno, Routine, esercizio normalizzato, Set)`; ri-import aggiorna in
   place, non duplica. Unit test in `LiftinCSVTests` + `WorkoutImportTests`.
-- [x] **Import UI minimale** — `ImportWorkoutsView` (file picker +
-  riepilogo), raggiungibile dall'header dei Progressi. `DocumentPicker` in
-  `Modules/Shared/UI/`.
-- [ ] **Vista storico + grafici** — sostituisce di fatto Sessione/Schede/
-  Catalogo; oggi la shell ha ancora solo Dieta/Progressi e l'import vive in
-  un foglio dei Progressi. Grafici via `GymMath` (Epley 1RM/volume/trend),
-  filtrando serie warmup / a tempo / 0 kg.
-- [ ] **Backend** — outbox (`workout.import` o riuso di `session.create`/
-  `setlog.create`) + route `apps/api` + migrazione schema (`set_logs.reps`
-  nullable, `+duration_seconds`/`+is_warmup`/`+exercise_name`, drop FK
-  `exercise_id`; `workout_sessions` `+routine_label`, drop status). Tocca
-  l'istanza EC2 live → slice separato.
+- [x] **Import UI** — `ImportWorkoutsView` (file picker + riepilogo),
+  `DocumentPicker` in `Modules/Shared/UI/`.
+- [x] **Vista storico + grafici** — tab **Palestra** (`GymHistoryView` +
+  `WorkoutSessionDetailView`): lista allenamenti, dettaglio serie per
+  esercizio, grafici 1RM stimato / volume per esercizio nel tempo
+  (`GymStats` sopra `GymMath`, ignora warmup / a tempo / 0 kg). `ContentView`
+  = **Palestra | Dieta | Progressi** — Sessione/Schede/Catalogo sparite.
+  Unit test in `GymStatsTests`.
+- [x] **Backend** — outbox `workout.import` (batch delle sole righe toccate)
+  → `POST /v1/workout-import` (`apps/api/src/routes/workoutimport.js`, upsert
+  per UUID client, idempotente). Migrazione `supabase/migrations/
+  0009_gym_import.sql`: `set_logs` — `reps` nullable, `exercise_id` nullable,
+  `+exercise_name`/`+duration_seconds`/`+is_warmup`; `workout_sessions` —
+  `+routine_label`/`+duration_seconds`, `status` nullable. Route legacy
+  `/v1/workout-sessions` + `/v1/set-logs` **rimosse** (`sessions.js`/
+  `setlogs.js` cancellati) — le sostituisce `workout-import`. **Da fare
+  sull'istanza EC2**: applicare la migrazione 0009 e ridistribuire `apps/api`
+  (non testati in locale — niente `node`/DB qui).
 
 ## 4. `diet` + HealthKit read/write + notifiche azionabili — **da iniziare**
 

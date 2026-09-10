@@ -72,6 +72,10 @@ struct ImportWorkoutsView: View {
                 switch picked {
                 case .success(let text):
                     result = Result { try WorkoutImport.merge(csv: text, into: context) }
+                    if case .success(let s)? = result, !s.isEmpty {
+                        let ctx = context
+                        Task { await Outbox.flushOutbox(ctx) }
+                    }
                 case .failure(let e):
                     result = .failure(e)
                 }

@@ -3,8 +3,7 @@ import Fastify from "fastify";
 import { registerAuth } from "./auth.js";
 import health from "./routes/health.js";
 import profile from "./routes/profile.js";
-import sessions from "./routes/sessions.js";
-import setlogs from "./routes/setlogs.js";
+import workoutImport from "./routes/workoutimport.js";
 import measurements from "./routes/measurements.js";
 import foods from "./routes/foods.js";
 import meals from "./routes/meals.js";
@@ -16,9 +15,11 @@ import shopping from "./routes/shopping.js";
 import trackers from "./routes/trackers.js";
 import { pool } from "./db.js";
 
-// ADR-0027: gym catalog/routine-editor endpoints (exercises, routines,
-// routine-tree, wger sync, ai import, plate-config) removed with the client
-// code that used them. workout-sessions / set-logs stay as the CSV-import sink.
+// ADR-0027: gym is now import + history. The catalog/routine-editor endpoints
+// (exercises, routines, routine-tree, wger sync, ai import, plate-config) and
+// the live-session endpoints (workout-sessions, set-logs) were removed with the
+// client code that used them. `POST /v1/workout-import` (step 3) is the single
+// batch sink for the Liftin' CSV — "our copy" / backup.
 //
 // Custom REST backend (ADR-0022): single Fastify process, talks straight to
 // Postgres, static API-key auth, no RLS. Runs behind Caddy in the compose
@@ -32,8 +33,7 @@ registerAuth(app);
 
 await app.register(health);
 await app.register(profile);
-await app.register(sessions);
-await app.register(setlogs);
+await app.register(workoutImport);
 await app.register(measurements);
 await app.register(foods);
 await app.register(meals);

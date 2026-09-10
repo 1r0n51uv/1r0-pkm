@@ -2,13 +2,13 @@
 //  WorkoutImport.swift
 //  1r0-pkm · Modules/1r0-gym/Import
 //
-//  Applica un CSV Liftin' allo store locale (ADR-0027). "La nostra copia":
-//  qui solo SwiftData; l'invio al backend (outbox + route) arriva col
-//  prossimo slice.
+//  Applica un CSV Liftin' allo store locale (ADR-0027 step 3) + accoda
+//  all'outbox una entry `workout.import` con le sole righe toccate ("la nostra
+//  copia" sul backend, ADR-0006).
 //
 //  Re-import = **merge deduplicato** su `(giorno, Routine, esercizio
-//  normalizzato, Set)`: le righe già presenti si aggiornano, non si
-//  duplicano.
+//  normalizzato, Set)`: le righe già presenti si aggiornano, non si duplicano;
+//  un re-import identico non tocca nulla e non accoda niente.
 //
 
 import Foundation
@@ -39,10 +39,16 @@ enum WorkoutImport {
         var summary = Summary()
         summary.rowsParsed = rows.count
 
-        // Tutte le sessioni esistenti in memoria (dataset piccolo).
         var sessions = (try? context.fetch(FetchDescriptor<WorkoutSession>())) ?? []
 
-        // Raggruppa le righe per (giorno, routine).
+        // Righe toccate (nuove o modificate), per la entry outbox.
+        var touched: [ObjectIdentifier: (session: WorkoutSession, sets: [SetLogEntry])] = [:]
+        func mark(_ session: WorkoutSession, set: SetLogEntry? = nil) {
+            var e = touched[ObjectIdentifier(session)] ?? (session, [])
+            if let set { e.sets.append(set) }
+            touched[ObjectIdentifier(session)] = e
+        }
+
         struct Key: Hashable { let day: Date; let routine: String? }
         let groups = Dictionary(grouping: rows) { row in
             Key(day: calendar.startOfDay(for: row.date), routine: row.routine)
@@ -60,9 +66,9 @@ enum WorkoutImport {
                     session.durationSeconds = d
                     session.syncedAt = nil
                     summary.sessionsUpdated += 1
+                    mark(session)
                 }
             } else {
-                // usa la data più precisa della prima riga del gruppo per startedAt
                 let startedAt = groupRows.map(\.date).min() ?? key.day
                 let s = WorkoutSession(startedAt: startedAt,
                                        routineLabel: key.routine,
@@ -71,6 +77,7 @@ enum WorkoutImport {
                 sessions.append(s)
                 session = s
                 summary.sessionsCreated += 1
+                mark(session)
             }
 
             for row in groupRows {
@@ -81,6 +88,7 @@ enum WorkoutImport {
                     if apply(row, to: hit) {
                         hit.syncedAt = nil
                         summary.setsUpdated += 1
+                        mark(session, set: hit)
                     }
                 } else {
                     let sl = SetLogEntry(exerciseName: row.exercise,
@@ -94,12 +102,66 @@ enum WorkoutImport {
                     sl.session = session   // l'inverso popola `session.sets` (no assegnazione dell'array)
                     context.insert(sl)
                     summary.setsCreated += 1
+                    mark(session, set: sl)
                 }
             }
         }
 
+        if let entry = outboxEntry(Array(touched.values)) {
+            context.insert(entry)
+        }
         try context.save()
+        // Il flush dell'outbox è compito di `SyncEngine` / del chiamante
+        // (`ImportWorkoutsView`), non di `merge`.
         return summary
+    }
+
+    // MARK: - outbox payload
+
+    private struct Payload: Encodable {
+        struct S: Encodable {
+            let id, startedAt: String
+            let routineLabel: String?
+            let durationSeconds: Int?
+            let source: String
+            let sets: [E]
+        }
+        struct E: Encodable {
+            let id, exerciseName: String
+            let setIndex: Int
+            let weightKg: Double
+            let reps, durationSeconds: Int?
+            let isWarmup: Bool
+            let rpe: Double?
+            let completedAt: String
+        }
+        let sessions: [S]
+    }
+
+    private static func outboxEntry(_ touched: [(session: WorkoutSession, sets: [SetLogEntry])]) -> OutboxEntry? {
+        guard !touched.isEmpty else { return nil }
+        let iso = JSONDecoder.iso
+        let payload = Payload(sessions: touched.map { t in
+            Payload.S(
+                id: t.session.id.uuidString,
+                startedAt: iso.string(from: t.session.startedAt),
+                routineLabel: t.session.routineLabel,
+                durationSeconds: t.session.durationSeconds,
+                source: t.session.source,
+                sets: t.sets.map { s in
+                    Payload.E(id: s.id.uuidString,
+                              exerciseName: s.exerciseName,
+                              setIndex: s.setIndex,
+                              weightKg: s.weightKg,
+                              reps: s.reps,
+                              durationSeconds: s.durationSeconds,
+                              isWarmup: s.isWarmup,
+                              rpe: s.rpe,
+                              completedAt: iso.string(from: s.completedAt))
+                })
+        })
+        guard let data = try? JSONEncoder().encode(payload) else { return nil }
+        return OutboxEntry(kind: "workout.import", payload: data)
     }
 
     /// Aggiorna `entry` dalla `row`; ritorna `true` se qualcosa è cambiato.
