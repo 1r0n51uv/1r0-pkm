@@ -39,13 +39,15 @@ ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
       HealthKit/         HealthKitService (gateway), HealthKitOnboardingView
       DesignSystem/      GlassTheme (Glass Dark, ADR-0023)
       Reminders/         ReminderCategory/Settings/Rule, NotificationGateway, RemindersEngine
+      UI/                DocumentPicker
     1r0-gym/
       GymData.swift       Schema + ModelContainer unico (gym + diet, ADR-0008)
       GymMath.swift       regole pure (Epley 1RM, volume, trend peso, …)
-      Models/            SwiftData: WorkoutSession, SetLogEntry (dormienti,
-                          in attesa dell'import CSV Liftin'), BodyMeasurement
+      Models/            SwiftData: WorkoutSession, SetLogEntry (record
+                          importati read-only), BodyMeasurement
+      Import/            LiftinCSV (parser) + WorkoutImport (merge dedup)
       Sync/GymSync.swift  solo pullMeasurements (il resto è in Shared/)
-      Views/             ProgressTabView (storico peso/misure), AddMeasurementView
+      Views/             ProgressTabView, AddMeasurementView, ImportWorkoutsView
     1r0-diet/
       Reminders/         MissingMealReminder + MealSlotAck (ADR-0027 step 2)
       …                  resto invariato (ADR-0017/0018/0019/0020)
@@ -78,19 +80,30 @@ ADR-0024 quando esisteranno.
 Modulo `1r0-gym` ridimensionato da ADR-0027 a **storico + grafici**: sessione
 live, catalogo esercizi (wger/AI import), editor schede e calcolatore
 piastre sono stati **rimossi** (non solo disabilitati), insieme ai relativi
-Siri Shortcut e al bridge Watch→sessione. L'import CSV da Liftin' che li
-sostituisce (con la vista storico) non è ancora costruito — è il prossimo
-passo (ADR-0027 "gym reshape").
+Siri Shortcut e al bridge Watch→sessione. Al loro posto: **import CSV da
+Liftin'** — data layer + parser + merge fatti (step 3, slice locale); vista
+storico/grafici e sync backend ancora da fare (vedi `docs/roadmap.md`).
 
-- `Modules/1r0-gym/Models/` — `WorkoutSession`/`SetLogEntry` restano
-  (SwiftData) ma sono **dormienti**: nessuna UI li crea più finché non è
-  pronto l'import CSV. `BodyMeasurement` (+ `source` `manual`/`healthkit`,
-  ADR-0004) invariato, alimenta `ProgressTabView`.
+- `Modules/1r0-gym/Models/` — `WorkoutSession`/`SetLogEntry` sono ora record
+  **importati read-only** (ADR-0027): niente lifecycle, `WorkoutSession` con
+  `routineLabel`/`durationSeconds`/`source="liftin"`; `SetLogEntry` con
+  `reps` opzionale, `+durationSeconds`/`isWarmup`, niente più `exerciseId`
+  (si raggruppa per nome normalizzato, `SetLogEntry.normalize`). Nessuna UI
+  li crea: arrivano solo dall'import. `BodyMeasurement` (+ `source`
+  `manual`/`healthkit`, ADR-0004) invariato, alimenta `ProgressTabView`.
+- `Modules/1r0-gym/Import/` — `LiftinCSV` (parser puro dell'export Liftin':
+  colonne per nome, `Reps/Time` duale reps/`mm:ss`, `Warmup` truthy) +
+  `WorkoutImport.merge(csv:into:)` (dedup su giorno · routine · esercizio
+  normalizzato · set; ri-import aggiorna, non duplica). Solo SwiftData per
+  ora — outbox + route backend nel prossimo slice. Unit test in
+  `LiftinCSVTests` + `WorkoutImportTests`.
+- `Modules/1r0-gym/Views/ImportWorkoutsView` — file picker
+  (`Modules/Shared/UI/DocumentPicker`) + riepilogo import; raggiungibile
+  dall'header dei Progressi (`square.and.arrow.down`).
 - `Modules/1r0-gym/GymMath.swift` — **invariato** (ADR-0027): Epley 1RM,
   volume, calcolatore piastre + warm-up (ADR-0013, formule pure anche se la
   UI che le usava è stata tolta), trend peso corporeo (ADR-0012), double
-  progression (ADR-0011), streak/costanza (ADR-0016). Unit test in
-  `GymMathTests` (28) + `SyncPolicyTests` (8).
+  progression (ADR-0011), streak/costanza (ADR-0016).
 - `Modules/1r0-gym/Sync/GymSync.swift` — solo `pullMeasurements` (misure
   corporee). Il processore dell'outbox è `Modules/Shared/Sync/Outbox.swift`
   (`enum Outbox`): kind `session.create`/`session.update`/`setlog.create`/

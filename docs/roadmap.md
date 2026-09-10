@@ -60,20 +60,32 @@ Ancora da fare (step 4): regola acqua (HealthKit), override utente degli
 orari, schermata impostazioni notifiche, promuovere `MealSlotAck` a modello
 se serve ai report. Step 6: `DocumentExpiryReminder`.
 
-## 3. `gym` reshape — **da iniziare**
+## 3. `gym` reshape — **parziale (data layer + import locale)**
 
-Rimozione UI già fatta (step 1). Resta da **costruire**:
-- Import CSV da Liftin' (`Date;Duration;Routine;Exercise;Set;Warmup;Weight;
-  Reps/Time;Goal;Perception`, delimitatore `;`) → persistenza SwiftData +
-  backend, merge deduplicato su `(Date + Exercise + Set)`.
-- `WorkoutSession`/`SetLogEntry` da adattare a record importati **read-only**
-  (oggi sono ancora nella forma pre-ADR-0027, dormienti: nessuna UI li crea).
-  `SetLogEntry` guadagna `durationSeconds`/`isWarmup`, `reps` diventa
-  opzionale (per gli esercizi a tempo).
-- Vista storico + grafici (sostituisce Sessione/Schede/Catalogo in
-  `ContentView`; oggi la shell ha solo Dieta/Progressi).
-- Route backend per l'import (`apps/api`) + eventuale migrazione schema per
-  i nuovi campi `SetLogEntry`.
+- [x] **Modelli read-only.** `WorkoutSession` — niente più lifecycle
+  `active/paused/completed`, `+routineLabel`/`durationSeconds`, `source =
+  "liftin"`. `SetLogEntry` — `reps` opzionale, `+durationSeconds`/`isWarmup`,
+  `exerciseId`/`Exercise` rimossi (si raggruppa per nome normalizzato,
+  `SetLogEntry.normalize`). Nessuna UI li crea più.
+- [x] **Parser CSV Liftin'** — `Modules/1r0-gym/Import/LiftinCSV.swift`:
+  colonne per nome (non posizione), `Reps/Time` duale (intero → reps, `mm:ss`
+  → durata), `Warmup` truthy, peso con virgola, `Duration` in vari formati.
+  Da validare su un export reale (formato `Date`/`Duration` non documentato).
+- [x] **Merge deduplicato** — `WorkoutImport.merge(csv:into:)`: dedup su
+  `(giorno, Routine, esercizio normalizzato, Set)`; ri-import aggiorna in
+  place, non duplica. Unit test in `LiftinCSVTests` + `WorkoutImportTests`.
+- [x] **Import UI minimale** — `ImportWorkoutsView` (file picker +
+  riepilogo), raggiungibile dall'header dei Progressi. `DocumentPicker` in
+  `Modules/Shared/UI/`.
+- [ ] **Vista storico + grafici** — sostituisce di fatto Sessione/Schede/
+  Catalogo; oggi la shell ha ancora solo Dieta/Progressi e l'import vive in
+  un foglio dei Progressi. Grafici via `GymMath` (Epley 1RM/volume/trend),
+  filtrando serie warmup / a tempo / 0 kg.
+- [ ] **Backend** — outbox (`workout.import` o riuso di `session.create`/
+  `setlog.create`) + route `apps/api` + migrazione schema (`set_logs.reps`
+  nullable, `+duration_seconds`/`+is_warmup`/`+exercise_name`, drop FK
+  `exercise_id`; `workout_sessions` `+routine_label`, drop status). Tocca
+  l'istanza EC2 live → slice separato.
 
 ## 4. `diet` + HealthKit read/write + notifiche azionabili — **da iniziare**
 

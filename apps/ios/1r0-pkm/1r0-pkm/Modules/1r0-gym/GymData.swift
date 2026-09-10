@@ -12,7 +12,9 @@ enum GymData {
     static let schema = Schema([
         // ADR-0027: `Exercise`/`Routine`/`RoutineDay`/`RoutineExercise`/`PlateConfig`
         // rimossi col catalogo/editor schede. `WorkoutSession`/`SetLogEntry`
-        // restano, in attesa dell'import CSV Liftin' (gym reshape, step 3).
+        // sono ora record **importati read-only** dal CSV Liftin' (gym reshape,
+        // step 3): niente lifecycle, `reps` opzionale, + `durationSeconds`/
+        // `isWarmup`.
         WorkoutSession.self, SetLogEntry.self,
         BodyMeasurement.self, OutboxEntry.self,
         // Modulo 1r0-diet (ADR-0017): container unico, ADR-0008.
