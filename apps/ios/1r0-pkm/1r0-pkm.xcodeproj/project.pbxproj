@@ -9,6 +9,13 @@
 /* Begin PBXBuildFile section */
 		0488416F8BC7541700D054C2 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F024674A3B635B2CD67922F /* SyncEngine.swift */; };
 		0776EE129749BE69AB4762A6 /* DietSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4066644EA1AE2764C9B705 /* DietSync.swift */; };
+		4EB1BF08C76EDAE3D186CEE7 /* MissingMealReminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843FD7D5AC4990D5F7FAFC4 /* MissingMealReminder.swift */; };
+		AF60C61EEA92DFC2726C0891 /* MealSlotAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E5638703365A4C4769A615 /* MealSlotAck.swift */; };
+		5FAA51807E11DF405E5B2123 /* RemindersEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC00EB2F2C53AD709905F629 /* RemindersEngine.swift */; };
+		C16F1AF0BD0CCA32C638EA57 /* NotificationGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266509705A17130B2BAFCE0F /* NotificationGateway.swift */; };
+		D219ECDEDC5DC74D52F228B9 /* ReminderRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F97759DFE914F0D36880E26 /* ReminderRule.swift */; };
+		E03AB2694E21E58880DD612E /* ReminderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2577760ED7AA9008102D8081 /* ReminderSettings.swift */; };
+		E45A2ACE92721141B434821C /* ReminderCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB28CDC7F4A14AB2FCDA46FE /* ReminderCategory.swift */; };
 		0E33E098577A43BCBE657600 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621ABECCE5244E47B87B7258 /* Recipe.swift */; };
 		0FC646509A6876E99A7AF7D4 /* SpaceGrotesk-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8FE746F3AB2181072C2880A5 /* SpaceGrotesk-Variable.ttf */; };
 		1120432A8B1833C6A4890A38 /* GymMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292C4093960D1B8A0B5EFE7A /* GymMath.swift */; };
@@ -47,6 +54,7 @@
 		D0D343E292B539DDEE52089E /* Outbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF4E7CB31B6551914B2913 /* Outbox.swift */; };
 		D9594F6E835A7CA16D9517F6 /* WorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */; };
 		D964487DA44DB7987EE982F8 /* SyncPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519F45C98B2D084737AE170F /* SyncPolicyTests.swift */; };
+		A19EF7577BA0F15F719422CB /* MissingMealReminderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F53084FA417A956060E0111 /* MissingMealReminderTests.swift */; };
 		EAA34873A0DAD527D7CC5120 /* SetLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67C048CA9A5CB9A7E3AA639D /* SetLogEntry.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
@@ -129,6 +137,13 @@
 		0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitOnboardingView.swift; path = "1r0-pkm/Modules/Shared/HealthKit/HealthKitOnboardingView.swift"; sourceTree = SOURCE_ROOT; };
 		129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPolicy.swift; path = "1r0-pkm/Modules/Shared/Sync/SyncPolicy.swift"; sourceTree = SOURCE_ROOT; };
 		1D4066644EA1AE2764C9B705 /* DietSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietSync.swift; path = "1r0-pkm/Modules/1r0-diet/Sync/DietSync.swift"; sourceTree = SOURCE_ROOT; };
+		A843FD7D5AC4990D5F7FAFC4 /* MissingMealReminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MissingMealReminder.swift; path = "1r0-pkm/Modules/1r0-diet/Reminders/MissingMealReminder.swift"; sourceTree = SOURCE_ROOT; };
+		53E5638703365A4C4769A615 /* MealSlotAck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealSlotAck.swift; path = "1r0-pkm/Modules/1r0-diet/Reminders/MealSlotAck.swift"; sourceTree = SOURCE_ROOT; };
+		FC00EB2F2C53AD709905F629 /* RemindersEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RemindersEngine.swift; path = "1r0-pkm/Modules/Shared/Reminders/RemindersEngine.swift"; sourceTree = SOURCE_ROOT; };
+		266509705A17130B2BAFCE0F /* NotificationGateway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationGateway.swift; path = "1r0-pkm/Modules/Shared/Reminders/NotificationGateway.swift"; sourceTree = SOURCE_ROOT; };
+		0F97759DFE914F0D36880E26 /* ReminderRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReminderRule.swift; path = "1r0-pkm/Modules/Shared/Reminders/ReminderRule.swift"; sourceTree = SOURCE_ROOT; };
+		2577760ED7AA9008102D8081 /* ReminderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReminderSettings.swift; path = "1r0-pkm/Modules/Shared/Reminders/ReminderSettings.swift"; sourceTree = SOURCE_ROOT; };
+		EB28CDC7F4A14AB2FCDA46FE /* ReminderCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReminderCategory.swift; path = "1r0-pkm/Modules/Shared/Reminders/ReminderCategory.swift"; sourceTree = SOURCE_ROOT; };
 		1F024674A3B635B2CD67922F /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncEngine.swift; path = "1r0-pkm/Modules/Shared/Sync/SyncEngine.swift"; sourceTree = SOURCE_ROOT; };
 		20CF4E7CB31B6551914B2913 /* Outbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Outbox.swift; path = "1r0-pkm/Modules/Shared/Sync/Outbox.swift"; sourceTree = SOURCE_ROOT; };
 		24654844A0874A09F64936EB /* WatchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchRootView.swift; path = "1r0-pkm-w Watch App/WatchRootView.swift"; sourceTree = SOURCE_ROOT; };
@@ -140,6 +155,7 @@
 		4C6952FB3A11858434A98160 /* NutritionGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoal.swift; path = "1r0-pkm/Modules/1r0-diet/Models/NutritionGoal.swift"; sourceTree = SOURCE_ROOT; };
 		4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OutboxEntry.swift; path = "1r0-pkm/Modules/Shared/Sync/OutboxEntry.swift"; sourceTree = SOURCE_ROOT; };
 		519F45C98B2D084737AE170F /* SyncPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPolicyTests.swift; path = "1r0-pkmTests/SyncPolicyTests.swift"; sourceTree = SOURCE_ROOT; };
+		6F53084FA417A956060E0111 /* MissingMealReminderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MissingMealReminderTests.swift; path = "1r0-pkmTests/MissingMealReminderTests.swift"; sourceTree = SOURCE_ROOT; };
 		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/Modules/Shared/API/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
 		56B5D6EE853345868DAEE75B /* Trackers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Trackers.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Trackers.swift"; sourceTree = SOURCE_ROOT; };
 		61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchWorkoutSession.swift; path = "1r0-pkm-w Watch App/WatchWorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
@@ -253,6 +269,13 @@
 				06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */,
 				D24954145CE3772A2A0BA0C2 /* DietTabView.swift */,
 				1D4066644EA1AE2764C9B705 /* DietSync.swift */,
+				A843FD7D5AC4990D5F7FAFC4 /* MissingMealReminder.swift */,
+				53E5638703365A4C4769A615 /* MealSlotAck.swift */,
+				FC00EB2F2C53AD709905F629 /* RemindersEngine.swift */,
+				266509705A17130B2BAFCE0F /* NotificationGateway.swift */,
+				0F97759DFE914F0D36880E26 /* ReminderRule.swift */,
+				2577760ED7AA9008102D8081 /* ReminderSettings.swift */,
+				EB28CDC7F4A14AB2FCDA46FE /* ReminderCategory.swift */,
 				C804BC481B36898CCF0C1F43 /* MealEntry.swift */,
 				2A10CD2EC5CE16D399461241 /* Food.swift */,
 				ED3F625C304CD5CE000F4A2D /* 1r0-pkm */,
@@ -288,6 +311,7 @@
 				129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */,
 				1F024674A3B635B2CD67922F /* SyncEngine.swift */,
 				519F45C98B2D084737AE170F /* SyncPolicyTests.swift */,
+				6F53084FA417A956060E0111 /* MissingMealReminderTests.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -605,6 +629,13 @@
 				FC89C3BE1C1E4342A8001AA8 /* LogFoodView.swift in Sources */,
 				BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */,
 				0776EE129749BE69AB4762A6 /* DietSync.swift in Sources */,
+				4EB1BF08C76EDAE3D186CEE7 /* MissingMealReminder.swift in Sources */,
+				AF60C61EEA92DFC2726C0891 /* MealSlotAck.swift in Sources */,
+				5FAA51807E11DF405E5B2123 /* RemindersEngine.swift in Sources */,
+				C16F1AF0BD0CCA32C638EA57 /* NotificationGateway.swift in Sources */,
+				D219ECDEDC5DC74D52F228B9 /* ReminderRule.swift in Sources */,
+				E03AB2694E21E58880DD612E /* ReminderSettings.swift in Sources */,
+				E45A2ACE92721141B434821C /* ReminderCategory.swift in Sources */,
 				4200C8819C5C4B6808B3CF9A /* MealEntry.swift in Sources */,
 				560E925DB7AFCE127E0DEEA0 /* Food.swift in Sources */,
 				ED3F6260304CD5CF000F4A2D /* ContentView.swift in Sources */,
@@ -637,6 +668,7 @@
 				ED3F6270304CD5D1000F4A2D /* _r0_pkmTests.swift in Sources */,
 				BDD148989ABE69AC75B05921 /* GymMathTests.swift in Sources */,
 				D964487DA44DB7987EE982F8 /* SyncPolicyTests.swift in Sources */,
+				A19EF7577BA0F15F719422CB /* MissingMealReminderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

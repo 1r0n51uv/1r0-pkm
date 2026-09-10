@@ -19,7 +19,8 @@
 	<key>NSCameraUsageDescription</key>
 	<string>1r0-diet usa la fotocamera per scansionare il codice a barre dei prodotti alimentari.</string>
 
-	<!-- Sync outbox in background (ADR-0006): BGAppRefreshTask. -->
+	<!-- Sync outbox (ADR-0006) + motore Promemoria (ADR-0027) in background:
+	     BGAppRefreshTask. -->
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -27,6 +28,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>dev.1r0.pkm.sync</string>
+		<string>dev.1r0.pkm.reminders</string>
 	</array>
 
 	<!-- TEMPORANEO: backend HTTP su IP nudo (niente dominio/TLS). Eccezione

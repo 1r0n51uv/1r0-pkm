@@ -33,10 +33,12 @@ struct _r0_pkmApp: App {
             }
         }
 
-        // motore di sync (ADR-0006): reachability + BackgroundTasks.
-        // Saltato nei test UI per non dipendere dalla rete reale.
+        // motori di sync (ADR-0006) e promemoria (ADR-0027 step 2):
+        // reachability / notifiche locali + BackgroundTasks. Saltati nei test
+        // UI per non dipendere da rete e permessi di sistema.
         if !isUITest {
             SyncEngine.shared.start(container: container)
+            RemindersEngine.shared.start(container: container, rules: [MissingMealReminder()])
         }
     }
 
@@ -50,8 +52,10 @@ struct _r0_pkmApp: App {
             switch phase {
             case .active:
                 SyncEngine.shared.flushNow()
+                RemindersEngine.shared.refresh()
             case .background:
                 SyncEngine.shared.scheduleBackgroundRefresh()
+                RemindersEngine.shared.scheduleBackgroundRefresh()
             default:
                 break
             }

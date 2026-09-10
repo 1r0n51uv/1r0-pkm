@@ -38,6 +38,7 @@ ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
       Sync/              OutboxEntry, Outbox (processore condiviso), SyncEngine, SyncPolicy
       HealthKit/         HealthKitService (gateway), HealthKitOnboardingView
       DesignSystem/      GlassTheme (Glass Dark, ADR-0023)
+      Reminders/         ReminderCategory/Settings/Rule, NotificationGateway, RemindersEngine
     1r0-gym/
       GymData.swift       Schema + ModelContainer unico (gym + diet, ADR-0008)
       GymMath.swift       regole pure (Epley 1RM, volume, trend peso, …)
@@ -45,12 +46,22 @@ ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
                           in attesa dell'import CSV Liftin'), BodyMeasurement
       Sync/GymSync.swift  solo pullMeasurements (il resto è in Shared/)
       Views/             ProgressTabView (storico peso/misure), AddMeasurementView
-    1r0-diet/            invariato (ADR-0017/0018/0019/0020)
+    1r0-diet/
+      Reminders/         MissingMealReminder + MealSlotAck (ADR-0027 step 2)
+      …                  resto invariato (ADR-0017/0018/0019/0020)
 1r0-pkm-w Watch App/       congelato (ADR-0027), fuori dalla build
 ```
 
-Il motore Promemoria condiviso (`Modules/Shared/Reminders/`) è lo step 2
-della roadmap.
+**Promemoria (ADR-0027 step 2).** `RemindersEngine` (speculare a
+`SyncEngine`) parte in `_r0_pkmApp` con le regole registrate dai moduli
+(`[MissingMealReminder()]`), rivaluta in foreground (`refresh()`) e in
+background (`BGAppRefreshTask` `dev.1r0.pkm.reminders`). Ogni regola
+`plan(now:context:)` restituisce le `PlannedNotification` che dovrebbero
+essere pendenti; il `NotificationGateway` fa il diff con la coda reale e
+gestisce le azioni ("Sì" → `MealSlotAck`, "Rimanda" → +30 min) anche ad app
+terminata. Interruttore per categoria in `ReminderSettings` (`UserDefaults`).
+`MissingMealReminder` copre breakfast/lunch/dinner; eredita i 5 slot di
+ADR-0024 quando esisteranno.
 
 ## Capability e dipendenze
 

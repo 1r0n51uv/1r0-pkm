@@ -30,12 +30,35 @@ resta l'ADR), solo il tracciamento di cosa manca.
   esistevano più su disco e rompevano `xcodebuild build`). ADR-0027 "Fuori
   dalla v1: Widget".
 
-## 2. Motore Promemoria condiviso — **da iniziare**
+## 2. Motore Promemoria condiviso — **fatto (motore + prima regola)**
 
-`Modules/Shared/Reminders/`: regola di dominio "utente doveva fare X e non
-l'ha fatto" (glossario), valutata su dati già presenti. Serve prima di
-`diet` (notifiche azionabili, step 4) e di `documenti` (preavvisi scadenza,
-step 6) — è un blocco condiviso, non specifico di un modulo.
+`Modules/Shared/Reminders/`:
+- `ReminderCategory` (`missing-meal` / `water` / `document-expiry`) +
+  `ReminderSettings` (interruttore per categoria, `UserDefaults` — locale,
+  niente sync).
+- `ReminderRule` — protocollo: `plan(now:context:) -> [PlannedNotification]`
+  (le notifiche che *dovrebbero* essere pendenti, valutando i dati già
+  presenti) + `handleAction(...)` per le azioni custom.
+- `NotificationGateway` — wrapper `UNUserNotificationCenter`: permessi,
+  categorie con azioni, `reconcile(planned:)` (diff con le richieste
+  pendenti "di proprietà" delle regole), `snooze(_:by:)`. È il delegate: la
+  risposta a un'azione arriva anche ad app terminata (iOS rilancia in
+  background per `didReceive`, ADR-0027).
+- `RemindersEngine` (`@MainActor`, speculare a `SyncEngine`):
+  `start(container:rules:)` + `refresh()` in foreground + `BGAppRefreshTask`
+  `dev.1r0.pkm.reminders` in background. Instrada lo snooze (+30 min,
+  generico) e delega il resto alla regola.
+
+Prima regola: **`MissingMealReminder`** (`Modules/1r0-diet/Reminders/`) —
+per breakfast/lunch/dinner (orari default 9:30 / 13:00 / 20:00 + 30 min di
+tolleranza): notifica "«Slot»?" con "Sì" (→ `MealSlotAck`, `UserDefaults`,
+gestito in background) / "Rimanda" se a quell'ora non c'è né un `MealEntry`
+né un ack per la giornata. Itera `MealSlot.allCases`, quindi eredita i 5
+slot di ADR-0024 appena esistono. Unit test in `MissingMealReminderTests`.
+
+Ancora da fare (step 4): regola acqua (HealthKit), override utente degli
+orari, schermata impostazioni notifiche, promuovere `MealSlotAck` a modello
+se serve ai report. Step 6: `DocumentExpiryReminder`.
 
 ## 3. `gym` reshape — **da iniziare**
 
