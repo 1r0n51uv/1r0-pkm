@@ -20,8 +20,6 @@ struct HealthKitOnboardingView: View {
                 Text("Apple Salute")
                     .font(Glass.display(26, .bold)).padding(.top, 8)
 
-                row("figure.strengthtraining.traditional",
-                    "Ogni allenamento completato viene salvato in Salute come workout di forza.")
                 row("scalemass",
                     "1r0-gym legge il peso corporeo più recente da Salute per l'andamento nei Progressi.")
                 row("lock.shield",

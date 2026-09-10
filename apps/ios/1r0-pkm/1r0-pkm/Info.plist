@@ -10,11 +10,10 @@
 		<string>Manrope-Variable.ttf</string>
 	</array>
 
-	<!-- HealthKit (ADR-0004): scrittura allenamenti, lettura peso corporeo. -->
+	<!-- HealthKit (ADR-0004 amendata da ADR-0027): solo lettura peso corporeo,
+	     nessuna scrittura (il gym non crea più sessioni). -->
 	<key>NSHealthShareUsageDescription</key>
-	<string>1r0-gym legge il peso corporeo da Apple Salute per mostrarne l'andamento accanto ai tuoi allenamenti.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>1r0-gym salva ogni allenamento completato in Apple Salute.</string>
+	<string>1r0-gym legge il peso corporeo da Apple Salute per mostrarne l'andamento nei Progressi.</string>
 
 	<!-- Scan barcode alimenti (ADR-0018): VisionKit DataScannerViewController. -->
 	<key>NSCameraUsageDescription</key>

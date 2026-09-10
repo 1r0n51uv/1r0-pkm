@@ -9,8 +9,9 @@ binario/generato da Xcode: va modificato lì, non a mano da qui.
 
 Gli spike #1 (Watch↔iPhone, `WatchConnectivity`) e #6 (end-to-end verso il
 backend) sono validati in questi target: `PhoneConnector`/`WatchConnector`
-(trasporto) e `ApiClient` (client REST) restano come base per il modulo
-`1r0-gym`; il resto della UI è ancora demo.
+(trasporto) e `ApiClient` (client REST) restano come base. Il target Watch
+è **congelato** (ADR-0027): esiste nel repo ma è fuori dalla build (niente
+app Watch sideloadabile sul piano gratuito Apple).
 
 ### Setup su un checkout pulito
 
@@ -23,26 +24,24 @@ Poi compila i valori (URL backend + API key). `Secrets.swift` è gitignored
 un'eccezione ATS mirata a quell'host — da togliere quando c'è un dominio +
 HTTPS.
 
-## Struttura cartelle attesa
+## Struttura cartelle
 
-Al momento il progetto ha ancora la struttura piatta di default di Xcode.
-La struttura a moduli (vedi `docs/adr/0008-single-app-module-architecture.md`)
-verrà introdotta quando si implementa il primo modulo:
+Architettura a moduli (`docs/adr/0008-single-app-module-architecture.md`),
+ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
+`documenti`, con infrastruttura condivisa via `Modules/Shared/`:
 
 ```
 1r0-pkm/
-  App/                  entry point, DI, configurazione client API
   Modules/
     1r0-gym/
-      Views/
-      ViewModels/
-      Models/            SwiftData models: Routine, WorkoutSession, SetLog, Exercise
-      Sync/              outbox pattern verso il backend custom (ADR-0006)
-  Shared/
-    HealthKit/
-    API/                 client REST minimale (URLSession), auth via API key statica (ADR-0022)
-1r0-pkm-w Watch App/
-  Modules/1r0-gym/       avvio/log sessione da Watch, SwiftData locale
+      Views/             GlassTheme, ProgressTabView (storico peso/misure)
+      Models/            SwiftData: WorkoutSession, SetLogEntry (dormienti,
+                          in attesa dell'import CSV Liftin'), BodyMeasurement
+      HealthKit/          HealthKitService (solo lettura peso), onboarding
+      Sync/              GymSync + OutboxEntry (outbox pattern, ADR-0006)
+    1r0-diet/            invariato (ADR-0017/0018/0019/0020)
+  Shared/                 API client (URLSession, ADR-0022)
+1r0-pkm-w Watch App/       congelato (ADR-0027), fuori dalla build
 ```
 
 ## Capability e dipendenze
@@ -57,73 +56,47 @@ verrà introdotta quando si implementa il primo modulo:
 
 ## Stato
 
-Toolchain validata (spike #1, #2, #6). Modulo `1r0-gym` iniziato (branch
-`feat/1r0-gym-*`):
+Modulo `1r0-gym` ridimensionato da ADR-0027 a **storico + grafici**: sessione
+live, catalogo esercizi (wger/AI import), editor schede e calcolatore
+piastre sono stati **rimossi** (non solo disabilitati), insieme ai relativi
+Siri Shortcut e al bridge Watch→sessione. L'import CSV da Liftin' che li
+sostituisce (con la vista storico) non è ancora costruito — è il prossimo
+passo (ADR-0027 "gym reshape").
 
-- `Modules/1r0-gym/Models/` — `Exercise` (+ `source` `custom`/`wger`/`ai`,
-  `externalId`, `instructions`, `videoURL`, `imageURL`, ADR-0005), `Routine`,
-  `RoutineDay`, `RoutineExercise`, `WorkoutSession` (+ `routineDayId`),
-  `SetLogEntry`, `PlateConfig`,
-  `BodyMeasurement` (+ `source` `manual`/`healthkit`, ADR-0004)
-  (SwiftData). `SupersetGroup` da modellare.
-- `Modules/1r0-gym/GymMath.swift` — regole pure: Epley 1RM, volume,
-  calcolatore piastre + warm-up (ADR-0013), trend peso corporeo (ADR-0012),
-  double progression (ADR-0011), streak/costanza (ADR-0016). Unit test in
-  `GymMathTests` (28) + `WatchSyncBridgeTests` (3) + `SiriIntentTests` (3) +
-  `SyncPolicyTests` (8).
+- `Modules/1r0-gym/Models/` — `WorkoutSession`/`SetLogEntry` restano
+  (SwiftData) ma sono **dormienti**: nessuna UI li crea più finché non è
+  pronto l'import CSV. `BodyMeasurement` (+ `source` `manual`/`healthkit`,
+  ADR-0004) invariato, alimenta `ProgressTabView`.
+- `Modules/1r0-gym/GymMath.swift` — **invariato** (ADR-0027): Epley 1RM,
+  volume, calcolatore piastre + warm-up (ADR-0013, formule pure anche se la
+  UI che le usava è stata tolta), trend peso corporeo (ADR-0012), double
+  progression (ADR-0011), streak/costanza (ADR-0016). Unit test in
+  `GymMathTests` (28) + `SyncPolicyTests` (8).
 - `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
-  `exercise.create`, `routine.create`, `session.create`, `session.update`,
-  `setlog.create`, `plateconfig.put`, `measurement.create`,
-  `routineday.create`, `routineexercise.create`.
-  Retry/backoff (ADR-0006): `SyncPolicy` (backoff esponenziale con tetto 1h,
-  classificazione transient/permanent degli errori HTTP); `flushOutbox`
-  rispetta il backoff, parcheggia le entry "poison" (4xx / troppi tentativi)
-  senza bloccare la coda, `retryFailed` le rimette in coda. `SyncEngine`
-  (`@MainActor`) fa partire il flush quando torna la rete (`NWPathMonitor`),
-  in foreground (scenePhase) e in background (`BGAppRefreshTask`
-  `dev.1r0.pkm.sync`). Banner globale in `ContentView` quando ci sono entry
-  parcheggiate.
-- Watch: `WatchSessionModel` + `WatchConnector` (Watch→iPhone via
-  WatchConnectivity, ADR-0016); `WatchSyncBridge` lato iPhone instrada gli
-  eventi a SwiftData + outbox. UI: `WatchRootView`/`WatchLiveView`.
-  `WatchWorkoutSession` (ADR-0016): durante la sessione avvia un
-  `HKWorkoutSession` reale con `HKLiveWorkoutBuilder` (FC + calorie attive
-  dai sensori, mostrate live al polso); a fine sessione salva l'`HKWorkout`
-  in Salute (annullata → `discardWorkout`, niente scrittura). Se HealthKit è
-  attivo il payload `session.end` porta `hkSaved:true` e l'iPhone non crea un
-  workout duplicato; altrimenti fa da fallback. Entitlement HealthKit +
-  `NSHealth*UsageDescription` + `WKBackgroundModes=workout-processing` sul
-  target Watch.
-- `Modules/1r0-gym/Intents/` — `StartWorkoutIntent` + `GymShortcuts`
-  (ADR-0014: "Ehi Siri, inizia allenamento <Giorno>"). Container condiviso
-  App/Intent in `GymData`; azione in `GymActions.startWorkout`.
-- `Modules/1r0-gym/HealthKit/` — `HealthKitService` (ADR-0004: salva ogni
-  allenamento completato in Apple Salute come workout di forza via
-  `HKWorkoutBuilder`; legge il peso corporeo più recente per l'andamento nei
-  Progressi) + `HealthKitOnboardingView` (spiega i permessi prima di
-  richiederli). `LiveSessionView.end()` e `WatchSyncBridge.endSession` salvano
-  in Salute solo le sessioni `completed`, non le `cancelled` (e `endSession`
-  salta la scrittura se il Watch ha già salvato l'`HKWorkout` — `hkSaved`).
-  Entitlement `com.apple.developer.healthkit` + chiavi
-  `NSHealth*UsageDescription` su app iOS e target Watch.
+  `session.create`, `session.update`, `setlog.create`, `measurement.create`
+  (i kind del catalogo/schede/piastre rimossi sono stati tolti da `send`/
+  `markSynced`). Retry/backoff (ADR-0006) invariato: `SyncPolicy` (backoff
+  esponenziale con tetto 1h, classificazione transient/permanent degli
+  errori HTTP); `flushOutbox` rispetta il backoff, parcheggia le entry
+  "poison" (4xx / troppi tentativi) senza bloccare la coda, `retryFailed` le
+  rimette in coda. `SyncEngine` (`@MainActor`) fa partire il flush quando
+  torna la rete (`NWPathMonitor`), in foreground (scenePhase) e in
+  background (`BGAppRefreshTask` `dev.1r0.pkm.sync`). Banner globale in
+  `ContentView` quando ci sono entry parcheggiate.
+- Watch: target congelato (ADR-0027), fuori dalla build. `WatchSyncBridge`
+  (il consumer lato iPhone dei suoi eventi di sessione) è stato rimosso col
+  resto della sessione live; `PhoneConnector`/`WatchConnector` (trasporto)
+  restano come base per un eventuale rilancio futuro.
+- `Modules/1r0-gym/HealthKit/` — `HealthKitService` legge **solo** il peso
+  corporeo più recente per l'andamento nei Progressi; nessuna scrittura di
+  workout (ADR-0004 amendata da ADR-0027: il modulo non crea più sessioni).
+  `HealthKitOnboardingView` spiega i permessi prima di richiederli.
 - `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
-  `ExerciseListView` (ricerca + badge fonte; riga toccabile →
-  `ExerciseDetailView`) / `AddExerciseView` / `ImportExerciseView`
-  (ADR-0005: "Cerca con AI" → `GymSync.aiImport`, o "Sincronizza catalogo
-  wger" → `GymSync.wgerSync`; avviso di duplicato per nome normalizzato),
-  `ExerciseDetailView` (ADR-0005/0013: immagine `AsyncImage`, gruppi
-  muscolari, istruzioni, e — se c'è `videoURL` — la dimostrazione in-app
-  via `WebView`/`WKWebView`; raggiungibile anche dai blocchi esercizio in
-  `LiveSessionView`), `RoutineListView`/`AddRoutineView`,
-  `SessionTabView` → `LiveSessionView` + `LogSetSheet` (cronometro, volume,
-  1RM stimato, timer riposo visivo), `PlateCalculatorView`/`PlateConfigView`
-  (ADR-0013, apribili dalla sessione), `ProgressTabView`/`AddMeasurementView`
-  (ADR-0012; pulsante "import da Salute" → `HealthKitOnboardingView`, chip
-  `heart.fill` sulle rilevazioni importate, ADR-0004),
-  `RoutineDetailView`/`AddRoutineExerciseSheet` (ADR-0011: giorni/esercizi con
-  target + suggerimento di progressione).
-- Shell: `ContentView` = TabView (Sessione | Schede | Catalogo | Dieta |
-  Progressi).
+  `ProgressTabView`/`AddMeasurementView` (ADR-0012; pulsante "import da
+  Salute" → `HealthKitOnboardingView`, chip `heart.fill` sulle rilevazioni
+  importate, ADR-0004).
+- Shell: `ContentView` = TabView (Dieta | Progressi) — niente più Sessione/
+  Schede/Catalogo.
 
 Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
 
@@ -181,8 +154,12 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   "GlassNutritionGoals": segmented Manuale/Fase/TDEE, target editabili in
   manuale / calcolati read-only altrove, "Salva" = nuova riga). L'anello e
   le barre in `DietTabView` usano `DietSync.current(goals)` (fallback
-  `DietGoal` fisso); banner "fase cambiata → aggiorna l'obiettivo" quando
-  `mode == phase_linked` e la fase della scheda non combacia.
+  `DietGoal` fisso). La modalità "Fase" (`phase_linked`) non legge più una
+  scheda esterna (ADR-0027 ha tolto `Routine` come entità): `RoutinePhase`
+  (bulk/cut/deload/maintenance) vive ora in `NutritionGoal.swift` e la fase
+  è un picker manuale nel foglio obiettivo, annotato in `sourceNote`
+  ("fase: bulk") e riletto da `NutritionGoal.notedPhase` — niente più
+  banner di "fase cambiata", la fase è quella scelta dall'utente qui.
   TDEE è una stima grezza (peso × fattore attività): manca sesso/età/altezza
   nel profilo, da aggiungere se serve un Mifflin-St Jeor vero.
 - `Modules/1r0-diet/Views/` (slice 2) — `MealPlanView` (mockup pianificazione:
@@ -200,14 +177,12 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
 - Fuori 0017/0018/0019/0020: modulo dieta su Watch. (ADR-0017 completo:
   slice 1 contacalorie, 2 ricette+pianificazione, 3 lista spesa, 4 tracker.)
 
-ADR-0005: modello + UI di import pronti (`ImportExerciseView`). Backend:
-route `POST /v1/exercises/wger-sync` e `POST /v1/exercises/ai-import`
-(`apps/api`), da deployare su EC2; l'AI import richiede `ANTHROPIC_API_KEY`
-(senza chiave la app mostra un avviso, non crasha). Demo video/immagine
-esercizio: mostrata in `ExerciseDetailView` (catalogo + sessione).
-
-Fuori ADR-0013 per ora: Live Activities / Dynamic Island per il timer riposo
-(target widget-extension ActivityKit).
+ADR-0005/0013/0014/0016 sono **superseded** da ADR-0027 (catalogo esercizi,
+calcolatore piastre, Siri Shortcut, scope Watch): il codice client li ha
+rimossi in questo cleanup. Le route backend corrispondenti in `apps/api`
+(`exercises`, `routines`, `routinetree`, `plateconfig`, `wger`) non sono
+ancora state toccate — restano da rimuovere o lasciare morte, task separato
+non coperto da questo passaggio.
 
 Schema: `supabase/migrations/0001_1r0-gym_schema.sql` (gym),
 `0004_1r0-diet_schema.sql` + `0006_meal_item_food_name.sql` (dieta);

@@ -23,7 +23,6 @@ struct DietTabView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \MealEntry.consumedAt, order: .reverse) private var allMeals: [MealEntry]
     @Query(sort: \NutritionGoal.effectiveFrom, order: .reverse) private var goals: [NutritionGoal]
-    @Query(sort: \Routine.createdAt, order: .reverse) private var routines: [Routine]
     @State private var logSlot: MealSlot?
     @State private var showGoal = false
     @State private var showReport = false
@@ -46,36 +45,10 @@ struct DietTabView: View {
             ?? Macros(kcal: DietGoal.kcal, proteinG: DietGoal.proteinG,
                       carbsG: DietGoal.carbsG, fatG: DietGoal.fatG)
     }
-    /// Se l'obiettivo è "legato alla scheda" e la fase attiva è cambiata
-    /// rispetto a quella registrata, l'app propone (non applica) di aggiornarlo.
-    private var phaseNudge: RoutinePhase? {
-        guard let g = DietSync.current(goals), g.mode == .phase_linked,
-              let active = routines.first(where: { $0.phase != nil })?.phase
-        else { return nil }
-        return (g.sourceNote ?? "").contains(active.rawValue) ? nil : active
-    }
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
-                if let p = phaseNudge {
-                    Button { showGoal = true } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                                .font(.system(size: 14, weight: .semibold))
-                            Text("Fase attiva: «\(p.label)» — aggiorna l'obiettivo")
-                                .font(Glass.body(13, .semibold))
-                            Spacer(minLength: 4)
-                            Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold))
-                        }
-                        .foregroundStyle(Glass.amberText)
-                        .padding(.horizontal, 16).padding(.vertical, 12)
-                        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Glass.amber.opacity(0.12)))
-                        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Glass.amber.opacity(0.35)))
-                    }
-                    .buttonStyle(.plain)
-                }
                 summaryCard
                 VStack(spacing: 12) {
                     ForEach(MealSlot.allCases) { slot in mealCard(slot) }

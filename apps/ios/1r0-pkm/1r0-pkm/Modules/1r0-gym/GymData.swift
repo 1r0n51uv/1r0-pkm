@@ -1,9 +1,8 @@
 //
-//  GymData.swift · GymActions.swift
+//  GymData.swift
 //  1r0-pkm · Modules/1r0-gym
 //
-//  Container SwiftData condiviso fra App e App Intents (ADR-0014), e le
-//  azioni di dominio riusate da UI, Watch bridge e Intent.
+//  Container SwiftData condiviso fra i moduli (ADR-0008).
 //
 
 import Foundation
@@ -11,9 +10,11 @@ import SwiftData
 
 enum GymData {
     static let schema = Schema([
-        Exercise.self, Routine.self, RoutineDay.self, RoutineExercise.self,
+        // ADR-0027: `Exercise`/`Routine`/`RoutineDay`/`RoutineExercise`/`PlateConfig`
+        // rimossi col catalogo/editor schede. `WorkoutSession`/`SetLogEntry`
+        // restano, in attesa dell'import CSV Liftin' (gym reshape, step 3).
         WorkoutSession.self, SetLogEntry.self,
-        PlateConfig.self, BodyMeasurement.self, OutboxEntry.self,
+        BodyMeasurement.self, OutboxEntry.self,
         // Modulo 1r0-diet (ADR-0017): container unico, ADR-0008.
         Food.self, MealEntry.self, MealEntryItem.self, NutritionGoal.self,
         Recipe.self, RecipeItem.self, PlannedMeal.self, PlannedMealItem.self,
@@ -45,31 +46,5 @@ enum GymData {
             }
             fatalError("GymData container non creato: \(error)")
         }
-    }
-}
-
-@MainActor
-enum GymActions {
-    /// Crea una `WorkoutSession` come farebbe l'avvio manuale + accoda
-    /// `session.create` all'outbox. Usata da UI e da `StartWorkoutIntent`.
-    @discardableResult
-    static func startWorkout(
-        routineDayId: UUID? = nil,
-        source: String = "app",
-        in context: ModelContext
-    ) -> WorkoutSession {
-        let s = WorkoutSession(source: source, routineDayId: routineDayId)
-        context.insert(s)
-
-        var payload: [String: Any] = ["id": s.id.uuidString, "source": source]
-        if let routineDayId { payload["routineDayId"] = routineDayId.uuidString }
-        if let data = try? JSONSerialization.data(withJSONObject: payload) {
-            context.insert(OutboxEntry(kind: "session.create", payload: data))
-        }
-        try? context.save()
-
-        let ctx = context
-        Task { await GymSync.flushOutbox(ctx) }
-        return s
     }
 }

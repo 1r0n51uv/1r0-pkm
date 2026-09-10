@@ -2,8 +2,9 @@
 //  ContentView.swift
 //  1r0-pkm
 //
-//  Shell a tab: moduli 1r0-gym (Sessione/Schede/Catalogo/Progressi) e
-//  1r0-diet (Dieta, ADR-0017) come sezioni di un'unica app (ADR-0008).
+//  Shell a tab: 1r0-gym (Progressi — storico/grafici, ADR-0027: l'import CSV
+//  Liftin' arriva col gym reshape) e 1r0-diet (Dieta, ADR-0017) come sezioni
+//  di un'unica app (ADR-0008).
 //
 
 import SwiftUI
@@ -12,15 +13,6 @@ import SwiftData
 struct ContentView: View {
     var body: some View {
         TabView {
-            NavigationStack { SessionTabView() }
-                .tabItem { Label("Sessione", systemImage: "figure.strengthtraining.traditional") }
-
-            NavigationStack { RoutineListView() }
-                .tabItem { Label("Schede", systemImage: "square.stack.3d.up") }
-
-            NavigationStack { ExerciseListView() }
-                .tabItem { Label("Catalogo", systemImage: "dumbbell") }
-
             NavigationStack { DietTabView() }
                 .tabItem { Label("Dieta", systemImage: "fork.knife") }
 

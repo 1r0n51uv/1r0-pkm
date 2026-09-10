@@ -17,10 +17,10 @@ struct NutritionGoalView: View {
 
     @Query(sort: \NutritionGoal.effectiveFrom, order: .reverse) private var goals: [NutritionGoal]
     @Query(sort: \BodyMeasurement.recordedAt, order: .reverse) private var measurements: [BodyMeasurement]
-    @Query(sort: \Routine.createdAt, order: .reverse) private var routines: [Routine]
 
     @State private var mode: GoalMode = .manual
     @State private var activity: ActivityLevel = .moderate
+    @State private var phase: RoutinePhase = .maintenance
     @State private var kcal = "2200"
     @State private var protein = "170"
     @State private var carbs = "220"
@@ -29,9 +29,6 @@ struct NutritionGoalView: View {
 
     private var latestWeight: Double? {
         measurements.first(where: { $0.weightKg != nil })?.weightKg
-    }
-    private var activePhase: RoutinePhase? {
-        routines.first(where: { $0.phase != nil })?.phase
     }
     /// kcal di mantenimento per la modalità "fase": TDEE se c'è il peso,
     /// altrimenti la kcal dell'obiettivo corrente, altrimenti il default.
@@ -52,7 +49,7 @@ struct NutritionGoalView: View {
         case .phase_linked:
             return NutritionMath.phaseAdjusted(maintenanceKcal: maintenance,
                                                weightKg: latestWeight ?? 75,
-                                               phase: activePhase)
+                                               phase: phase)
         }
     }
 
@@ -133,12 +130,21 @@ struct NutritionGoalView: View {
     private var contextLine: some View {
         switch mode {
         case .phase_linked:
-            if let p = activePhase {
-                pill("Fase attiva: «\(p.label)» · base \(Int(maintenance.rounded())) kcal",
-                     color: Glass.phaseColor(p.rawValue))
-            } else {
-                pill("Nessuna scheda con una fase. Impostane una in Schede.", color: Glass.amber)
+            HStack(spacing: 8) {
+                ForEach(RoutinePhase.allCases) { p in
+                    Button { phase = p } label: {
+                        Text(p.label)
+                            .font(Glass.body(12, phase == p ? .bold : .semibold))
+                            .foregroundStyle(phase == p ? Glass.onCoral : Glass.ink.opacity(0.55))
+                            .padding(.horizontal, 14).padding(.vertical, 8)
+                            .background(Capsule().fill(phase == p ? Glass.phaseColor(p.rawValue) : Color.white.opacity(0.06)))
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
             }
+            pill("Base \(Int(maintenance.rounded())) kcal · fase «\(phase.label)»",
+                 color: Glass.phaseColor(phase.rawValue))
         case .tdee:
             HStack(spacing: 8) {
                 ForEach(ActivityLevel.allCases) { a in
@@ -219,6 +225,7 @@ struct NutritionGoalView: View {
         guard let g = DietSync.current(goals) else { return }
         mode = g.mode
         activity = g.activityLevel ?? .moderate
+        phase = g.notedPhase ?? .maintenance
         kcal = fmt(g.caloriesTarget); protein = fmt(g.proteinGTarget)
         carbs = fmt(g.carbsGTarget); fat = fmt(g.fatGTarget)
     }
@@ -230,7 +237,7 @@ struct NutritionGoalView: View {
         let note: String
         switch mode {
         case .manual: note = "manuale"
-        case .phase_linked: note = "fase: \(activePhase?.rawValue ?? "nessuna")"
+        case .phase_linked: note = "fase: \(phase.rawValue)"
         case .tdee: note = "tdee \(activity.label.lowercased()) @ \(fmt(latestWeight ?? 0)) kg"
         }
         DietSync.setGoal(mode: mode, macros: m,

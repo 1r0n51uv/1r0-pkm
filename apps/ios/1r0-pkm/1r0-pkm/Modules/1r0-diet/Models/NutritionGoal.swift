@@ -11,6 +11,22 @@
 import Foundation
 import SwiftData
 
+/// Fase di allenamento dichiarata a mano sull'obiettivo (ADR-0027: `Routine`
+/// non è più un'entità editabile, quindi non esiste più una "fase attiva"
+/// da leggere altrove — l'utente la sceglie qui quando usa `phase_linked`).
+enum RoutinePhase: String, CaseIterable, Identifiable {
+    case bulk, cut, deload, maintenance
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .bulk: return "Bulk"
+        case .cut: return "Cut"
+        case .deload: return "Deload"
+        case .maintenance: return "Mantenimento"
+        }
+    }
+}
+
 enum GoalMode: String, CaseIterable, Identifiable {
     case manual, phase_linked, tdee
     var id: String { rawValue }
@@ -83,6 +99,14 @@ final class NutritionGoal {
     var macros: Macros {
         Macros(kcal: caloriesTarget, proteinG: proteinGTarget,
                carbsG: carbsGTarget, fatG: fatGTarget)
+    }
+    /// Fase annotata in `sourceNote` (formato "fase: <rawValue>") per la
+    /// modalità `phase_linked` — riproposta riaprendo l'obiettivo, anche
+    /// dopo un pull dal backend (niente colonna dedicata).
+    var notedPhase: RoutinePhase? {
+        guard mode == .phase_linked, let note = sourceNote, note.hasPrefix("fase: ")
+        else { return nil }
+        return RoutinePhase(rawValue: String(note.dropFirst("fase: ".count)))
     }
 
     init(id: UUID = UUID(), mode: GoalMode, macros: Macros,

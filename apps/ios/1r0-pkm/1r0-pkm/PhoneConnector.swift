@@ -3,8 +3,9 @@
 //  1r0-pkm
 //
 //  WatchConnectivity lato iPhone. Attiva la sessione all'avvio; instrada i
-//  messaggi e i userInfo transfer dal Watch a `onMessage` (li consuma
-//  WatchSyncBridge → SwiftData + outbox, ADR-0016).
+//  messaggi e i userInfo transfer dal Watch a `onMessage`. Watch companion
+//  congelato (ADR-0027): nessun consumer attivo per ora, il trasporto resta
+//  come base per un futuro rilancio.
 //
 
 import Foundation

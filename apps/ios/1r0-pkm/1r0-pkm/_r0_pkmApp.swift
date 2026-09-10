@@ -10,13 +10,12 @@ import SwiftData
 struct _r0_pkmApp: App {
     let container: ModelContainer
     @Environment(\.scenePhase) private var scenePhase
-    @State private var watchBridge: WatchSyncBridge?
     private let isUITest = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
 
     init() {
-        _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity
+        _ = PhoneConnector.shared // attiva il trasporto WatchConnectivity (Watch companion congelato, ADR-0027)
 
-        // container unico condiviso con gli App Intents (ADR-0014).
+        // container unico condiviso fra i moduli (ADR-0008).
         // `GymData.makeContainer()` sceglie in-memory sotto `-uitest-reset`
         // e recupera da uno store locale non migrabile.
         container = GymData.container
@@ -44,11 +43,6 @@ struct _r0_pkmApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .task {
-                    if watchBridge == nil {
-                        watchBridge = WatchSyncBridge(context: container.mainContext)
-                    }
-                }
         }
         .modelContainer(container)
         .onChange(of: scenePhase) { _, phase in
