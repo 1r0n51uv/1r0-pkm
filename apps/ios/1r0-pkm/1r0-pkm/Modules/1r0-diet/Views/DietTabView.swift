@@ -90,7 +90,7 @@ struct DietTabView: View {
             await DietSync.pullFoods(into: context)
             await DietSync.pullMealEntries(into: context)
             await DietSync.pullGoals(into: context)
-            await GymSync.flushOutbox(context)
+            await Outbox.flushOutbox(context)
         }
     }
 

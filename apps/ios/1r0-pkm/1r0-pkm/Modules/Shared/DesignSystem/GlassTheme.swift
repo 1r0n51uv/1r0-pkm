@@ -1,6 +1,6 @@
 //
 //  GlassTheme.swift
-//  1r0-pkm · Modules/1r0-gym
+//  1r0-pkm · Modules/Shared/DesignSystem
 //
 //  Linguaggio visivo "Glass Dark" (ADR-0023). Token e componenti allineati
 //  1:1 al canvas dei mockup ("1r0 - Direzione Glass Dark"):

@@ -5,7 +5,7 @@ Stato di avanzamento dell'"Ordine di lavoro" in
 Aggiornare le spunte man mano; non è un documento di decisione (quello
 resta l'ADR), solo il tracciamento di cosa manca.
 
-## 1. Cleanup codice tagliato — **parziale**
+## 1. Cleanup codice tagliato — **fatto**
 
 - [x] Rimozione codice: sessione live, catalogo esercizi (wger/AI import),
   editor schede, calcolatore piastre, Siri Shortcuts, bridge Watch→sessione
@@ -14,20 +14,21 @@ resta l'ADR), solo il tracciamento di cosa manca.
   aggiornati di conseguenza. (`refactor(1r0-gym): ADR-0027 step 1`)
 - [x] ADR-0027/0028 + emendamenti + glossario (fatto nel commit `docs:
   ADR-0027/0028`, prima del cleanup codice).
-- [ ] **Spostamento in `Modules/Shared/`.** `Modules/Shared/` non esiste
-  ancora. Da spostare (oggi vivono sotto `Modules/1r0-gym/`, ma li usa
-  anche `1r0-diet`): `GymSync.swift`/`OutboxEntry.swift`/`SyncEngine.swift`/
-  `SyncPolicy.swift` → `Modules/Shared/Sync/`; `HealthKitService.swift`/
-  `HealthKitOnboardingView.swift` → `Modules/Shared/HealthKit/`;
-  `GlassTheme.swift` → `Modules/Shared/UI/` (o simile). Comporta rinominare
-  `GymSync` in qualcosa di neutro (es. `Outbox`/`SyncService`) dato che non
-  è più solo-gym — da decidere in fase di implementazione, non bloccante.
-- [ ] **Pulizia backend morta.** `apps/api/src/routes/exercises.js`,
-  `routines.js`, `routinetree.js`, `plateconfig.js`, `wger.js` non sono più
-  chiamate da nessun client dopo il cleanup di cui sopra. Non toccate in
-  questo passaggio (tocca l'istanza EC2 live, rischio diverso dal cleanup
-  client). Da decidere: rimuovere le route, o lasciarle morte finché non si
-  droppano anche le tabelle relative in `supabase/migrations/`.
+- [x] **Spostamento in `Modules/Shared/`.** Creato `Modules/Shared/` con
+  `API/ApiClient.swift`, `Sync/{OutboxEntry,SyncEngine,SyncPolicy}.swift` +
+  `Sync/Outbox.swift` (era `GymSync`: `enum GymSync` → `enum Outbox`, solo il
+  processore outbox), `HealthKit/{HealthKitService,HealthKitOnboardingView}`,
+  `DesignSystem/GlassTheme.swift`. `Modules/1r0-gym/Sync/GymSync.swift` resta
+  col solo `pullMeasurements`. Call site `GymSync.flushOutbox/retryFailed` →
+  `Outbox.*` in gym + diet + `SyncEngine` + `ContentView`.
+- [x] **Pulizia backend morta.** Rimossi `apps/api/src/routes/{exercises,
+  routines,routinetree,plateconfig,wger,ai}.js` + le `register` in
+  `server.js`. Le tabelle `exercises`/`routines`/`plate_config` restano in
+  `supabase/migrations/` (`set_logs` FK `exercises`) — drop schema rimandato.
+- [x] **Target widget-extension `1r0-pkm-wiExtension` + `LiveActivity/`**
+  rimossi dal `.xcodeproj` (erano riferimenti morti: i sorgenti non
+  esistevano più su disco e rompevano `xcodebuild build`). ADR-0027 "Fuori
+  dalla v1: Widget".
 
 ## 2. Motore Promemoria condiviso — **da iniziare**
 

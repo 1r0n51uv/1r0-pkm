@@ -1,9 +1,9 @@
 //
 //  OutboxEntry.swift
-//  1r0-pkm · Modules/1r0-gym
+//  1r0-pkm · Modules/Shared/Sync
 //
 //  Coda locale (SwiftData) di mutazioni non ancora sincronizzate col backend
-//  (ADR-0006). Ogni scrittura locale accoda un OutboxEntry; GymSync lo
+//  (ADR-0006). Ogni scrittura locale accoda un OutboxEntry; Outbox lo
 //  riprocessa (all'avvio, dopo ogni create, quando torna la rete).
 //
 

@@ -1,6 +1,6 @@
 //
 //  HealthKitOnboardingView.swift
-//  1r0-pkm · Modules/1r0-gym
+//  1r0-pkm · Modules/Shared/HealthKit
 //
 //  Spiega perché servono i permessi HealthKit (ADR-0004) prima di
 //  richiederli. Stile Glass Dark.

@@ -58,7 +58,7 @@ struct ProgressTabView: View {
         } message: { Text(healthNote ?? "") }
         .task {
             await GymSync.pullMeasurements(into: context)
-            await GymSync.flushOutbox(context)
+            await Outbox.flushOutbox(context)
         }
     }
 
@@ -187,7 +187,7 @@ struct ProgressTabView: View {
             }
             try? context.save()
             let ctx = context
-            Task { await GymSync.flushOutbox(ctx) }
+            Task { await Outbox.flushOutbox(ctx) }
             healthNote = "Peso importato da Salute: \(fmt(kg)) kg."
         }
     }

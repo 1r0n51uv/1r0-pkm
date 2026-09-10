@@ -1,13 +1,13 @@
 //
 //  SyncEngine.swift
-//  1r0-pkm · Modules/1r0-gym
+//  1r0-pkm · Modules/Shared/Sync
 //
 //  Coordinatore del flush dell'outbox (ADR-0006). Fa partire il flush:
 //   - quando la rete torna disponibile (`NWPathMonitor`);
 //   - quando l'app torna in foreground (gestito in `_r0_pkmApp` via scenePhase);
 //   - in background, via `BGAppRefreshTask` schedulata a ogni ingresso in
 //     background.
-//  Il retry/backoff per-entry vive in `SyncPolicy` + `GymSync.flushOutbox`.
+//  Il retry/backoff per-entry vive in `SyncPolicy` + `Outbox.flushOutbox`.
 //
 
 import Foundation
@@ -51,7 +51,7 @@ final class SyncEngine {
     /// Flush immediato (foreground). No-op se il motore non è avviato.
     func flushNow() {
         guard let context = container?.mainContext else { return }
-        Task { await GymSync.flushOutbox(context) }
+        Task { await Outbox.flushOutbox(context) }
     }
 
     /// Pianifica il prossimo giro in background (≥ 15 min).
@@ -75,7 +75,7 @@ final class SyncEngine {
 
         let work = Task { @MainActor in
             if let context = container?.mainContext {
-                await GymSync.flushOutbox(context)
+                await Outbox.flushOutbox(context)
             }
             task.setTaskCompleted(success: true)
         }

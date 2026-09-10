@@ -3,8 +3,8 @@
 //  1r0-pkm · Modules/1r0-diet
 //
 //  Pull dal backend + azioni di dominio del modulo dieta (ADR-0017 slice 1).
-//  L'outbox è quello condiviso (OutboxEntry / GymSync.flushOutbox, ADR-0006):
-//  i kind `food.create` e `mealentry.create` sono gestiti in GymSync.send.
+//  L'outbox è quello condiviso (OutboxEntry / Outbox.flushOutbox, ADR-0006):
+//  i kind `food.create` e `mealentry.create` sono gestiti in Outbox.send.
 //
 
 import Foundation
@@ -703,7 +703,7 @@ enum DietSync {
         }
         try? context.save()
         let ctx = context
-        Task { await GymSync.flushOutbox(ctx) }
+        Task { await Outbox.flushOutbox(ctx) }
     }
 
     private static func num(_ v: FoodDTO.Num?) -> Double? { v?.value }

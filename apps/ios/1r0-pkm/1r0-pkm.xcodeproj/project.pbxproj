@@ -18,12 +18,12 @@
 		28C2A591477CD9202AD8BC7A /* AddFoodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988633712155B9E1F8B5774C /* AddFoodView.swift */; };
 		31894698A89B2FE53D6C5BC6 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */; };
 		4200C8819C5C4B6808B3CF9A /* MealEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C804BC481B36898CCF0C1F43 /* MealEntry.swift */; };
-		547F7A5368EC487F98413230 /* LiveActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A119D002C145A1964693CA /* LiveActivityController.swift */; };
 		557E443B99C3337A7D982344 /* OutboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */; };
 		560E925DB7AFCE127E0DEEA0 /* Food.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A10CD2EC5CE16D399461241 /* Food.swift */; };
 		58B86DC9FF0D4D22BD04AF8C /* ShoppingListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF9D775FB254281A107B41A /* ShoppingListView.swift */; };
 		59CD4B6D8FC847F2886CAFFE /* DietReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3AA36288814E159C189B3E /* DietReportView.swift */; };
 		5BF34CE5858978E07B47D404 /* GymData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAC45ECAC44E556696F8639 /* GymData.swift */; };
+		032992018C03682844681BF2 /* GymSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666E4DC757ABFAE3E3951C80 /* GymSync.swift */; };
 		5D9446AEB37E9FD6C24722C0 /* BodyMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F4AFA951073018127E688 /* BodyMeasurement.swift */; };
 		5EDB87C294F3AC058F11B139 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */; };
 		638441CFAC494580478D0FB4 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */; };
@@ -44,10 +44,9 @@
 		BDD148989ABE69AC75B05921 /* GymMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */; };
 		BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24954145CE3772A2A0BA0C2 /* DietTabView.swift */; };
 		C5B647558DFAE1B917B29152 /* SyncPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */; };
-		D0D343E292B539DDEE52089E /* GymSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF4E7CB31B6551914B2913 /* GymSync.swift */; };
+		D0D343E292B539DDEE52089E /* Outbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF4E7CB31B6551914B2913 /* Outbox.swift */; };
 		D9594F6E835A7CA16D9517F6 /* WorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */; };
 		D964487DA44DB7987EE982F8 /* SyncPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519F45C98B2D084737AE170F /* SyncPolicyTests.swift */; };
-		E654B6F57F1C4FA59D6E6C50 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA759BA0D4DC43A781CA0262 /* RestTimerAttributes.swift */; };
 		EAA34873A0DAD527D7CC5120 /* SetLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67C048CA9A5CB9A7E3AA639D /* SetLogEntry.swift */; };
 		ED3C954E304CE45600E8464E /* _r0_pkm_wApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */; };
 		ED3C9550304CE45600E8464E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3C954F304CE45600E8464E /* ContentView.swift */; };
@@ -64,13 +63,6 @@
 		ED3F6270304CD5D1000F4A2D /* _r0_pkmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F626F304CD5D1000F4A2D /* _r0_pkmTests.swift */; };
 		ED3F627A304CD5D1000F4A2D /* _r0_pkmUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */; };
 		ED3F627C304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */; };
-		EDC116D2304EFE440032C2C9 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDC116D1304EFE440032C2C9 /* WidgetKit.framework */; };
-		EDC116D4304EFE440032C2C9 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDC116D3304EFE440032C2C9 /* SwiftUI.framework */; };
-		EDC116D7304EFE440032C2C9 /* _r0_pkm_wiBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC116D6304EFE440032C2C9 /* _r0_pkm_wiBundle.swift */; };
-		EDC116D9304EFE440032C2C9 /* _r0_pkm_wi.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC116D8304EFE440032C2C9 /* _r0_pkm_wi.swift */; };
-		EDC11700304EFE440032C2C9 /* RestTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA759BA0D4DC43A781CA0262 /* RestTimerAttributes.swift */; };
-		EDC116DD304EFE450032C2C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDC116DC304EFE450032C2C9 /* Assets.xcassets */; };
-		EDC116E2304EFE450032C2C9 /* 1r0-pkm-wiExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EDC116CF304EFE440032C2C9 /* 1r0-pkm-wiExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F1FF410589193B1B81398A4C /* PhoneConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33394EDB88C37094051E27DE /* PhoneConnector.swift */; };
 		F24041909FCA48054D07867F /* WatchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24654844A0874A09F64936EB /* WatchRootView.swift */; };
 		F72F40659B74D4F1188F6690 /* GlassTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */; };
@@ -114,13 +106,6 @@
 			remoteGlobalIDString = ED3F6259304CD5CE000F4A2D;
 			remoteInfo = "1r0-pkm";
 		};
-		EDC116E0304EFE450032C2C9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = ED3F6252304CD5CE000F4A2D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EDC116CE304EFE440032C2C9;
-			remoteInfo = "1r0-pkm-wiExtension";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -135,28 +120,17 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EDC116E3304EFE450032C2C9 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				EDC116E2304EFE450032C2C9 /* 1r0-pkm-wiExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		05106DA08A2943199C91C9DA /* ShoppingListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShoppingListItem.swift; path = "1r0-pkm/Modules/1r0-diet/Models/ShoppingListItem.swift"; sourceTree = SOURCE_ROOT; };
 		0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoalView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/NutritionGoalView.swift"; sourceTree = SOURCE_ROOT; };
 		06E1AFBD413F9A3E581B3E95 /* LogFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LogFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/LogFoodView.swift"; sourceTree = SOURCE_ROOT; };
-		0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitOnboardingView.swift; path = "1r0-pkm/Modules/1r0-gym/HealthKit/HealthKitOnboardingView.swift"; sourceTree = SOURCE_ROOT; };
-		129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPolicy.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/SyncPolicy.swift"; sourceTree = SOURCE_ROOT; };
+		0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitOnboardingView.swift; path = "1r0-pkm/Modules/Shared/HealthKit/HealthKitOnboardingView.swift"; sourceTree = SOURCE_ROOT; };
+		129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPolicy.swift; path = "1r0-pkm/Modules/Shared/Sync/SyncPolicy.swift"; sourceTree = SOURCE_ROOT; };
 		1D4066644EA1AE2764C9B705 /* DietSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietSync.swift; path = "1r0-pkm/Modules/1r0-diet/Sync/DietSync.swift"; sourceTree = SOURCE_ROOT; };
-		1F024674A3B635B2CD67922F /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncEngine.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/SyncEngine.swift"; sourceTree = SOURCE_ROOT; };
-		20CF4E7CB31B6551914B2913 /* GymSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymSync.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/GymSync.swift"; sourceTree = SOURCE_ROOT; };
+		1F024674A3B635B2CD67922F /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncEngine.swift; path = "1r0-pkm/Modules/Shared/Sync/SyncEngine.swift"; sourceTree = SOURCE_ROOT; };
+		20CF4E7CB31B6551914B2913 /* Outbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Outbox.swift; path = "1r0-pkm/Modules/Shared/Sync/Outbox.swift"; sourceTree = SOURCE_ROOT; };
 		24654844A0874A09F64936EB /* WatchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchRootView.swift; path = "1r0-pkm-w Watch App/WatchRootView.swift"; sourceTree = SOURCE_ROOT; };
 		292C4093960D1B8A0B5EFE7A /* GymMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymMath.swift; path = "1r0-pkm/Modules/1r0-gym/GymMath.swift"; sourceTree = SOURCE_ROOT; };
 		2A10CD2EC5CE16D399461241 /* Food.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Food.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Food.swift"; sourceTree = SOURCE_ROOT; };
@@ -164,11 +138,10 @@
 		33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecipeListView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/RecipeListView.swift"; sourceTree = SOURCE_ROOT; };
 		3D7F4AFA951073018127E688 /* BodyMeasurement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BodyMeasurement.swift; path = "1r0-pkm/Modules/1r0-gym/Models/BodyMeasurement.swift"; sourceTree = SOURCE_ROOT; };
 		4C6952FB3A11858434A98160 /* NutritionGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionGoal.swift; path = "1r0-pkm/Modules/1r0-diet/Models/NutritionGoal.swift"; sourceTree = SOURCE_ROOT; };
-		4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OutboxEntry.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/OutboxEntry.swift"; sourceTree = SOURCE_ROOT; };
+		4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OutboxEntry.swift; path = "1r0-pkm/Modules/Shared/Sync/OutboxEntry.swift"; sourceTree = SOURCE_ROOT; };
 		519F45C98B2D084737AE170F /* SyncPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPolicyTests.swift; path = "1r0-pkmTests/SyncPolicyTests.swift"; sourceTree = SOURCE_ROOT; };
-		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
+		54B54FD4AD90693086FD751B /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ApiClient.swift; path = "1r0-pkm/Modules/Shared/API/ApiClient.swift"; sourceTree = SOURCE_ROOT; };
 		56B5D6EE853345868DAEE75B /* Trackers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Trackers.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Trackers.swift"; sourceTree = SOURCE_ROOT; };
-		57A119D002C145A1964693CA /* LiveActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityController.swift; path = "1r0-pkm/Modules/1r0-gym/LiveActivity/LiveActivityController.swift"; sourceTree = SOURCE_ROOT; };
 		61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchWorkoutSession.swift; path = "1r0-pkm-w Watch App/WatchWorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
 		621ABECCE5244E47B87B7258 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Recipe.swift; path = "1r0-pkm/Modules/1r0-diet/Models/Recipe.swift"; sourceTree = SOURCE_ROOT; };
 		636C4706B7AF7ACBB3ECCD1A /* AddMeasurementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddMeasurementView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/AddMeasurementView.swift"; sourceTree = SOURCE_ROOT; };
@@ -185,14 +158,13 @@
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		B98F725248DB437980EF296A /* DietReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReport.swift; path = "1r0-pkm/Modules/1r0-diet/DietReport.swift"; sourceTree = SOURCE_ROOT; };
 		BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSessionModel.swift; path = "1r0-pkm-w Watch App/WatchSessionModel.swift"; sourceTree = SOURCE_ROOT; };
-		C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitService.swift; path = "1r0-pkm/Modules/1r0-gym/HealthKit/HealthKitService.swift"; sourceTree = SOURCE_ROOT; };
+		C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitService.swift; path = "1r0-pkm/Modules/Shared/HealthKit/HealthKitService.swift"; sourceTree = SOURCE_ROOT; };
 		C804BC481B36898CCF0C1F43 /* MealEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealEntry.swift; path = "1r0-pkm/Modules/1r0-diet/Models/MealEntry.swift"; sourceTree = SOURCE_ROOT; };
 		D24954145CE3772A2A0BA0C2 /* DietTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietTabView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietTabView.swift"; sourceTree = SOURCE_ROOT; };
 		DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymMathTests.swift; path = "1r0-pkmTests/GymMathTests.swift"; sourceTree = SOURCE_ROOT; };
 		DD3AA36288814E159C189B3E /* DietReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReportView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietReportView.swift"; sourceTree = SOURCE_ROOT; };
 		E75F149E62524030BE1EC58F /* MealPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealPlanView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/MealPlanView.swift"; sourceTree = SOURCE_ROOT; };
 		EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BarcodeScannerView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/BarcodeScannerView.swift"; sourceTree = SOURCE_ROOT; };
-		EA759BA0D4DC43A781CA0262 /* RestTimerAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RestTimerAttributes.swift; path = "1r0-pkm/Modules/1r0-gym/LiveActivity/RestTimerAttributes.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wApp.swift; sourceTree = "<group>"; };
 		ED3C954F304CE45600E8464E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -215,27 +187,12 @@
 		ED3F6279304CD5D1000F4A2D /* _r0_pkmUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITests.swift; sourceTree = "<group>"; };
 		ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		EDAC45ECAC44E556696F8639 /* GymData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymData.swift; path = "1r0-pkm/Modules/1r0-gym/GymData.swift"; sourceTree = SOURCE_ROOT; };
-		EDC116CF304EFE440032C2C9 /* 1r0-pkm-wiExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "1r0-pkm-wiExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		EDC116D1304EFE440032C2C9 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
-		EDC116D3304EFE440032C2C9 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
-		EDC116D6304EFE440032C2C9 /* _r0_pkm_wiBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wiBundle.swift; sourceTree = "<group>"; };
-		EDC116D8304EFE440032C2C9 /* _r0_pkm_wi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wi.swift; sourceTree = "<group>"; };
-		EDC116DC304EFE450032C2C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		EDC116DE304EFE450032C2C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		666E4DC757ABFAE3E3951C80 /* GymSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymSync.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/GymSync.swift"; sourceTree = SOURCE_ROOT; };
 		FB8540D8942B0227609A4C51 /* ProgressTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProgressTabView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/ProgressTabView.swift"; sourceTree = SOURCE_ROOT; };
-		FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassTheme.swift; path = "1r0-pkm/Modules/1r0-gym/Views/GlassTheme.swift"; sourceTree = SOURCE_ROOT; };
+		FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassTheme.swift; path = "1r0-pkm/Modules/Shared/DesignSystem/GlassTheme.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		EDC116CC304EFE440032C2C9 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EDC116D4304EFE440032C2C9 /* SwiftUI.framework in Frameworks */,
-				EDC116D2304EFE440032C2C9 /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -304,15 +261,13 @@
 				ED3C954C304CE45600E8464E /* 1r0-pkm-w Watch App */,
 				ED3C955D304CE45800E8464E /* 1r0-pkm-w Watch AppTests */,
 				ED3C9567304CE45800E8464E /* 1r0-pkm-w Watch AppUITests */,
-				EDC116D5304EFE440032C2C9 /* 1r0-pkm-wi */,
-				EDC116D0304EFE440032C2C9 /* Frameworks */,
 				ED3F625B304CD5CE000F4A2D /* Products */,
 				33394EDB88C37094051E27DE /* PhoneConnector.swift */,
 				B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */,
 				54B54FD4AD90693086FD751B /* ApiClient.swift */,
 				81184CE697A7F0353C1C751F /* Secrets.swift */,
 				4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */,
-				20CF4E7CB31B6551914B2913 /* GymSync.swift */,
+				20CF4E7CB31B6551914B2913 /* Outbox.swift */,
 				FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */,
 				8FE746F3AB2181072C2880A5 /* SpaceGrotesk-Variable.ttf */,
 				8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */,
@@ -327,8 +282,7 @@
 				61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */,
 				24654844A0874A09F64936EB /* WatchRootView.swift */,
 				EDAC45ECAC44E556696F8639 /* GymData.swift */,
-				57A119D002C145A1964693CA /* LiveActivityController.swift */,
-				EA759BA0D4DC43A781CA0262 /* RestTimerAttributes.swift */,
+				666E4DC757ABFAE3E3951C80 /* GymSync.swift */,
 				C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */,
 				0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */,
 				129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */,
@@ -346,7 +300,6 @@
 				ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */,
 				ED3C955A304CE45800E8464E /* 1r0-pkm-w Watch AppTests.xctest */,
 				ED3C9564304CE45800E8464E /* 1r0-pkm-w Watch AppUITests.xctest */,
-				EDC116CF304EFE440032C2C9 /* 1r0-pkm-wiExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -386,26 +339,6 @@
 				ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */,
 			);
 			path = "1r0-pkmUITests";
-			sourceTree = "<group>";
-		};
-		EDC116D0304EFE440032C2C9 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EDC116D1304EFE440032C2C9 /* WidgetKit.framework */,
-				EDC116D3304EFE440032C2C9 /* SwiftUI.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EDC116D5304EFE440032C2C9 /* 1r0-pkm-wi */ = {
-			isa = PBXGroup;
-			children = (
-				EDC116D6304EFE440032C2C9 /* _r0_pkm_wiBundle.swift */,
-				EDC116D8304EFE440032C2C9 /* _r0_pkm_wi.swift */,
-				EDC116DC304EFE450032C2C9 /* Assets.xcassets */,
-				EDC116DE304EFE450032C2C9 /* Info.plist */,
-			);
-			path = "1r0-pkm-wi";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -467,12 +400,10 @@
 			buildPhases = (
 				ED3F6256304CD5CE000F4A2D /* Sources */,
 				ED3F6258304CD5CE000F4A2D /* Resources */,
-				EDC116E3304EFE450032C2C9 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EDC116E1304EFE450032C2C9 /* PBXTargetDependency */,
 			);
 			name = "1r0-pkm";
 			productName = "1r0-pkm";
@@ -513,23 +444,6 @@
 			productReference = ED3F6275304CD5D1000F4A2D /* 1r0-pkmUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		EDC116CE304EFE440032C2C9 /* 1r0-pkm-wiExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = EDC116E6304EFE450032C2C9 /* Build configuration list for PBXNativeTarget "1r0-pkm-wiExtension" */;
-			buildPhases = (
-				EDC116CB304EFE440032C2C9 /* Sources */,
-				EDC116CC304EFE440032C2C9 /* Frameworks */,
-				EDC116CD304EFE440032C2C9 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "1r0-pkm-wiExtension";
-			productName = "1r0-pkm-wiExtension";
-			productReference = EDC116CF304EFE440032C2C9 /* 1r0-pkm-wiExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -562,9 +476,6 @@
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = ED3F6259304CD5CE000F4A2D;
 					};
-					EDC116CE304EFE440032C2C9 = {
-						CreatedOnToolsVersion = 15.4;
-					};
 				};
 			};
 			buildConfigurationList = ED3F6255304CD5CE000F4A2D /* Build configuration list for PBXProject "1r0-pkm" */;
@@ -586,7 +497,6 @@
 				ED3C954A304CE45600E8464E /* 1r0-pkm-w Watch App */,
 				ED3C9559304CE45800E8464E /* 1r0-pkm-w Watch AppTests */,
 				ED3C9563304CE45800E8464E /* 1r0-pkm-w Watch AppUITests */,
-				EDC116CE304EFE440032C2C9 /* 1r0-pkm-wiExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -637,14 +547,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EDC116CD304EFE440032C2C9 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EDC116DD304EFE450032C2C9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,8 +622,7 @@
 				A36440B5B7CFFF5C581D0867 /* ProgressTabView.swift in Sources */,
 				93A147E2BB606120AEA9A3DE /* AddMeasurementView.swift in Sources */,
 				5BF34CE5858978E07B47D404 /* GymData.swift in Sources */,
-				547F7A5368EC487F98413230 /* LiveActivityController.swift in Sources */,
-				E654B6F57F1C4FA59D6E6C50 /* RestTimerAttributes.swift in Sources */,
+				032992018C03682844681BF2 /* GymSync.swift in Sources */,
 				638441CFAC494580478D0FB4 /* HealthKitService.swift in Sources */,
 				1EB7419B9E262618D12A1F1B /* HealthKitOnboardingView.swift in Sources */,
 				C5B647558DFAE1B917B29152 /* SyncPolicy.swift in Sources */,
@@ -745,16 +646,6 @@
 			files = (
 				ED3F627A304CD5D1000F4A2D /* _r0_pkmUITests.swift in Sources */,
 				ED3F627C304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EDC116CB304EFE440032C2C9 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				EDC116D9304EFE440032C2C9 /* _r0_pkm_wi.swift in Sources */,
-				EDC116D7304EFE440032C2C9 /* _r0_pkm_wiBundle.swift in Sources */,
-				EDC11700304EFE440032C2C9 /* RestTimerAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -785,11 +676,6 @@
 			isa = PBXTargetDependency;
 			target = ED3F6259304CD5CE000F4A2D /* 1r0-pkm */;
 			targetProxy = ED3F6276304CD5D1000F4A2D /* PBXContainerItemProxy */;
-		};
-		EDC116E1304EFE450032C2C9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EDC116CE304EFE440032C2C9 /* 1r0-pkm-wiExtension */;
-			targetProxy = EDC116E0304EFE450032C2C9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1219,64 +1105,6 @@
 			};
 			name = Release;
 		};
-		EDC116E4304EFE450032C2C9 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "1r0-pkm-wi/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "1r0-pkm-wi";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "dev.1r0.pkm.widget";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		EDC116E5304EFE450032C2C9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "1r0-pkm-wi/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "1r0-pkm-wi";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "dev.1r0.pkm.widget";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1339,15 +1167,6 @@
 			buildConfigurations = (
 				ED3F6286304CD5D1000F4A2D /* Debug */,
 				ED3F6287304CD5D1000F4A2D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EDC116E6304EFE450032C2C9 /* Build configuration list for PBXNativeTarget "1r0-pkm-wiExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EDC116E4304EFE450032C2C9 /* Debug */,
-				EDC116E5304EFE450032C2C9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

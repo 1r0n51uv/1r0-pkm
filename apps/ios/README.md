@@ -33,16 +33,24 @@ ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
 ```
 1r0-pkm/
   Modules/
+    Shared/              infrastruttura condivisa dai moduli (ADR-0027)
+      API/               ApiClient (URLSession, API key statica, ADR-0022)
+      Sync/              OutboxEntry, Outbox (processore condiviso), SyncEngine, SyncPolicy
+      HealthKit/         HealthKitService (gateway), HealthKitOnboardingView
+      DesignSystem/      GlassTheme (Glass Dark, ADR-0023)
     1r0-gym/
-      Views/             GlassTheme, ProgressTabView (storico peso/misure)
+      GymData.swift       Schema + ModelContainer unico (gym + diet, ADR-0008)
+      GymMath.swift       regole pure (Epley 1RM, volume, trend peso, …)
       Models/            SwiftData: WorkoutSession, SetLogEntry (dormienti,
                           in attesa dell'import CSV Liftin'), BodyMeasurement
-      HealthKit/          HealthKitService (solo lettura peso), onboarding
-      Sync/              GymSync + OutboxEntry (outbox pattern, ADR-0006)
+      Sync/GymSync.swift  solo pullMeasurements (il resto è in Shared/)
+      Views/             ProgressTabView (storico peso/misure), AddMeasurementView
     1r0-diet/            invariato (ADR-0017/0018/0019/0020)
-  Shared/                 API client (URLSession, ADR-0022)
 1r0-pkm-w Watch App/       congelato (ADR-0027), fuori dalla build
 ```
+
+Il motore Promemoria condiviso (`Modules/Shared/Reminders/`) è lo step 2
+della roadmap.
 
 ## Capability e dipendenze
 
@@ -72,29 +80,31 @@ passo (ADR-0027 "gym reshape").
   UI che le usava è stata tolta), trend peso corporeo (ADR-0012), double
   progression (ADR-0011), streak/costanza (ADR-0016). Unit test in
   `GymMathTests` (28) + `SyncPolicyTests` (8).
-- `Modules/1r0-gym/Sync/` — `OutboxEntry` + `GymSync`. Kind supportati:
-  `session.create`, `session.update`, `setlog.create`, `measurement.create`
-  (i kind del catalogo/schede/piastre rimossi sono stati tolti da `send`/
-  `markSynced`). Retry/backoff (ADR-0006) invariato: `SyncPolicy` (backoff
-  esponenziale con tetto 1h, classificazione transient/permanent degli
-  errori HTTP); `flushOutbox` rispetta il backoff, parcheggia le entry
-  "poison" (4xx / troppi tentativi) senza bloccare la coda, `retryFailed` le
-  rimette in coda. `SyncEngine` (`@MainActor`) fa partire il flush quando
-  torna la rete (`NWPathMonitor`), in foreground (scenePhase) e in
-  background (`BGAppRefreshTask` `dev.1r0.pkm.sync`). Banner globale in
-  `ContentView` quando ci sono entry parcheggiate.
+- `Modules/1r0-gym/Sync/GymSync.swift` — solo `pullMeasurements` (misure
+  corporee). Il processore dell'outbox è `Modules/Shared/Sync/Outbox.swift`
+  (`enum Outbox`): kind `session.create`/`session.update`/`setlog.create`/
+  `measurement.create` + tutti i kind `1r0-diet` (quelli di catalogo/schede/
+  piastre sono stati tolti da `send`/`markSynced`). Retry/backoff (ADR-0006)
+  invariato in `Modules/Shared/Sync/`: `SyncPolicy` (backoff esponenziale
+  tetto 1h, classificazione transient/permanent); `Outbox.flushOutbox`
+  rispetta il backoff e parcheggia le entry "poison"; `Outbox.retryFailed` le
+  rimette in coda; `SyncEngine` (`@MainActor`) fa partire il flush al ritorno
+  rete (`NWPathMonitor`), in foreground (scenePhase) e in background
+  (`BGAppRefreshTask` `dev.1r0.pkm.sync`). Banner globale in `ContentView`
+  per le entry parcheggiate.
 - Watch: target congelato (ADR-0027), fuori dalla build. `WatchSyncBridge`
   (il consumer lato iPhone dei suoi eventi di sessione) è stato rimosso col
   resto della sessione live; `PhoneConnector`/`WatchConnector` (trasporto)
   restano come base per un eventuale rilancio futuro.
-- `Modules/1r0-gym/HealthKit/` — `HealthKitService` legge **solo** il peso
+- `Modules/Shared/HealthKit/` — `HealthKitService` legge **solo** il peso
   corporeo più recente per l'andamento nei Progressi; nessuna scrittura di
   workout (ADR-0004 amendata da ADR-0027: il modulo non crea più sessioni).
   `HealthKitOnboardingView` spiega i permessi prima di richiederli.
-- `Modules/1r0-gym/Views/` — `GlassTheme` (Glass Dark, ADR-0023),
-  `ProgressTabView`/`AddMeasurementView` (ADR-0012; pulsante "import da
-  Salute" → `HealthKitOnboardingView`, chip `heart.fill` sulle rilevazioni
-  importate, ADR-0004).
+- `Modules/Shared/DesignSystem/GlassTheme.swift` — linguaggio visivo Glass
+  Dark (ADR-0023), usato da gym + diet.
+- `Modules/1r0-gym/Views/` — `ProgressTabView`/`AddMeasurementView` (ADR-0012;
+  pulsante "import da Salute" → `HealthKitOnboardingView`, chip `heart.fill`
+  sulle rilevazioni importate, ADR-0004).
 - Shell: `ContentView` = TabView (Dieta | Progressi) — niente più Sessione/
   Schede/Catalogo.
 
@@ -131,7 +141,7 @@ Modulo `1r0-diet` (ADR-0017 — slice 1: contacalorie/macro):
   condiviso: kind `food.create` / `mealentry.create` / `nutritiongoal.create`
   / `recipe.create` / `plannedmeal.create` / `shoppingitem.put` /
   `waterlog.create` / `supplement.put` / `supplementlog.put` /
-  `caffeinelog.create` in `GymSync.send` (ADR-0006). Le date civili
+  `caffeinelog.create` in `Outbox.send` (ADR-0006). Le date civili
   (`effective_from` / `planned_date`) usano il calendario locale.
 - `Modules/1r0-diet/DietReport.swift` — funzioni pure di aggregazione per il
   report (ADR-0020): serie giornaliera calorie/macro sulla finestra

@@ -1,6 +1,6 @@
 //
 //  SyncPolicy.swift
-//  1r0-pkm · Modules/1r0-gym
+//  1r0-pkm · Modules/Shared/Sync
 //
 //  Regole pure per l'outbox (ADR-0006): quanto aspettare prima di riprovare
 //  una entry fallita, e se un errore è transitorio (riprova) o permanente

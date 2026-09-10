@@ -1,6 +1,6 @@
 //
 //  ApiClient.swift
-//  1r0-pkm
+//  1r0-pkm · Modules/Shared/API
 //
 //  Client REST minimale (URLSession) verso il backend custom (ADR-0022).
 //  Auth: unico bearer statico. Non è lo strato di retry/coda — quello è

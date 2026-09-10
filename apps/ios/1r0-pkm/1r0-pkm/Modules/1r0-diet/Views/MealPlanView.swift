@@ -64,7 +64,7 @@ struct MealPlanView: View {
                 let from = cal.date(byAdding: .day, value: -1, to: week[0]) ?? week[0]
                 let to = cal.date(byAdding: .day, value: 8, to: week[0]) ?? week[0]
                 await DietSync.pullPlannedMeals(from: from, to: to, into: context)
-                await GymSync.flushOutbox(context)
+                await Outbox.flushOutbox(context)
             }
         }
     }

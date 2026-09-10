@@ -57,7 +57,7 @@ private struct SyncFailureBanner: View {
                     retrying = true
                     let ctx = context
                     Task {
-                        await GymSync.retryFailed(ctx)
+                        await Outbox.retryFailed(ctx)
                         retrying = false
                     }
                 } label: {

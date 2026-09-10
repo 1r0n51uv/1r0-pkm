@@ -78,7 +78,7 @@ struct ShoppingListView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await DietSync.pullShoppingList(into: context)
-            await GymSync.flushOutbox(context)
+            await Outbox.flushOutbox(context)
         }
     }
 

@@ -120,7 +120,7 @@ struct AddMeasurementView: View {
         }
         try? context.save()
         let ctx = context
-        Task { await GymSync.flushOutbox(ctx) }
+        Task { await Outbox.flushOutbox(ctx) }
         dismiss()
     }
 }

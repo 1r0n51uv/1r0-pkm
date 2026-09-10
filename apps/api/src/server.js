@@ -5,13 +5,7 @@ import health from "./routes/health.js";
 import profile from "./routes/profile.js";
 import sessions from "./routes/sessions.js";
 import setlogs from "./routes/setlogs.js";
-import plateConfig from "./routes/plateconfig.js";
 import measurements from "./routes/measurements.js";
-import exercises from "./routes/exercises.js";
-import routines from "./routes/routines.js";
-import routineTree from "./routes/routinetree.js";
-import wgerSync from "./routes/wger.js";
-import ai from "./routes/ai.js";
 import foods from "./routes/foods.js";
 import meals from "./routes/meals.js";
 import foodSearch from "./routes/foodsearch.js";
@@ -22,6 +16,10 @@ import shopping from "./routes/shopping.js";
 import trackers from "./routes/trackers.js";
 import { pool } from "./db.js";
 
+// ADR-0027: gym catalog/routine-editor endpoints (exercises, routines,
+// routine-tree, wger sync, ai import, plate-config) removed with the client
+// code that used them. workout-sessions / set-logs stay as the CSV-import sink.
+//
 // Custom REST backend (ADR-0022): single Fastify process, talks straight to
 // Postgres, static API-key auth, no RLS. Runs behind Caddy in the compose
 // stack (see infra/).
@@ -36,13 +34,7 @@ await app.register(health);
 await app.register(profile);
 await app.register(sessions);
 await app.register(setlogs);
-await app.register(plateConfig);
 await app.register(measurements);
-await app.register(exercises);
-await app.register(routines);
-await app.register(routineTree);
-await app.register(wgerSync);
-await app.register(ai);
 await app.register(foods);
 await app.register(meals);
 await app.register(foodSearch);

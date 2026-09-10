@@ -1,6 +1,6 @@
 //
 //  HealthKitService.swift
-//  1r0-pkm · Modules/1r0-gym
+//  1r0-pkm · Modules/Shared/HealthKit
 //
 //  Integrazione HealthKit (ADR-0004 amendata da ADR-0027): il gym legge solo
 //  il peso corporeo. Nessuna scrittura di workout — il modulo non crea più
