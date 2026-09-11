@@ -538,4 +538,52 @@ final class _r0_pkmUITests: XCTestCase {
         s.lifetime = .keepAlways
         add(s)
     }
+
+    /// STRUMENTO MANUALE, non un test di regressione: lancia l'app con
+    /// `-uitest-seed-health` (vedi `_r0_pkmApp.seedHealthKitSampleData`),
+    /// accetta il foglio di permesso HealthKit di sistema (un
+    /// `addUIInterruptionMonitor`, unico modo per attraversarlo da XCUITest)
+    /// e lascia che l'app scriva peso/energia attiva/acqua di oggi — così
+    /// il simulatore ha dati Salute reali senza toccare a mano l'app Salute.
+    /// Girare una volta sola quando serve seminare il simulatore, poi
+    /// verificare a occhio in Impostazioni → "Collega Apple Salute" e nella
+    /// sezione "Peso e misure" di Palestra. Non fa assert: non c'è modo di
+    /// leggere l'esito dell'autorizzazione da fuori il processo dell'app.
+    func manualSeedHealthKitData() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-seed-health"]
+        app.launch()
+
+        // il foglio di permesso HealthKit è presentato modale sopra l'app
+        // richiedente — accessibile direttamente da `app`, non serve un
+        // addUIInterruptionMonitor (che con questo foglio a schermo intero
+        // non si è dimostrato affidabile).
+        let turnOnAll = app.buttons["Attiva tutte"]
+        if turnOnAll.waitForExistence(timeout: 8) {
+            turnOnAll.tap()
+        } else {
+            for label in ["Turn On All"] where app.buttons[label].exists { app.buttons[label].tap() }
+        }
+        sleep(1)
+        for label in ["Consenti", "Allow"] {
+            let b = app.buttons[label]
+            if b.waitForExistence(timeout: 3), b.isEnabled { b.tap(); break }
+        }
+        sleep(2)
+        attach(app, "healthkit-seed-done")
+    }
+
+    /// STRUMENTO MANUALE: verifica che i dati seminati da
+    /// `manualSeedHealthKitData` (energia attiva di oggi) arrivino
+    /// davvero nella Dieta una volta che "Collega Apple Salute" è
+    /// acceso — nessun flag speciale, il permesso di sistema è già stato
+    /// concesso da una run precedente.
+    func manualVerifyHealthKitReadInDiet() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+        sleep(2) // il .task che legge todayActiveEnergyKcal() è async
+        attach(app, "healthkit-verify-dieta")
+    }
 }

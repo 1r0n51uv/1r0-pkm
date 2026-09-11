@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import HealthKit
 
 @main
 struct _r0_pkmApp: App {
@@ -59,6 +60,30 @@ struct _r0_pkmApp: App {
             }
         }
 
+        // strumento manuale, non un test: sotto simulatore non ci sono dati
+        // Salute reali né un modo da riga di comando per seminarli (`simctl
+        // privacy` non copre `health`). `-uitest-seed-health` chiede
+        // l'autorizzazione a scrivere peso/acqua/energia attiva (tipi che
+        // l'app in produzione legge soltanto — richiesta ad hoc, non tocca
+        // `HealthKitService.writeTypes`) e scrive un campione di oggi per
+        // ciascuno, cosà da poter verificare subito lettura/scrittura reale
+        // senza toccare a mano l'app Salute del simulatore.
+        if ProcessInfo.processInfo.arguments.contains("-uitest-seed-health") {
+            Task { @MainActor in await Self.seedHealthKitSampleData() }
+        }
+
+        // strumento manuale: verifica DietSync.searchRemote (OpenFoodFacts/
+        // USDA via backend) senza passare dalla UI, per isolare se un "nessun
+        // risultato" segnalato è di rete/backend o di visualizzazione.
+        if ProcessInfo.processInfo.arguments.contains("-uitest-verify-search") {
+            Task { @MainActor in
+                for q in ["pane", "bread"] {
+                    let hits = await DietSync.searchRemote(q)
+                    print("SEARCH-VERIFY q=\(q) count=\(hits.count) names=\(hits.prefix(3).map(\.name))")
+                }
+            }
+        }
+
         // motori di sync (ADR-0006) e promemoria (ADR-0027 step 2):
         // reachability / notifiche locali + BackgroundTasks. Saltati nei test
         // UI per non dipendere da rete e permessi di sistema.
@@ -77,6 +102,43 @@ struct _r0_pkmApp: App {
                 }
             )
         }
+    }
+
+    /// Vedi nota su `-uitest-seed-health` in `init()`. Richiede il permesso di
+    /// scrittura (oltre lettura) per peso/acqua/energia attiva — solo per
+    /// questa scrittura di comodo, `HealthKitService` in produzione resta a
+    /// sola lettura per quei tipi — e salva un campione di oggi ciascuno.
+    @MainActor
+    private static func seedHealthKitSampleData() async {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        let store = HKHealthStore()
+        let bodyMass = HKQuantityType(.bodyMass)
+        let activeEnergy = HKQuantityType(.activeEnergyBurned)
+        let dietaryWater = HKQuantityType(.dietaryWater)
+        let types: Set<HKSampleType> = [bodyMass, activeEnergy, dietaryWater]
+        guard (try? await store.requestAuthorization(toShare: types, read: types)) != nil else { return }
+
+        let now = Date()
+        let samples = [
+            HKQuantitySample(type: bodyMass,
+                             quantity: HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: 78.5),
+                             start: now, end: now),
+            HKQuantitySample(type: activeEnergy,
+                             quantity: HKQuantity(unit: .kilocalorie(), doubleValue: 350),
+                             start: now, end: now),
+            HKQuantitySample(type: dietaryWater,
+                             quantity: HKQuantity(unit: .literUnit(with: .milli), doubleValue: 600),
+                             start: now, end: now),
+        ]
+        try? await store.save(samples)
+
+        // rilettura di conferma: stampa su stdout (leggibile da
+        // `xcrun simctl launch --console-pty`) cosà da verificare il giro
+        // completo scrittura->lettura senza dover leggere l'interfaccia.
+        let active = await HealthKitService.shared.todayActiveEnergyKcal()
+        let water = await HealthKitService.shared.todayDietaryWaterMl()
+        let weight = await HealthKitService.shared.latestBodyWeightKg()
+        print("HEALTHKIT-SEED-VERIFY activeEnergyKcal=\(active) waterMl=\(water) weightKg=\(weight?.description ?? "nil")")
     }
 
     var body: some Scene {

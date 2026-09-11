@@ -223,6 +223,15 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   mescola dati di entrambi i database finché l'app non riparte pulita
   (limite noto, documentato in `DBTargetPreference.swift`).
 
+## 4octies. Fix ricerca alimenti (query string persa) — **fatto** ([ADR-0035](adr/0035-fix-query-string-appendingpathcomponent.md))
+
+- [x] `ApiClient.request`: `appendingPathComponent` percent-escapava il `?`
+  di ogni path con query string (es. `v1/foods/search?q=pane` →
+  `…%3Fq=pane`, 404 lato server) — mai preso dagli XCUITest, che girano
+  sempre offline. Fix: `URL(string:relativeTo:)`. Stesso bug colpiva anche
+  `DietSync.pullPlannedMeals`, risolto insieme (stesso code path).
+  Verificato in produzione: "pane" → 19 risultati, "bread" → 20.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

@@ -20,7 +20,17 @@ struct ApiClient {
 
     private func request(_ method: String, _ path: String, body: Data?) async throws -> Data {
         if Self.offline { throw HTTPError(status: -1, body: "offline (uitest)") }
-        var req = URLRequest(url: Secrets.apiBaseURL.appendingPathComponent(path))
+        // ADR-0035 (bug fix): `appendingPathComponent` tratta l'intera stringa
+        // `path` come un singolo segmento di percorso — se contiene una query
+        // string (es. "v1/foods/search?q=pane") ne fa percent-escape del "?",
+        // producendo un URL letteralmente "…/search%3Fq=pane" (404 lato
+        // server). `URL(string:relativeTo:)` interpreta correttamente
+        // path+query. Mai riprodotto dagli XCUITest: girano sempre offline
+        // (`-uitest-reset`), che salta `request(...)` del tutto.
+        guard let url = URL(string: path, relativeTo: Secrets.apiBaseURL) else {
+            throw HTTPError(status: -1, body: "URL non valido: \(path)")
+        }
+        var req = URLRequest(url: url)
         req.httpMethod = method
         req.setValue("Bearer \(Secrets.apiKey)", forHTTPHeaderField: "Authorization")
         // ADR-0034: interruttore "database di sviluppo" in Impostazioni.
