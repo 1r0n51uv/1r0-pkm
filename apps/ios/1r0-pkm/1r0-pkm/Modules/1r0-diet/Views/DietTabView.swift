@@ -28,9 +28,6 @@ struct DietTabView: View {
     @State private var logSlot: MealSlot?
     @State private var showGoal = false
     @State private var showPlan = false
-    @State private var showSettings = false
-    @State private var showReport = false
-    @State private var openReportAfterSettings = false
     /// Energia attiva di oggi da HealthKit (ADR-0019 amendata): alza la quota
     /// calorica del giorno senza toccare `nutrition_goals`.
     @State private var activeEnergyKcal: Double = 0
@@ -100,27 +97,6 @@ struct DietTabView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
-        .sheet(isPresented: $showSettings, onDismiss: {
-            // il Report si apre solo a chiusura completata di Impostazioni:
-            // due `.sheet` in successione immediata ha un dismiss() rotto
-            // (nota XCUITest), un NavigationLink push dentro il sheet
-            // impiccava il runloop dei test (Andamento mai raggiunto).
-            if openReportAfterSettings {
-                openReportAfterSettings = false
-                showReport = true
-            }
-        }) {
-            NavigationStack {
-                DietSettingsView(onOpenReport: { openReportAfterSettings = true })
-            }
-            .presentationDetents([.large])
-            .presentationBackground(.ultraThinMaterial)
-        }
-        .sheet(isPresented: $showReport) {
-            DietReportView()
-                .presentationDetents([.large])
-                .presentationBackground(.ultraThinMaterial)
-        }
         .task {
             await DietSync.pullFoods(into: context)
             await DietSync.pullMealEntries(into: context)
@@ -145,8 +121,6 @@ struct DietTabView: View {
                 .accessibilityIdentifier("openPlan")
             GlassIconButton(systemName: "target") { showGoal = true }
                 .accessibilityIdentifier("editGoal")
-            GlassIconButton(systemName: "gearshape") { showSettings = true }
-                .accessibilityIdentifier("dietSettings")
         }
     }
 

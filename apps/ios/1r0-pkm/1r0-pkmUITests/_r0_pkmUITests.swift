@@ -15,15 +15,16 @@ final class _r0_pkmUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
     }
 
-    /// 1r0-gym · ADR-0012: registra una rilevazione (peso + misura) e verifica
-    /// che compaia nei Progressi.
+    /// 1r0-gym · ADR-0012/0031: registra una rilevazione (peso + misura) dalla
+    /// sezione "Peso e misure" di Palestra (ex tab "Progressi") e verifica che
+    /// compaia lì.
     func testAddBodyMeasurement() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-uitest-reset"]
         app.launch()
 
-        app.tabBars.buttons["Progressi"].tap()
-        XCTAssertTrue(app.staticTexts["Progressi"].waitForExistence(timeout: 10))
+        app.tabBars.buttons["Palestra"].tap()
+        XCTAssertTrue(app.staticTexts["Peso e misure"].waitForExistence(timeout: 10))
 
         app.buttons["addMeasurement"].tap()
         let w = app.textFields["measWeight"]
@@ -37,18 +38,19 @@ final class _r0_pkmUITests: XCTestCase {
         save.tap()
 
         XCTAssertTrue(app.staticTexts["77.5 kg"].waitForExistence(timeout: 5),
-                      "La rilevazione non compare nei Progressi")
-        sleep(1); attach(app, "progressi")
+                      "La rilevazione non compare in Palestra")
+        sleep(1); attach(app, "palestra-peso")
     }
 
-    /// ADR-0004: tocca "Apple Salute" nei Progressi → compare l'onboarding
-    /// coi permessi (senza toccare il dialog di sistema).
+    /// ADR-0004/0031: tocca "Apple Salute" nella sezione "Peso e misure" di
+    /// Palestra → compare l'onboarding coi permessi (senza toccare il dialog
+    /// di sistema).
     func testHealthKitOnboardingSheet() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-uitest-reset"]
         app.launch()
 
-        app.tabBars.buttons["Progressi"].tap()
+        app.tabBars.buttons["Palestra"].tap()
         XCTAssertTrue(app.buttons["healthImport"].waitForExistence(timeout: 10))
         app.buttons["healthImport"].tap()
 
@@ -166,11 +168,8 @@ final class _r0_pkmUITests: XCTestCase {
         app.launchArguments += ["-uitest-reset"]
         app.launch()
 
-        app.tabBars.buttons["Dieta"].tap()
-        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
-
-        app.buttons["dietSettings"].tap()
-        XCTAssertTrue(app.buttons["openReport"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["Impostazioni"].tap()
+        XCTAssertTrue(app.buttons["openReport"].waitForExistence(timeout: 10))
         app.buttons["openReport"].tap()
         XCTAssertTrue(app.staticTexts["Andamento"].waitForExistence(timeout: 5),
                       "Il report dieta non si è aperto")
@@ -219,6 +218,34 @@ final class _r0_pkmUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts[recipeName].waitForExistence(timeout: 6),
                       "La ricetta salvata non compare in elenco")
         sleep(1); attach(app, "recipe-list")
+    }
+
+    /// 1r0-diet · ADR-0029: dall'header Pianificazione si apre l'elenco
+    /// template e se ne crea uno nuovo (nome via alert).
+    func testCreateDietTemplate() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+        app.buttons["openPlan"].tap()
+        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
+        app.buttons["openTemplates"].tap()
+        XCTAssertTrue(app.staticTexts["Diete settimanali"].waitForExistence(timeout: 5))
+
+        XCTAssertTrue(app.buttons["Nuovo template"].waitForExistence(timeout: 5), "manca il pulsante Nuovo template")
+        app.buttons["Nuovo template"].tap()
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5), "l'alert non è apparso")
+        let tf = alert.textFields.firstMatch
+        XCTAssertTrue(tf.waitForExistence(timeout: 3), "manca il textfield nell'alert")
+        tf.tap(); tf.typeText("Settimana test")
+        alert.buttons["Crea"].tap()
+
+        XCTAssertTrue(app.staticTexts["Settimana test"].waitForExistence(timeout: 5),
+                      "Il template creato non compare in elenco")
+        sleep(1); attach(app, "diet-template-created")
     }
 
     /// 1r0-diet · ADR-0017 slice 2: pianifica un pasto per oggi e confermalo
@@ -378,11 +405,8 @@ final class _r0_pkmUITests: XCTestCase {
         app.launchArguments += ["-uitest-reset"]
         app.launch()
 
-        app.tabBars.buttons["Dieta"].tap()
-        XCTAssertTrue(app.buttons["dietSettings"].waitForExistence(timeout: 10))
-        app.buttons["dietSettings"].tap()
-
-        XCTAssertTrue(app.staticTexts["Impostazioni"].waitForExistence(timeout: 5))
+        app.tabBars.buttons["Impostazioni"].tap()
+        XCTAssertTrue(app.staticTexts["Impostazioni"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.switches["Collega Apple Salute"].exists
                       || app.staticTexts["Collega Apple Salute"].exists)
         XCTAssertTrue(app.switches["Pasto mancante"].exists || app.staticTexts["Pasto mancante"].exists)
@@ -401,9 +425,9 @@ final class _r0_pkmUITests: XCTestCase {
         app.tabBars.buttons["Dieta"].tap()
         _ = app.staticTexts["Oggi"].waitForExistence(timeout: 5)
         sleep(2); attach(app, "02-dieta")
-        app.tabBars.buttons["Progressi"].tap()
-        _ = app.staticTexts["Progressi"].waitForExistence(timeout: 5)
-        sleep(2); attach(app, "03-progressi")
+        app.tabBars.buttons["Impostazioni"].tap()
+        _ = app.staticTexts["Impostazioni"].waitForExistence(timeout: 5)
+        sleep(2); attach(app, "03-impostazioni")
     }
 
     private func attach(_ app: XCUIApplication, _ name: String) {

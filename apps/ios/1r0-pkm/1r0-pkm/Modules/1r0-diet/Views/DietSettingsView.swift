@@ -2,22 +2,17 @@
 //  DietSettingsView.swift
 //  1r0-pkm · Modules/1r0-diet/Views
 //
-//  Impostazioni dieta (ADR-0029): prima voce il collegamento esplicito ad
-//  Apple Salute (`HealthKitPreference`, separato dal permesso di sistema),
-//  poi le notifiche — un interruttore per categoria di Promemoria, non per
-//  singola istanza (ADR-0027) — e l'accesso all'andamento (ADR-0020), che
-//  prima viveva su un'icona propria nell'header.
+//  Tab "Impostazioni" (ADR-0031, era un sheet dall'header Dieta, ADR-0029):
+//  prima voce il collegamento esplicito ad Apple Salute (`HealthKitPreference`,
+//  separato dal permesso di sistema), poi le notifiche — un interruttore per
+//  categoria di Promemoria, non per singola istanza (ADR-0027) — e l'accesso
+//  all'andamento (ADR-0020).
 //
 
 import SwiftUI
 
 struct DietSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     private let reminderSettings = ReminderSettings()
-    /// Chiude questo sheet e chiede al presenter di aprire il Report **dopo**
-    /// che la chiusura è completata (vedi `DietTabView`: due sheet in
-    /// successione immediata hanno un `dismiss()` rotto, nota XCUITest).
-    var onOpenReport: () -> Void = {}
 
     @State private var healthKitOn = false
     @State private var healthKitBusy = false
@@ -47,9 +42,8 @@ struct DietSettingsView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     SectionLabel(text: "Report")
-                    Button {
-                        onOpenReport()
-                        dismiss()
+                    NavigationLink {
+                        DietReportView()
                     } label: {
                         HStack {
                             Image(systemName: "chart.line.uptrend.xyaxis")
@@ -70,11 +64,7 @@ struct DietSettingsView: View {
         }
         .scrollIndicators(.hidden)
         .glassScreen(.warm)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Fine") { dismiss() }.font(Glass.body(14, .bold))
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             healthKitOn = HealthKitPreference.isEnabled()
             missingMeal = reminderSettings.isEnabled(.missingMeal)

@@ -152,6 +152,29 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
 - [x] Hook `-uitest-seed-gym` + `testGymDashboard`. 78/78 unit + 19/19 UI
   verdi.
 
+## 4quater. Tab Impostazioni al posto di Progressi — **fatto** ([ADR-0031](adr/0031-tab-impostazioni-al-posto-di-progressi.md))
+
+- [x] **Bug fix critico**: creare un Diet Template crashava sempre
+  (`NSFetchRequest could not locate an NSEntityDescription for entity name
+  'DietTemplate'`) — `DietTemplate`/`DietTemplateItem` non erano mai stati
+  aggiunti a `GymData.schema` (ADR-0029 li aveva creati ma non registrati).
+  Nessun test UI apriva quello schermo prima d'ora, quindi il crash non era
+  stato notato. Aggiunto `testCreateDietTemplate`.
+- [x] `GlassPrimaryButton`: padding orizzontale (24pt) al contenuto — con
+  `.fixedSize(horizontal: true, …)` (es. "Nuovo template", "Registra
+  misura") il testo toccava quasi il bordo del pulsante.
+- [x] Tab "Progressi" rimossa: il suo contenuto (trend peso, misure,
+  "Registra misura", import Salute) è ora la sezione "Peso e misure" di
+  `GymHistoryView` (Palestra). `ProgressTabView.swift` eliminato,
+  `Sparkline` spostato in `GymHistoryView.swift`.
+- [x] Terza tab = "Impostazioni" (`DietSettingsView` come radice, non più
+  uno sheet dall'header Dieta). Il link al Report torna un `NavigationLink`
+  semplice (il giro sheet-dopo-sheet di ADR-0029 serviva solo per il caso
+  "dentro un altro sheet").
+- [x] XCUITest aggiornati per i nuovi percorsi (`Palestra` invece di
+  `Progressi`, `Impostazioni` invece di `Dieta` → `dietSettings`). 78/78
+  unit + 19/19 UI verdi.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

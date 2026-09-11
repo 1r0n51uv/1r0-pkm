@@ -22,6 +22,8 @@ enum GymData {
         Recipe.self, RecipeItem.self, PlannedMeal.self, PlannedMealItem.self,
         ShoppingListItem.self,
         WaterLog.self, Supplement.self, SupplementLog.self, CaffeineLog.self,
+        // ADR-0029: dieta settimanale a template.
+        DietTemplate.self, DietTemplateItem.self,
     ])
 
     /// Container condiviso. In-memory sotto i test UI (`-uitest-reset`),

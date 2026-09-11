@@ -45,7 +45,6 @@
 		BB4C916FE92A48A2ACCD9189 /* DietTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBB74980B30439793CC5ECF /* DietTemplate.swift */; };
 		93A147E2BB606120AEA9A3DE /* AddMeasurementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636C4706B7AF7ACBB3ECCD1A /* AddMeasurementView.swift */; };
 		9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F725248DB437980EF296A /* DietReport.swift */; };
-		A36440B5B7CFFF5C581D0867 /* ProgressTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8540D8942B0227609A4C51 /* ProgressTabView.swift */; };
 		ACEF43729CB557894293499D /* Manrope-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BD443ADA22BB0E9CDE3CF8F /* Manrope-Variable.ttf */; };
 		B270E455CC29400EAC899F8C /* WatchWorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */; };
 		B45A7DCE5D974C478D17072A /* RecipeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */; };
@@ -236,7 +235,6 @@
 		ED3F627B304CD5D1000F4A2D /* _r0_pkmUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkmUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		EDAC45ECAC44E556696F8639 /* GymData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymData.swift; path = "1r0-pkm/Modules/1r0-gym/GymData.swift"; sourceTree = SOURCE_ROOT; };
 		666E4DC757ABFAE3E3951C80 /* GymSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymSync.swift; path = "1r0-pkm/Modules/1r0-gym/Sync/GymSync.swift"; sourceTree = SOURCE_ROOT; };
-		FB8540D8942B0227609A4C51 /* ProgressTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProgressTabView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/ProgressTabView.swift"; sourceTree = SOURCE_ROOT; };
 		FC344F7FA1A1CFFADE238D5A /* GlassTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassTheme.swift; path = "1r0-pkm/Modules/Shared/DesignSystem/GlassTheme.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -341,7 +339,6 @@
 				292C4093960D1B8A0B5EFE7A /* GymMath.swift */,
 				DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */,
 				3D7F4AFA951073018127E688 /* BodyMeasurement.swift */,
-				FB8540D8942B0227609A4C51 /* ProgressTabView.swift */,
 				636C4706B7AF7ACBB3ECCD1A /* AddMeasurementView.swift */,
 				BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */,
 				61045447A4494D6B979D4A4A /* WatchWorkoutSession.swift */,
@@ -708,7 +705,6 @@
 				EAA34873A0DAD527D7CC5120 /* SetLogEntry.swift in Sources */,
 				1120432A8B1833C6A4890A38 /* GymMath.swift in Sources */,
 				5D9446AEB37E9FD6C24722C0 /* BodyMeasurement.swift in Sources */,
-				A36440B5B7CFFF5C581D0867 /* ProgressTabView.swift in Sources */,
 				93A147E2BB606120AEA9A3DE /* AddMeasurementView.swift in Sources */,
 				5BF34CE5858978E07B47D404 /* GymData.swift in Sources */,
 				032992018C03682844681BF2 /* GymSync.swift in Sources */,

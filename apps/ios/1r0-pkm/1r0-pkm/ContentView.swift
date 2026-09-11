@@ -2,9 +2,12 @@
 //  ContentView.swift
 //  1r0-pkm
 //
-//  Shell a tab (ADR-0008): 1r0-gym come **Palestra** (storico + grafici degli
-//  allenamenti importati da Liftin', ADR-0027) e **Progressi** (peso/misure,
-//  ADR-0012), 1r0-diet come **Dieta** (ADR-0017).
+//  Shell a tab (ADR-0008, redesign ADR-0031): 1r0-gym come **Palestra**
+//  (storico + grafici degli allenamenti importati da Liftin', ADR-0027, +
+//  progressi corporei peso/misure, ex tab "Progressi" ADR-0012, ora una
+//  sezione della stessa vista), 1r0-diet come **Dieta** (ADR-0017) e
+//  **Impostazioni** (`DietSettingsView`, ADR-0029) al posto del vecchio tab
+//  "Progressi".
 //
 
 import SwiftUI
@@ -19,8 +22,8 @@ struct ContentView: View {
             NavigationStack { DietTabView() }
                 .tabItem { Label("Dieta", systemImage: "fork.knife") }
 
-            NavigationStack { ProgressTabView() }
-                .tabItem { Label("Progressi", systemImage: "chart.xyaxis.line") }
+            NavigationStack { DietSettingsView() }
+                .tabItem { Label("Impostazioni", systemImage: "gearshape") }
         }
         .tint(Glass.accent)
         .preferredColorScheme(.dark)

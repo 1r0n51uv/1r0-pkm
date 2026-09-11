@@ -9,7 +9,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Modulo** — una sezione dell'app `1r0-pkm` (tab), con dati e funzioni propri; i moduli condividono infrastruttura (motore Promemoria, gateway HealthKit, sync/outbox, design system) sotto `Modules/Shared/`. Moduli v1: `1r0-gym`, `1r0-diet`, `1r0-documenti` (ADR-0027).
 - **Utente / Profile** — singolo utente. L'app è single-user; il backend (`apps/api`, ADR-0022) autentica con una **chiave statica** (nessun login utente). La riga `profiles` è il singleton lato server.
 
-## Modulo 1r0-gym (ADR-0027: import + storico + grafici)
+## Modulo 1r0-gym (ADR-0027: import + storico + grafici; ADR-0030/0031: dashboard multi-esercizio + progressi corporei nella stessa tab)
 
 - **Import CSV (Liftin')** — il modulo non logga allenamenti in-app: importa un CSV esportato dall'app **Liftin'** (`Date;Duration;Routine;Exercise;Set;Warmup;Weight;Reps/Time;Goal;Perception`, delimitatore `;`). Le righe si persistono in SwiftData + backend ("la nostra copia"). Re-import = **merge deduplicato** su `(Date + Exercise + Set)`.
 - **Exercise** — solo un **nome** (stringa libera dal CSV, catalogo Liftin', misto IT/EN). Niente più catalogo in-app, niente `source` (wger/ai/custom), niente import wger/AI (ADR-0005 superseded).
@@ -18,7 +18,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Set Log** — una singola serie importata: `weightKg`, `reps` (opzionale) **oppure** `durationSeconds` (esercizi a tempo, `Reps/Time` in `mm:ss`), `isWarmup`. Read-only.
 - **PR (Personal Record) / 1RM stimato** — massimale stimato per esercizio, calcolato dai Set Log importati (formula Epley, `GymMath`).
 - **Volume** — somma di (peso × reps) per esercizio/sessione/settimana per i grafici di progresso; ignora le serie `isWarmup` e quelle a 0 kg / a tempo.
-- **Body Measurement** — rilevazione periodica di peso e misure a nastro (chiavi libere). Il peso corporeo per i grafici `gym` si legge da **HealthKit** (il CSV Liftin' non lo contiene).
+- **Body Measurement** — rilevazione periodica di peso e misure a nastro (chiavi libere). Il peso corporeo per i grafici `gym` si legge da **HealthKit** (il CSV Liftin' non lo contiene). Sezione "Peso e misure" della tab Palestra (ex tab "Progressi", ADR-0031).
 - **Dashboard grafici (Palestra)** — griglia con una mini-card (1RM stimato + sparkline) per ciascuno dei fino a 6 esercizi più allenati, in testa alla tab Palestra; toccarne una apre il drill-down con i grafici a tutta larghezza (1RM + volume). Non una sezione/tab separata (ADR-0030).
 
 ## Modulo 1r0-diet
@@ -52,7 +52,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Promemoria acqua** — valutato a cadenza fissa nella fascia diurna; notifica se il totale acqua di oggi (Water Log + HealthKit) è sotto la quota proporzionata all'ora. Se `waterMlTarget` non è impostato usa un default.
 - **Promemoria pasto mancante** — uno per ciascuno dei 5 Meal Slot, vicino al suo orario atteso (default sovrascrivibile dall'utente). Notifica se a quell'ora non esiste un Meal Entry **né** un Meal Slot Ack per quello slot in giornata.
 - **Preavviso documento** — vedi modulo `1r0-documenti`.
-- **Impostazioni Dieta** — schermata (`DietSettingsView`, ex `NotificationSettingsView`) con 3 sezioni: Salute (toggle HealthKit, ADR-0029), Notifiche (un interruttore per categoria di Promemoria, es. "Acqua"/"Pasto mancante", non per singola istanza), Report (link all'Andamento). Sostituisce le vecchie icone separate report/notifiche nell'header Dieta.
+- **Impostazioni** — tab dell'app (`DietSettingsView`, ex `NotificationSettingsView`, poi ex sheet dall'header Dieta) con 3 sezioni: Salute (toggle HealthKit, ADR-0029), Notifiche (un interruttore per categoria di Promemoria, es. "Acqua"/"Pasto mancante", non per singola istanza), Report (link all'Andamento). Al posto della vecchia tab "Progressi" (ADR-0031).
 
 ## Integrazioni
 

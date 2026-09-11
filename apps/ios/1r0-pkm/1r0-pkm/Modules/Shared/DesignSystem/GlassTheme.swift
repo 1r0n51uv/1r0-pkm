@@ -315,6 +315,7 @@ struct GlassPrimaryButton: View {
             }
             .font(Glass.display(16, .semibold))
             .foregroundStyle(onInk)
+            .padding(.horizontal, 24)
             .frame(maxWidth: .infinity)
             .frame(height: height)
             .background(fill, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
