@@ -252,6 +252,24 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   default acceso): il backend instrada verso `it.openfoodfacts.org`
   invece del dominio mondiale.
 
+## 4decies. Contatore tracker, alimento extra nel pasto, toast HealthKit — **fatto** ([ADR-0037](adr/0037-contatore-tracker-alimento-extra-toast-healthkit.md))
+
+- [x] Acqua/caffeina: contatore centrale con "-"/"+" (`waterMinus`/
+  `caffMinus` + `water250`/`caff80`) al posto dei pulsanti multipli +
+  elenco voci a parte; "-" annulla l'ultima voce di oggi.
+- [x] Un pasto già mangiato può ricevere un altro alimento a parte
+  (`addToMeal_<slot>`, solo oggi) e ogni alimento loggato si può rimuovere
+  singolarmente (`removeMealItem_<nome>`, `DietSync.deleteMealItem`) senza
+  disfare l'intero pasto — riusa l'upsert esistente di
+  `POST /v1/meal-entries`, nessuna nuova route.
+- [x] `HealthKitStatus` + `HealthKitFailureBanner`: un problema nella
+  richiesta permessi Salute (mai mostrata, negata, fallita, non
+  disponibile) ora produce un banner chiudibile invece di fallire in
+  silenzio.
+- [x] Verificato con un test end-to-end che la barra proteine si aggiorna
+  correttamente pianificando+segnando mangiato un alimento — nessun bug
+  di reattività dati→UI riprodotto nella pipeline principale.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

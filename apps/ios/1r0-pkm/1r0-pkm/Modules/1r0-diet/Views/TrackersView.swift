@@ -43,15 +43,18 @@ struct TrackersCard: View {
         VStack(alignment: .leading, spacing: 16) {
             SectionLabel(text: "Tracker")
 
-            // acqua
-            VStack(spacing: 8) {
+            // acqua — contatore centrale con - / + (ADR-0037): "-" annulla
+            // l'ultima voce aggiunta oggi (non un decremento arbitrario),
+            // "+" ne aggiunge una da 250 ml.
+            VStack(spacing: 10) {
                 HStack {
                     Label("Acqua", systemImage: "drop.fill")
                         .font(Glass.body(13, .semibold)).foregroundStyle(Glass.ink.opacity(0.75))
                     Spacer()
-                    Text(verbatim: waterTargetMl.map { "\(Int(waterToday)) / \(Int($0)) ml" }
-                         ?? "\(Int(waterToday)) ml")
-                        .font(Glass.body(13)).monospacedDigit().foregroundStyle(Glass.ink.opacity(0.5))
+                    if let t = waterTargetMl, t > 0 {
+                        Text(verbatim: "obiettivo \(Int(t)) ml")
+                            .font(Glass.body(12)).foregroundStyle(Glass.ink.opacity(0.4))
+                    }
                 }
                 if let t = waterTargetMl, t > 0 {
                     GeometryReader { geo in
@@ -63,47 +66,27 @@ struct TrackersCard: View {
                     }
                     .frame(height: 7)
                 }
-                HStack(spacing: 8) {
-                    quickAdd("+250 ml", id: "water250") { DietSync.addWater(ml: 250, in: context) }
-                    quickAdd("+500 ml", id: "water500") { DietSync.addWater(ml: 500, in: context) }
-                }
-                if !waterEntriesToday.isEmpty {
-                    VStack(spacing: 4) {
-                        ForEach(waterEntriesToday) { w in
-                            entryRow(verbatim: "\(Int(w.amountMl)) ml", at: w.loggedAt,
-                                    id: "removeWater_\(w.id)") { DietSync.deleteWaterLog(w, in: context) }
-                        }
-                    }
-                }
+                counterRow(value: "\(Int(waterToday)) ml", tint: Glass.blue,
+                          minusId: "waterMinus", plusId: "water250",
+                          canRemove: !waterEntriesToday.isEmpty,
+                          onMinus: { if let last = waterEntriesToday.first { DietSync.deleteWaterLog(last, in: context) } },
+                          onPlus: { DietSync.addWater(ml: 250, in: context) })
             }
 
             Divider().overlay(Glass.hairlineSoft)
 
-            // caffeina
-            VStack(spacing: 8) {
+            // caffeina — stesso contatore centrale, "+" aggiunge un espresso (80 mg).
+            VStack(spacing: 10) {
                 HStack {
                     Label("Caffeina", systemImage: "cup.and.saucer.fill")
                         .font(Glass.body(13, .semibold)).foregroundStyle(Glass.ink.opacity(0.75))
                     Spacer()
-                    Text(verbatim: "\(Int(caffeineToday)) mg oggi")
-                        .font(Glass.body(13)).monospacedDigit().foregroundStyle(Glass.ink.opacity(0.5))
                 }
-                HStack(spacing: 8) {
-                    quickAdd("Espresso +80", id: "caff80") {
-                        DietSync.addCaffeine(mg: 80, source: "Espresso", in: context)
-                    }
-                    quickAdd("Filtro +120", id: "caff120") {
-                        DietSync.addCaffeine(mg: 120, source: "Caffè filtro", in: context)
-                    }
-                }
-                if !caffeineEntriesToday.isEmpty {
-                    VStack(spacing: 4) {
-                        ForEach(caffeineEntriesToday) { c in
-                            entryRow(verbatim: "\(c.sourceName) · \(Int(c.caffeineMg)) mg", at: c.loggedAt,
-                                    id: "removeCaffeine_\(c.id)") { DietSync.deleteCaffeineLog(c, in: context) }
-                        }
-                    }
-                }
+                counterRow(value: "\(Int(caffeineToday)) mg oggi", tint: Glass.amber,
+                          minusId: "caffMinus", plusId: "caff80",
+                          canRemove: !caffeineEntriesToday.isEmpty,
+                          onMinus: { if let last = caffeineEntriesToday.first { DietSync.deleteCaffeineLog(last, in: context) } },
+                          onPlus: { DietSync.addCaffeine(mg: 80, source: "Espresso", in: context) })
             }
 
             Divider().overlay(Glass.hairlineSoft)
@@ -169,38 +152,40 @@ struct TrackersCard: View {
         }
     }
 
+    /// Contatore centrale acqua/caffeina (ADR-0037): "-" a sinistra annulla
+    /// l'ultima voce di oggi (non un decremento arbitrario — non sappiamo
+    /// "di quanto" senza chiederlo), "+" a destra ne aggiunge una
+    /// dell'importo di default. Sostituisce i vecchi pulsanti multipli
+    /// (+250/+500 ml, Espresso/Filtro) + l'elenco voci separato.
     @MainActor
-    private func quickAdd(_ title: String, id: String, _ action: @escaping @MainActor () -> Void) -> some View {
-        Button { action() } label: {
-            Text(title)
-                .font(Glass.body(12, .bold)).foregroundStyle(Glass.amberText)
-                .frame(maxWidth: .infinity).frame(height: 38)
-                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(0.06)))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Glass.amber.opacity(0.35)))
+    private func counterRow(value: String, tint: Color, minusId: String, plusId: String,
+                            canRemove: Bool, onMinus: @escaping @MainActor () -> Void,
+                            onPlus: @escaping @MainActor () -> Void) -> some View {
+        HStack {
+            stepButton("minus", id: minusId, tint: tint, enabled: canRemove, action: onMinus)
+            Spacer(minLength: 8)
+            Text(verbatim: value)
+                .font(Glass.display(20, .bold)).monospacedDigit()
+                .foregroundStyle(Glass.textPrimary)
+            Spacer(minLength: 8)
+            stepButton("plus", id: plusId, tint: tint, enabled: true, action: onPlus)
         }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(id)
     }
 
-    /// Riga di una voce tracker di oggi (acqua/caffeina), con un pulsante
-    /// per rimuoverla se aggiunta per errore (ADR-0036).
-    private func entryRow(verbatim text: String, at date: Date, id: String,
-                          _ onDelete: @escaping @MainActor () -> Void) -> some View {
-        HStack(spacing: 8) {
-            Text(date.formatted(date: .omitted, time: .shortened))
-                .font(Glass.body(11)).monospacedDigit().foregroundStyle(Glass.ink.opacity(0.35))
-                .frame(width: 46, alignment: .leading)
-            Text(verbatim: text).font(Glass.body(12)).foregroundStyle(Glass.ink.opacity(0.6))
-            Spacer(minLength: 4)
-            Button { Task { @MainActor in onDelete() } } label: {
-                Image(systemName: "xmark.circle.fill").font(.system(size: 13))
-                    .foregroundStyle(Glass.ink.opacity(0.3))
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier(id)
+    @MainActor
+    private func stepButton(_ systemImage: String, id: String, tint: Color, enabled: Bool,
+                            action: @escaping @MainActor () -> Void) -> some View {
+        Button { action() } label: {
+            Image(systemName: systemImage)
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(enabled ? tint : Glass.ink.opacity(0.2))
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.white.opacity(0.06)))
+                .overlay(Circle().strokeBorder(tint.opacity(enabled ? 0.35 : 0.1)))
         }
-        .padding(.horizontal, 10).padding(.vertical, 6)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.white.opacity(0.03)))
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .accessibilityIdentifier(id)
     }
 }
 

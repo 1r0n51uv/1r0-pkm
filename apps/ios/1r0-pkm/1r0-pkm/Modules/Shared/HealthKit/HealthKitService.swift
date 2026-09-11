@@ -33,16 +33,43 @@ final class HealthKitService {
         [dietaryEnergy, dietaryProtein, dietaryCarbs, dietaryFat]
     }
 
-    /// Richiede i permessi granulari. `true` se la richiesta è andata a buon
-    /// fine (non implica che l'utente abbia concesso tutto).
+    /// Richiede i permessi granulari. `true` se **almeno un** tipo in
+    /// scrittura risulta autorizzato dopo la richiesta (non implica che
+    /// l'utente abbia concesso tutto). In ogni caso di problema — non
+    /// disponibile, richiesta fallita, negata, o addirittura mai mostrata
+    /// dal sistema (i tipi restano tutti `.notDetermined`: sintomo tipico
+    /// di un entitlements non applicato correttamente da una ri-firma
+    /// sideload, ADR-0036) — segnala su `HealthKitStatus` (ADR-0037)
+    /// invece di fallire in silenzio, così l'app può mostrare un banner.
+    @discardableResult
     func requestAuthorization() async -> Bool {
-        guard isAvailable else { return false }
-        do {
-            try await store.requestAuthorization(toShare: writeTypes, read: readTypes)
-            return true
-        } catch {
+        guard isAvailable else {
+            HealthKitStatus.shared.report("Salute non è disponibile su questo dispositivo.")
             return false
         }
+        do {
+            try await store.requestAuthorization(toShare: writeTypes, read: readTypes)
+        } catch {
+            HealthKitStatus.shared.report("Richiesta permessi Salute fallita: \(error.localizedDescription)")
+            return false
+        }
+        let writeStatuses = writeTypes.compactMap { $0 as? HKQuantityType }
+            .map { store.authorizationStatus(for: $0) }
+        if writeStatuses.allSatisfy({ $0 == .notDetermined }) {
+            HealthKitStatus.shared.report(
+                "Salute non ha mostrato la richiesta di permesso. Prova da Impostazioni → "
+                + "Salute → Accesso app e dati → 1r0-pkm; se l'app non compare lì, "
+                + "disinstallala e reinstallala.")
+            return false
+        }
+        if writeStatuses.allSatisfy({ $0 == .sharingDenied }) {
+            HealthKitStatus.shared.report(
+                "Permesso Salute negato. Riabilitalo da Impostazioni → Salute → "
+                + "Accesso app e dati → 1r0-pkm.")
+            return false
+        }
+        HealthKitStatus.shared.clear()
+        return true
     }
 
     // MARK: - lettura

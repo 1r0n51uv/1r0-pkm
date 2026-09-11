@@ -344,6 +344,44 @@ enum DietSync {
         Task { try? await ApiClient.shared.delete("v1/meal-entries/\(idString)") }
     }
 
+    /// Rimuove un singolo alimento da un pasto mangiato (ADR-0037), senza
+    /// cancellare l'intero `MealEntry` se ne restano altri — es. il pasto
+    /// pianificato più un alimento aggiunto a parte. Se era l'ultimo,
+    /// delega a `deleteMealEntry` (stessa pulizia del piano collegato).
+    /// Altrimenti ri-accoda `mealentry.create` con lo stesso id: il backend
+    /// fa upsert su id (`on conflict do update` + ricrea tutti gli item),
+    /// quindi rimanda gli item rimasti sostituisce quelli salvati prima.
+    @MainActor
+    static func deleteMealItem(_ item: MealEntryItem, in context: ModelContext) {
+        guard let entry = item.meal else {
+            context.delete(item); try? context.save(); return
+        }
+        entry.items.removeAll { $0.id == item.id }
+        context.delete(item)
+        if entry.items.isEmpty {
+            deleteMealEntry(entry, in: context)
+            return
+        }
+        let remaining = entry.items.sorted { $0.orderIndex < $1.orderIndex }
+        var payloadItems: [[String: Any]] = []
+        for (i, it) in remaining.enumerated() {
+            var d: [String: Any] = [
+                "foodName": it.foodName, "quantityG": it.quantityG,
+                "calories": it.calories, "proteinG": it.proteinG,
+                "carbsG": it.carbsG, "fatG": it.fatG, "orderIndex": i,
+            ]
+            if let fid = it.foodId { d["foodId"] = fid.uuidString }
+            payloadItems.append(d)
+        }
+        entry.syncedAt = nil
+        enqueue("mealentry.create", [
+            "id": entry.id.uuidString,
+            "consumedAt": ISO8601DateFormatter().string(from: entry.consumedAt),
+            "mealSlot": entry.mealSlot.rawValue,
+            "items": payloadItems,
+        ], in: context)
+    }
+
     /// Modifica un pasto pianificato esistente (slot, ricetta, alimenti) —
     /// consente di correggere un alimento aggiunto per errore (rimuovendolo
     /// dal paniere prima di salvare) senza doverlo ripianificare da zero.

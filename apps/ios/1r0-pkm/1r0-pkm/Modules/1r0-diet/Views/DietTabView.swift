@@ -331,6 +331,19 @@ struct DietTabView: View {
                 .font(Glass.body(13))
                 .foregroundStyle(Glass.ink.opacity(hasContent ? 0.5 : 0.35))
             if hasContent {
+                // ADR-0037: oltre al pianificato si può aggiungere un altro
+                // alimento a parte allo stesso pasto (solo oggi — LogFoodView
+                // logga sempre per "adesso", altrimenti finirebbe sul giorno
+                // sbagliato rispetto a quello selezionato nella striscia).
+                if isToday {
+                    Button { logSlot = slot } label: {
+                        Image(systemName: "plus.circle")
+                            .font(.system(size: 15))
+                            .foregroundStyle(Glass.ink.opacity(0.4))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("addToMeal_\(slot.rawValue)")
+                }
                 Toggle("", isOn: Binding(
                     get: { eaten },
                     set: { newValue in
@@ -386,6 +399,14 @@ struct DietTabView: View {
                         .font(Glass.body(11)).foregroundStyle(Glass.ink.opacity(0.35))
                     Text("\(Int(it.calories.rounded())) kcal")
                         .font(Glass.body(13)).foregroundStyle(Glass.ink.opacity(0.45))
+                    // ADR-0037: rimuovere un singolo alimento mangiato per
+                    // errore, senza dover disfare l'intero pasto.
+                    Button { Task { @MainActor in DietSync.deleteMealItem(it, in: context) } } label: {
+                        Image(systemName: "xmark.circle.fill").font(.system(size: 13))
+                            .foregroundStyle(Glass.ink.opacity(0.3))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("removeMealItem_\(it.foodName)")
                 }
                 .padding(.horizontal, 18).padding(.vertical, 11)
                 .background(Color.white.opacity(0.02))

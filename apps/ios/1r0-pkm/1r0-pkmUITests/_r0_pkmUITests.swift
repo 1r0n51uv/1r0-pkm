@@ -317,6 +317,8 @@ final class _r0_pkmUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["MANGIATO"].waitForExistence(timeout: 6),
                       "Lo stato del pasto non è passato a 'Mangiato'")
+        XCTAssertTrue(app.staticTexts["13 / 170 g"].waitForExistence(timeout: 6),
+                      "La barra proteine non si è aggiornata (Avena test, 100g, 13g proteine)")
 
         // ADR-0032: lo switch permette anche di tornare indietro ("riaprire"
         // un pasto già mangiato, es. per correggerlo).
@@ -324,6 +326,59 @@ final class _r0_pkmUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["SALTATO"].waitForExistence(timeout: 6),
                       "Lo switch non ha riportato il pasto a 'Saltato'")
         sleep(1); attach(app, "meal-plan")
+    }
+
+    /// 1r0-diet · ADR-0037: a un pasto già mangiato si può aggiungere un
+    /// altro alimento a parte (non dal piano), e rimuoverne uno senza
+    /// disfare l'intero pasto.
+    func testAddExtraFoodAndRemoveMealItem() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset", "-uitest-seed-diet"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+
+        app.buttons["plan_lunch"].tap()
+        XCTAssertTrue(app.staticTexts["Pianifica"].waitForExistence(timeout: 5))
+        let bs = app.textFields["basketSearch"]
+        XCTAssertTrue(bs.waitForExistence(timeout: 5))
+        bs.tap(); bs.typeText("Avena")
+        app.buttons["basketAdd"].firstMatch.tap()
+        app.buttons["savePlannedMeal"].tap()
+
+        let toggle = app.switches["mealEatenToggle_lunch"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 6))
+        toggle.tap()
+        XCTAssertTrue(app.staticTexts["Avena test"].waitForExistence(timeout: 6))
+
+        // aggiunge un secondo alimento allo stesso pasto, non dal piano
+        let addToMeal = app.buttons["addToMeal_lunch"]
+        XCTAssertTrue(addToMeal.waitForExistence(timeout: 5),
+                      "manca il pulsante per aggiungere un altro alimento al pasto già mangiato")
+        addToMeal.tap()
+        let fs = app.textFields["foodSearch"]
+        XCTAssertTrue(fs.waitForExistence(timeout: 5))
+        fs.tap(); fs.typeText("Noci")
+        XCTAssertTrue(app.staticTexts["Noci test"].waitForExistence(timeout: 5))
+        app.staticTexts["Noci test"].tap()
+        XCTAssertTrue(app.buttons["addToMeal"].waitForExistence(timeout: 5))
+        app.buttons["addToMeal"].tap()
+
+        XCTAssertTrue(app.staticTexts["Noci test"].waitForExistence(timeout: 6),
+                      "Il secondo alimento non compare nel pasto")
+        XCTAssertTrue(app.staticTexts["Avena test"].exists,
+                      "Il primo alimento è sparito dopo averne aggiunto un secondo")
+
+        // rimuove solo "Noci test", "Avena test" resta.
+        let removeNoci = app.buttons["removeMealItem_Noci test"]
+        XCTAssertTrue(removeNoci.waitForExistence(timeout: 5))
+        removeNoci.tap()
+        XCTAssertFalse(app.buttons["removeMealItem_Noci test"].waitForExistence(timeout: 3),
+                        "Noci test è ancora nel pasto dopo la rimozione")
+        XCTAssertTrue(app.staticTexts["Avena test"].exists,
+                      "Avena test è sparito rimuovendo solo Noci test")
+        sleep(1); attach(app, "meal-extra-food")
     }
 
     /// 1r0-diet · ADR-0032: modificare un pasto pianificato — rimuovere un
@@ -407,12 +462,26 @@ final class _r0_pkmUITests: XCTestCase {
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
 
+        // ADR-0037: contatore centrale con - / +, non più pulsanti multipli.
         app.buttons["water250"].tap()
         XCTAssertTrue(app.staticTexts["250 ml"].waitForExistence(timeout: 5),
                       "Il totale acqua non si è aggiornato")
+        app.buttons["water250"].tap()
+        XCTAssertTrue(app.staticTexts["500 ml"].waitForExistence(timeout: 5),
+                      "Il totale acqua non si è aggiornato dopo la seconda aggiunta")
+        app.buttons["waterMinus"].tap()
+        XCTAssertTrue(app.staticTexts["250 ml"].waitForExistence(timeout: 5),
+                      "Il pulsante - non ha annullato l'ultima voce acqua")
+
         app.buttons["caff80"].tap()
         XCTAssertTrue(app.staticTexts["80 mg oggi"].waitForExistence(timeout: 5),
                       "Il totale caffeina non si è aggiornato")
+        app.buttons["caff80"].tap()
+        XCTAssertTrue(app.staticTexts["160 mg oggi"].waitForExistence(timeout: 5),
+                      "Il totale caffeina non si è aggiornato dopo la seconda aggiunta")
+        app.buttons["caffMinus"].tap()
+        XCTAssertTrue(app.staticTexts["80 mg oggi"].waitForExistence(timeout: 5),
+                      "Il pulsante - non ha annullato l'ultima voce caffeina")
 
         app.buttons["manageSupplements"].tap()
         let sn = app.textFields["supplementName"]

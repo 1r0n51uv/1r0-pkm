@@ -27,7 +27,12 @@ struct ContentView: View {
         }
         .tint(Glass.accent)
         .preferredColorScheme(.dark)
-        .overlay(alignment: .top) { SyncFailureBanner() }
+        .overlay(alignment: .top) {
+            VStack(spacing: 8) {
+                SyncFailureBanner()
+                HealthKitFailureBanner()
+            }
+        }
         .onAppear {
             let a = UITabBarAppearance()
             a.configureWithTransparentBackground()
@@ -93,6 +98,50 @@ private struct SyncFailureBanner: View {
             .transition(.move(edge: .top).combined(with: .opacity))
             .animation(.snappy, value: failed.count)
             .onChange(of: failed.count) { _, _ in dismissed = false }
+        }
+    }
+}
+
+/// Banner globale quando il collegamento a Salute ha un problema —
+/// richiesta permessi fallita, negata, o mai mostrata dal sistema
+/// (`HealthKitStatus`, ADR-0037). Richiudibile; un nuovo problema dopo la
+/// chiusura lo fa ricomparire, stessa logica di `SyncFailureBanner`.
+private struct HealthKitFailureBanner: View {
+    @ObservedObject private var status = HealthKitStatus.shared
+    @State private var dismissed = false
+
+    var body: some View {
+        if let message = status.message, !dismissed {
+            HStack(spacing: 12) {
+                Image(systemName: "heart.slash")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Glass.coralLight)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Problema con Salute").font(Glass.body(13, .semibold))
+                    Text(message).font(Glass.body(11)).foregroundStyle(Glass.ink.opacity(0.5))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 8)
+                Button {
+                    dismissed = true
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Glass.ink.opacity(0.4))
+                }
+                .accessibilityIdentifier("dismissHealthKitBanner")
+            }
+            .foregroundStyle(Glass.textPrimary)
+            .padding(.horizontal, 16).padding(.vertical, 12)
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Glass.coralLight.opacity(0.12)))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Glass.coralLight.opacity(0.35)))
+            .padding(.horizontal, 18)
+            .padding(.top, 4)
+            .transition(.move(edge: .top).combined(with: .opacity))
+            .animation(.snappy, value: status.message)
+            .onChange(of: status.message) { _, _ in dismissed = false }
         }
     }
 }
