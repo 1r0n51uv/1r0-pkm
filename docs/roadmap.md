@@ -270,6 +270,19 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   correttamente pianificando+segnando mangiato un alimento — nessun bug
   di reattività dati→UI riprodotto nella pipeline principale.
 
+## 4undecies. Fix entitlement HealthKit mancante sul sideload — **in verifica** ([ADR-0038](adr/0038-fix-healthkit-entitlement-mancante-sideload.md))
+
+- [x] Diagnosticato con l'utente: `com.apple.developer.healthkit entitlement`
+  mancante a runtime nonostante l'entitlements sorgente sia corretto —
+  SideStore riusa una registrazione App ID stantia invece di ricrearla
+  (Apple limita le nuove registrazioni App ID su account gratuiti).
+- [x] Bundle id cambiato `dev.1r0.pkm` → `dev.1r0.pkm2` per forzare una
+  registrazione App ID nuova al prossimo install.
+- [ ] Da confermare sul device dell'utente dopo il reinstallo (richiede
+  disinstallare la vecchia app, i dati offline non sincronizzati vanno
+  perduti — vedi ADR-0038). Se non basta, ipotesi di riserva: nuovo Apple
+  ID in SideStore.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione
