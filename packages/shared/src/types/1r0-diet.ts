@@ -35,7 +35,9 @@ export interface RecipeItem {
   orderIndex: number;
 }
 
-export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+// ADR-0024: "snack" generico rimosso per i nuovi Meal Entry/Planned Meal,
+// resta valido solo sulle righe storiche già a DB (mai scritto dal client).
+export type MealSlot = "breakfast" | "morning_snack" | "lunch" | "afternoon_snack" | "dinner" | "snack";
 
 export interface MealEntry {
   id: string;

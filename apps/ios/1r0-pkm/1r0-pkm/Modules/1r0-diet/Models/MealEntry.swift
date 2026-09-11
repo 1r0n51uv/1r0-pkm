@@ -2,8 +2,9 @@
 //  MealEntry.swift
 //  1r0-pkm · Modules/1r0-diet
 //
-//  Un pasto consumato e loggato (glossario: "Meal Entry"), con `mealSlot`
-//  (breakfast/lunch/dinner/snack). Composto da `MealEntryItem`, che
+//  Un pasto consumato e loggato (glossario: "Meal Entry"), con `mealSlot` a
+//  5 valori (ADR-0024: colazione/spuntino mattina/pranzo/spuntino pomeriggio/
+//  cena — "snack" generico rimosso). Composto da `MealEntryItem`, che
 //  *snapshotta* calorie/macro al momento del log (ADR-0017): restano
 //  storicamente accurati anche se il `Food` viene corretto dopo.
 //
@@ -12,22 +13,28 @@ import Foundation
 import SwiftData
 
 enum MealSlot: String, CaseIterable, Identifiable, Codable {
-    case breakfast, lunch, dinner, snack
+    case breakfast
+    case morningSnack = "morning_snack"
+    case lunch
+    case afternoonSnack = "afternoon_snack"
+    case dinner
     var id: String { rawValue }
     var label: String {
         switch self {
         case .breakfast: return "Colazione"
+        case .morningSnack: return "Spuntino mattina"
         case .lunch: return "Pranzo"
+        case .afternoonSnack: return "Spuntino pomeriggio"
         case .dinner: return "Cena"
-        case .snack: return "Spuntino"
         }
     }
     var systemImage: String {
         switch self {
         case .breakfast: return "sun.horizon.fill"
+        case .morningSnack: return "carrot.fill"
         case .lunch: return "sun.max.fill"
+        case .afternoonSnack: return "carrot.fill"
         case .dinner: return "moon.stars.fill"
-        case .snack: return "carrot.fill"
         }
     }
     /// Ordine di visualizzazione nella giornata.
@@ -38,8 +45,8 @@ enum MealSlot: String, CaseIterable, Identifiable, Codable {
 final class MealEntry {
     @Attribute(.unique) var id: UUID
     var consumedAt: Date
-    /// grezzo: "breakfast" | "lunch" | "dinner" | "snack".
-    var mealSlotRaw: String = MealSlot.snack.rawValue
+    /// grezzo: uno dei rawValue di `MealSlot` (ADR-0024).
+    var mealSlotRaw: String = MealSlot.lunch.rawValue
     var notes: String?
     var createdAt: Date
     var syncedAt: Date?
@@ -48,7 +55,7 @@ final class MealEntry {
     var items: [MealEntryItem] = []
 
     var mealSlot: MealSlot {
-        get { MealSlot(rawValue: mealSlotRaw) ?? .snack }
+        get { MealSlot(rawValue: mealSlotRaw) ?? .lunch }
         set { mealSlotRaw = newValue.rawValue }
     }
 

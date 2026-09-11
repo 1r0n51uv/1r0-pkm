@@ -42,6 +42,7 @@ struct _r0_pkmApp: App {
                 container: container,
                 rules: [MissingMealReminder(), WaterReminder()],
                 envProvider: {
+                    guard HealthKitPreference.isEnabled() else { return ReminderEnv() }
                     let hk = HealthKitService.shared
                     async let water = hk.todayDietaryWaterMl()
                     async let active = hk.todayActiveEnergyKcal()

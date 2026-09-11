@@ -22,6 +22,7 @@ struct MealPlanView: View {
     @State private var composeSlot: MealSlot?
     @State private var showRecipes = false
     @State private var showShopping = false
+    @State private var showTemplates = false
 
     private var foodMap: [UUID: Food] { Dictionary(foods.map { ($0.id, $0) }) { a, _ in a } }
     private let cal = Calendar.current
@@ -52,6 +53,7 @@ struct MealPlanView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showRecipes) { RecipeListView() }
             .navigationDestination(isPresented: $showShopping) { ShoppingListView() }
+            .navigationDestination(isPresented: $showTemplates) { DietTemplateEditorView() }
             .sheet(item: $composeSlot) { slot in
                 PlanMealSheet(day: selectedDay, slot: slot)
                     .presentationDetents([.large])
@@ -84,6 +86,8 @@ struct MealPlanView: View {
                 .accessibilityIdentifier("openShopping")
             GlassIconButton(systemName: "book.closed") { showRecipes = true }
                 .accessibilityIdentifier("openRecipes")
+            GlassIconButton(systemName: "calendar.badge.clock") { showTemplates = true }
+                .accessibilityIdentifier("openTemplates")
         }
         .padding(.horizontal, 22).padding(.top, 8).padding(.bottom, 4)
     }

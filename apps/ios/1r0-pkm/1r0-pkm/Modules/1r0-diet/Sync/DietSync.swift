@@ -133,11 +133,14 @@ enum DietSync {
             "items": payloadItems,
         ], in: context)
 
-        // Specchio in uscita su Apple Salute (ADR-0027): energia + macro del
-        // pasto. Best-effort, one-way.
-        let t = total
-        Task { await HealthKitService.shared.saveMeal(
-            energyKcal: t.kcal, proteinG: t.proteinG, carbsG: t.carbsG, fatG: t.fatG, at: date) }
+        // Specchio in uscita su Apple Salute (ADR-0027), solo se collegata
+        // esplicitamente (ADR-0029: interruttore in Impostazioni dieta).
+        // Best-effort, one-way.
+        if HealthKitPreference.isEnabled() {
+            let t = total
+            Task { await HealthKitService.shared.saveMeal(
+                energyKcal: t.kcal, proteinG: t.proteinG, carbsG: t.carbsG, fatG: t.fatG, at: date) }
+        }
         return m
     }
 
@@ -292,6 +295,66 @@ enum DietSync {
         p.status = .skipped
         p.syncedAt = nil
         enqueuePlannedMeal(p, in: context)
+    }
+
+    // MARK: - Dieta settimanale a template (ADR-0029)
+
+    /// Applica un `DietTemplate` alla settimana che inizia a `weekStart`
+    /// (dev'essere un lunedì — `weekday == 1`): per ogni `DietTemplateItem`
+    /// con una ricetta assegnata crea/rimpiazza il `PlannedMeal` di quel
+    /// giorno/slot. Non tocca gli slot senza voce nel template né i
+    /// `PlannedMeal` già `.completed`/`.skipped` (solo quelli ancora
+    /// `.planned` vengono sovrascritti). Ritorna quanti pasti ha pianificato.
+    @MainActor
+    @discardableResult
+    static func applyTemplate(_ template: DietTemplate, weekStart: Date,
+                              in context: ModelContext) -> Int {
+        let cal = Calendar.current
+        let monday = cal.startOfDay(for: weekStart)
+        guard let weekEnd = cal.date(byAdding: .day, value: 7, to: monday) else { return 0 }
+
+        let existingThisWeek = (try? context.fetch(FetchDescriptor<PlannedMeal>(
+            predicate: #Predicate { $0.plannedDate >= monday && $0.plannedDate < weekEnd }
+        ))) ?? []
+        let allFoods = (try? context.fetch(FetchDescriptor<Food>())) ?? []
+        let foodMap = Dictionary(allFoods.map { ($0.id, $0) }) { a, _ in a }
+
+        var applied = 0
+        for item in template.items {
+            guard let recipeId = item.recipeId,
+                  let date = cal.date(byAdding: .day, value: item.weekday - 1, to: monday)
+            else { continue }
+            let recipe = try? context.fetch(FetchDescriptor<Recipe>(
+                predicate: #Predicate { $0.id == recipeId }
+            )).first
+            guard let recipe else { continue }
+
+            // sostituisce un eventuale planned non ancora mangiato per lo stesso slot/giorno
+            if let clash = existingThisWeek.first(where: {
+                cal.isDate($0.plannedDate, inSameDayAs: date)
+                    && $0.mealSlot == item.mealSlot && $0.status == .planned
+            }) {
+                context.delete(clash)
+            }
+
+            let items: [(food: Food, grams: Double)] = recipe.items
+                .sorted { $0.orderIndex < $1.orderIndex }
+                .compactMap { ri in
+                    guard let fid = ri.foodId, let f = foodMap[fid] else { return nil }
+                    return (f, ri.quantityG)
+                }
+            guard !items.isEmpty else { continue }
+            planMeal(date: date, slot: item.mealSlot, recipe: recipe, items: items, in: context)
+            applied += 1
+        }
+        try? context.save()
+        return applied
+    }
+
+    @MainActor
+    static func deleteTemplate(_ t: DietTemplate, in context: ModelContext) {
+        context.delete(t)
+        try? context.save()
     }
 
     /// Re-accoda lo stato corrente di un pasto pianificato (upsert).

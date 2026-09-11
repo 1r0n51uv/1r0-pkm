@@ -34,12 +34,15 @@
 		5D9446AEB37E9FD6C24722C0 /* BodyMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F4AFA951073018127E688 /* BodyMeasurement.swift */; };
 		5EDB87C294F3AC058F11B139 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */; };
 		638441CFAC494580478D0FB4 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */; };
+		8A719361CAE74603871D85BD /* HealthKitPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9CD8436827423AAA8B2C48 /* HealthKitPreference.swift */; };
 		640E40F0EE26D99A472B94C1 /* NutritionGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0684C6FFAFFCA1D98E54CC94 /* NutritionGoalView.swift */; };
 		66F69909C8E97D894A348BF2 /* NutritionGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6952FB3A11858434A98160 /* NutritionGoal.swift */; };
 		70B4A25C6A704FE19C6470C3 /* Trackers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B5D6EE853345868DAEE75B /* Trackers.swift */; };
 		7147FC77662D4822BF51EF1A /* TrackersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B03C6BFF944DF79D2DCDD0 /* TrackersView.swift */; };
 		82091FD5FC934AD0B3A6A91A /* MealPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75F149E62524030BE1EC58F /* MealPlanView.swift */; };
+		D9460E1AFD4747CE8C212179 /* DietTemplateEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE1E2EC2EEE4987A59C8098 /* DietTemplateEditorView.swift */; };
 		8258DD1E5B8F4CC49EF4B9FD /* PlannedMeal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A53D9552D59546D2A10D4C9D /* PlannedMeal.swift */; };
+		BB4C916FE92A48A2ACCD9189 /* DietTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBB74980B30439793CC5ECF /* DietTemplate.swift */; };
 		93A147E2BB606120AEA9A3DE /* AddMeasurementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636C4706B7AF7ACBB3ECCD1A /* AddMeasurementView.swift */; };
 		9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F725248DB437980EF296A /* DietReport.swift */; };
 		A36440B5B7CFFF5C581D0867 /* ProgressTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8540D8942B0227609A4C51 /* ProgressTabView.swift */; };
@@ -52,7 +55,7 @@
 		BE68E4A0F9C9C5E2D8BAA8CB /* DietTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24954145CE3772A2A0BA0C2 /* DietTabView.swift */; };
 		C5B647558DFAE1B917B29152 /* SyncPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */; };
 		D0D343E292B539DDEE52089E /* Outbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20CF4E7CB31B6551914B2913 /* Outbox.swift */; };
-		C36FBFDBFD592A6C2F32B738 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A106570CB2ADF5426A66B9CC /* NotificationSettingsView.swift */; };
+		C36FBFDBFD592A6C2F32B738 /* DietSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A106570CB2ADF5426A66B9CC /* DietSettingsView.swift */; };
 		64D6CF1C227707444975D01C /* WaterReminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E17C0EB60C9143EF6B56CBEC /* WaterReminder.swift */; };
 		70B626C207CEB1FC394EA2D0 /* GymHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49915B14B422866F51EFCF9 /* GymHistoryView.swift */; };
 		70A34F9D46FF3D294D810F19 /* GymStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4851C4D34959899D34E5C5E0 /* GymStats.swift */; };
@@ -159,7 +162,7 @@
 		EB28CDC7F4A14AB2FCDA46FE /* ReminderCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReminderCategory.swift; path = "1r0-pkm/Modules/Shared/Reminders/ReminderCategory.swift"; sourceTree = SOURCE_ROOT; };
 		1F024674A3B635B2CD67922F /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncEngine.swift; path = "1r0-pkm/Modules/Shared/Sync/SyncEngine.swift"; sourceTree = SOURCE_ROOT; };
 		20CF4E7CB31B6551914B2913 /* Outbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Outbox.swift; path = "1r0-pkm/Modules/Shared/Sync/Outbox.swift"; sourceTree = SOURCE_ROOT; };
-		A106570CB2ADF5426A66B9CC /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationSettingsView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/NotificationSettingsView.swift"; sourceTree = SOURCE_ROOT; };
+		A106570CB2ADF5426A66B9CC /* DietSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietSettingsView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietSettingsView.swift"; sourceTree = SOURCE_ROOT; };
 		E17C0EB60C9143EF6B56CBEC /* WaterReminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WaterReminder.swift; path = "1r0-pkm/Modules/1r0-diet/Reminders/WaterReminder.swift"; sourceTree = SOURCE_ROOT; };
 		B49915B14B422866F51EFCF9 /* GymHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymHistoryView.swift; path = "1r0-pkm/Modules/1r0-gym/Views/GymHistoryView.swift"; sourceTree = SOURCE_ROOT; };
 		4851C4D34959899D34E5C5E0 /* GymStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymStats.swift; path = "1r0-pkm/Modules/1r0-gym/GymStats.swift"; sourceTree = SOURCE_ROOT; };
@@ -196,16 +199,19 @@
 		988633712155B9E1F8B5774C /* AddFoodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddFoodView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/AddFoodView.swift"; sourceTree = SOURCE_ROOT; };
 		9B9644AB95261BCE92D1D894 /* WorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkoutSession.swift; path = "1r0-pkm/Modules/1r0-gym/Models/WorkoutSession.swift"; sourceTree = SOURCE_ROOT; };
 		A53D9552D59546D2A10D4C9D /* PlannedMeal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlannedMeal.swift; path = "1r0-pkm/Modules/1r0-diet/Models/PlannedMeal.swift"; sourceTree = SOURCE_ROOT; };
+		FDBB74980B30439793CC5ECF /* DietTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietTemplate.swift; path = "1r0-pkm/Modules/1r0-diet/Models/DietTemplate.swift"; sourceTree = SOURCE_ROOT; };
 		A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FoodBasketEditor.swift; path = "1r0-pkm/Modules/1r0-diet/Views/FoodBasketEditor.swift"; sourceTree = SOURCE_ROOT; };
 		B388462C9F55B3B3BAF6B0B8 /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchConnector.swift; path = "1r0-pkm-w Watch App/WatchConnector.swift"; sourceTree = SOURCE_ROOT; };
 		B98F725248DB437980EF296A /* DietReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReport.swift; path = "1r0-pkm/Modules/1r0-diet/DietReport.swift"; sourceTree = SOURCE_ROOT; };
 		BB7A4439B908DA03F49A6456 /* WatchSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WatchSessionModel.swift; path = "1r0-pkm-w Watch App/WatchSessionModel.swift"; sourceTree = SOURCE_ROOT; };
 		C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitService.swift; path = "1r0-pkm/Modules/Shared/HealthKit/HealthKitService.swift"; sourceTree = SOURCE_ROOT; };
+		FF9CD8436827423AAA8B2C48 /* HealthKitPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HealthKitPreference.swift; path = "1r0-pkm/Modules/Shared/HealthKit/HealthKitPreference.swift"; sourceTree = SOURCE_ROOT; };
 		C804BC481B36898CCF0C1F43 /* MealEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealEntry.swift; path = "1r0-pkm/Modules/1r0-diet/Models/MealEntry.swift"; sourceTree = SOURCE_ROOT; };
 		D24954145CE3772A2A0BA0C2 /* DietTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietTabView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietTabView.swift"; sourceTree = SOURCE_ROOT; };
 		DBE94A879CE3331BCD7BBD82 /* GymMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GymMathTests.swift; path = "1r0-pkmTests/GymMathTests.swift"; sourceTree = SOURCE_ROOT; };
 		DD3AA36288814E159C189B3E /* DietReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietReportView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietReportView.swift"; sourceTree = SOURCE_ROOT; };
 		E75F149E62524030BE1EC58F /* MealPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MealPlanView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/MealPlanView.swift"; sourceTree = SOURCE_ROOT; };
+		BBE1E2EC2EEE4987A59C8098 /* DietTemplateEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DietTemplateEditorView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/DietTemplateEditorView.swift"; sourceTree = SOURCE_ROOT; };
 		EA4BF6C73A3B0507A755F831 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BarcodeScannerView.swift; path = "1r0-pkm/Modules/1r0-diet/Views/BarcodeScannerView.swift"; sourceTree = SOURCE_ROOT; };
 		ED3C954B304CE45600E8464E /* 1r0-pkm-w Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "1r0-pkm-w Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3C954D304CE45600E8464E /* _r0_pkm_wApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _r0_pkm_wApp.swift; sourceTree = "<group>"; };
@@ -283,9 +289,11 @@
 				56B5D6EE853345868DAEE75B /* Trackers.swift */,
 				05106DA08A2943199C91C9DA /* ShoppingListItem.swift */,
 				E75F149E62524030BE1EC58F /* MealPlanView.swift */,
+				BBE1E2EC2EEE4987A59C8098 /* DietTemplateEditorView.swift */,
 				33C8DA091BBA4934BAB889A8 /* RecipeListView.swift */,
 				A5E8A795858A4969B64D9739 /* FoodBasketEditor.swift */,
 				A53D9552D59546D2A10D4C9D /* PlannedMeal.swift */,
+				FDBB74980B30439793CC5ECF /* DietTemplate.swift */,
 				621ABECCE5244E47B87B7258 /* Recipe.swift */,
 				DD3AA36288814E159C189B3E /* DietReportView.swift */,
 				B98F725248DB437980EF296A /* DietReport.swift */,
@@ -317,7 +325,7 @@
 				81184CE697A7F0353C1C751F /* Secrets.swift */,
 				4D5E4DB7A01F74D853118674 /* OutboxEntry.swift */,
 				20CF4E7CB31B6551914B2913 /* Outbox.swift */,
-				A106570CB2ADF5426A66B9CC /* NotificationSettingsView.swift */,
+				A106570CB2ADF5426A66B9CC /* DietSettingsView.swift */,
 				E17C0EB60C9143EF6B56CBEC /* WaterReminder.swift */,
 				B49915B14B422866F51EFCF9 /* GymHistoryView.swift */,
 				4851C4D34959899D34E5C5E0 /* GymStats.swift */,
@@ -341,6 +349,7 @@
 				EDAC45ECAC44E556696F8639 /* GymData.swift */,
 				666E4DC757ABFAE3E3951C80 /* GymSync.swift */,
 				C1F64BF4A3FAF12F5B078429 /* HealthKitService.swift */,
+				FF9CD8436827423AAA8B2C48 /* HealthKitPreference.swift */,
 				0B844B7AA5E906D97ABA6500 /* HealthKitOnboardingView.swift */,
 				129B4E32BA23FB5A5AD9E330 /* SyncPolicy.swift */,
 				1F024674A3B635B2CD67922F /* SyncEngine.swift */,
@@ -656,9 +665,11 @@
 				70B4A25C6A704FE19C6470C3 /* Trackers.swift in Sources */,
 				F8658B7DC3B34CFA89CFC1C1 /* ShoppingListItem.swift in Sources */,
 				82091FD5FC934AD0B3A6A91A /* MealPlanView.swift in Sources */,
+				D9460E1AFD4747CE8C212179 /* DietTemplateEditorView.swift in Sources */,
 				B45A7DCE5D974C478D17072A /* RecipeListView.swift in Sources */,
 				B5FED695F6FC49D2860194A0 /* FoodBasketEditor.swift in Sources */,
 				8258DD1E5B8F4CC49EF4B9FD /* PlannedMeal.swift in Sources */,
+				BB4C916FE92A48A2ACCD9189 /* DietTemplate.swift in Sources */,
 				0E33E098577A43BCBE657600 /* Recipe.swift in Sources */,
 				59CD4B6D8FC847F2886CAFFE /* DietReportView.swift in Sources */,
 				9BEAE7626BC7495A9A35B088 /* DietReport.swift in Sources */,
@@ -684,7 +695,7 @@
 				15024E34BBAF7529CDA926A1 /* Secrets.swift in Sources */,
 				557E443B99C3337A7D982344 /* OutboxEntry.swift in Sources */,
 				D0D343E292B539DDEE52089E /* GymSync.swift in Sources */,
-				C36FBFDBFD592A6C2F32B738 /* NotificationSettingsView.swift in Sources */,
+				C36FBFDBFD592A6C2F32B738 /* DietSettingsView.swift in Sources */,
 				64D6CF1C227707444975D01C /* WaterReminder.swift in Sources */,
 				70B626C207CEB1FC394EA2D0 /* GymHistoryView.swift in Sources */,
 				70A34F9D46FF3D294D810F19 /* GymStats.swift in Sources */,
@@ -702,6 +713,7 @@
 				5BF34CE5858978E07B47D404 /* GymData.swift in Sources */,
 				032992018C03682844681BF2 /* GymSync.swift in Sources */,
 				638441CFAC494580478D0FB4 /* HealthKitService.swift in Sources */,
+				8A719361CAE74603871D85BD /* HealthKitPreference.swift in Sources */,
 				1EB7419B9E262618D12A1F1B /* HealthKitOnboardingView.swift in Sources */,
 				C5B647558DFAE1B917B29152 /* SyncPolicy.swift in Sources */,
 				0488416F8BC7541700D054C2 /* SyncEngine.swift in Sources */,

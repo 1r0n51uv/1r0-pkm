@@ -169,7 +169,9 @@ final class _r0_pkmUITests: XCTestCase {
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
 
-        app.buttons["showReport"].tap()
+        app.buttons["dietSettings"].tap()
+        XCTAssertTrue(app.buttons["openReport"].waitForExistence(timeout: 5))
+        app.buttons["openReport"].tap()
         XCTAssertTrue(app.staticTexts["Andamento"].waitForExistence(timeout: 5),
                       "Il report dieta non si è aperto")
         XCTAssertTrue(app.staticTexts["Media calorie giornaliere"].exists,
@@ -346,21 +348,24 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "import-allenamenti")
     }
 
-    /// 1r0-diet · ADR-0027 step 4: dall'header Dieta si aprono le impostazioni
-    /// notifiche con gli interruttori per categoria.
-    func testNotificationSettingsSheet() throws {
+    /// 1r0-diet · ADR-0029: dall'header Dieta si aprono le impostazioni —
+    /// collegamento Salute + interruttori notifiche per categoria.
+    func testDietSettingsSheet() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-uitest-reset"]
         app.launch()
 
         app.tabBars.buttons["Dieta"].tap()
-        XCTAssertTrue(app.buttons["notifSettings"].waitForExistence(timeout: 10))
-        app.buttons["notifSettings"].tap()
+        XCTAssertTrue(app.buttons["dietSettings"].waitForExistence(timeout: 10))
+        app.buttons["dietSettings"].tap()
 
-        XCTAssertTrue(app.staticTexts["Notifiche"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Impostazioni"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["Collega Apple Salute"].exists
+                      || app.staticTexts["Collega Apple Salute"].exists)
         XCTAssertTrue(app.switches["Pasto mancante"].exists || app.staticTexts["Pasto mancante"].exists)
         XCTAssertTrue(app.switches["Acqua"].exists || app.staticTexts["Acqua"].exists)
-        sleep(1); attach(app, "impostazioni-notifiche")
+        XCTAssertTrue(app.buttons["openReport"].exists)
+        sleep(1); attach(app, "impostazioni-dieta")
     }
 
     /// Non è un test: cattura screenshot delle tab per la review.

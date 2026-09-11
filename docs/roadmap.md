@@ -111,12 +111,33 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   quota proporzionata all'ora (`NutritionMath.waterQuotaMl`) manda un nudge
   semplice. `ReminderRule.plan` guadagna un `env: ReminderEnv` con i valori
   HealthKit pre-caricati da `RemindersEngine` (`envProvider`).
-- [x] **Impostazioni notifiche** — `NotificationSettingsView` (interruttore per
-  categoria via `ReminderSettings`), dall'header della Dieta (`bell`).
+- [x] **Impostazioni notifiche** — interruttore per categoria via
+  `ReminderSettings`, ora dentro `DietSettingsView` (vedi step 4bis).
 - Unit test: `NutritionMathTests`, `WaterReminderTests`.
 - **Da verificare su device**: nel simulatore HealthKit non ha dati/permessi,
   quindi le letture tornano 0 e la scrittura è no-op — testare con un device
-  reale o dati seed in Salute.
+  reale o dati seed in Salute (Simulatore: Health.app → Browse → aggiungi
+  sample manuale, poi concedi il permesso dal toggle in Impostazioni Dieta).
+
+## 4bis. Dieta a template settimanale + toggle Salute — **fatto** ([ADR-0029](adr/0029-dieta-settimanale-a-template-e-toggle-salute.md))
+
+- [x] `MealSlot` implementato a 5 valori (era solo deciso in ADR-0024):
+  `MealEntry.swift`, `MissingMealReminder`, `packages/shared` type. Migrazione
+  `supabase/migrations/0010_meal_slot_five_values.sql` (additiva, `'snack'`
+  storico resta valido a DB ma non più scritto).
+- [x] `DietTemplate`/`DietTemplateItem` (SwiftData, solo locale) +
+  `DietTemplateEditorView` (griglia 7 giorni × 5 slot, picker ricetta,
+  "Applica a una settimana"). `DietSync.applyTemplate` traduce il template in
+  `PlannedMeal` per la settimana scelta.
+- [x] `DietTabView` mostra il piano **prima** del log: se uno slot ha un
+  `PlannedMeal` `.planned` ma nessun `MealEntry` oggi, la card elenca gli
+  alimenti pianificati con una spunta → `DietSync.completePlannedMeal`.
+- [x] `HealthKitPreference` (toggle esplicito, `UserDefaults`) condiziona
+  letture/scritture HealthKit del modulo diet, in aggiunta al permesso di
+  sistema. `DietSettingsView` (ex `NotificationSettingsView`): Salute →
+  Notifiche → Report; header Dieta con una sola icona `gearshape`.
+- **Da fare sull'istanza EC2**: applicare la migrazione 0010 (non serve
+  ridistribuire `apps/api`, solo `ALTER TYPE`).
 
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 

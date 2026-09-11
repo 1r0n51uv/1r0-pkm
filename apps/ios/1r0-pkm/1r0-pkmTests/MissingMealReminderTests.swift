@@ -33,12 +33,13 @@ final class MissingMealReminderTests: XCTestCase {
         try? ctx.save()
     }
 
-    func testEarlyMorning_allThreeSlotsPlanned() throws {
+    func testEarlyMorning_allFiveSlotsPlanned() throws {
         let ctx = try makeContext()
         let rule = MissingMealReminder(acksDefaults: isolatedDefaults())
         let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
-        XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }), ["breakfast", "lunch", "dinner"])
+        XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }),
+                       ["breakfast", "morning_snack", "lunch", "afternoon_snack", "dinner"])
         XCTAssertTrue(planned.allSatisfy { $0.category == .missingMeal })
         XCTAssertTrue(planned.allSatisfy { $0.fireDate > today(at: 7) })
         XCTAssertTrue(planned.allSatisfy { $0.id.hasPrefix("missing-meal.") })
@@ -50,7 +51,8 @@ final class MissingMealReminderTests: XCTestCase {
         let rule = MissingMealReminder(acksDefaults: isolatedDefaults())
         let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
-        XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }), ["breakfast", "dinner"])
+        XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }),
+                       ["breakfast", "morning_snack", "afternoon_snack", "dinner"])
     }
 
     func testYesterdaysMealDoesNotCount() throws {
@@ -70,7 +72,8 @@ final class MissingMealReminderTests: XCTestCase {
         let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
         XCTAssertFalse(planned.contains { $0.userInfo["slot"] == "breakfast" })
-        XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }), ["lunch", "dinner"])
+        XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }),
+                       ["morning_snack", "lunch", "afternoon_snack", "dinner"])
     }
 
     func testLateEvening_nothingPlanned() throws {

@@ -27,6 +27,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Meal Entry** — un pasto effettivamente consumato e loggato, con `meal_slot` a 5 valori (`breakfast` / `morning_snack` / `lunch` / `afternoon_snack` / `dinner`; `snack` generico rimosso, ADR-0024). Composto da **Meal Entry Item**, che *snapshotta* calorie/macro al momento del log (non ricalcola da `Food` in seguito).
 - **Meal Slot Ack** — flag "slot ok oggi" (`{ data, slot }`): registrato quando l'utente risponde **Sì** al Promemoria pasto mancante. Silenzia il promemoria di quello slot per la giornata **senza** creare un Meal Entry (ADR-0027).
 - **Planned Meal** — un pasto pianificato per una data futura; confermato diventa un Meal Entry collegato (`status: completed`), altrimenti resta `planned` o passa a `skipped`.
+- **Diet Template** — dieta settimanale riutilizzabile (solo locale, non sincronizzata): assegna una Recipe per ciascuno dei 5 Meal Slot × 7 giorni (**Diet Template Item**). "Applicare" un template a una settimana specifica genera i Planned Meal corrispondenti (ADR-0029).
 - **Shopping List Item** — voce di una lista della spesa persistente e spuntabile, generabile dai Planned Meal ma modificabile liberamente dopo.
 - **Water Log / Supplement (Log) / Caffeine Log** — tre tracker semplici e separati dal log pasti: acqua in ml, integratori come checklist giornaliera, caffeina come voce rapida dedicata.
 - **Nutrition Goal** — obiettivo calorico/macro in grammi assoluti, con una `mode` attiva alla volta (`manual`, `phase_linked`, `tdee`). Tabella *append-only*: cambiare obiettivo inserisce una nuova riga (`effective_from`).
@@ -50,11 +51,12 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Promemoria acqua** — valutato a cadenza fissa nella fascia diurna; notifica se il totale acqua di oggi (Water Log + HealthKit) è sotto la quota proporzionata all'ora. Se `waterMlTarget` non è impostato usa un default.
 - **Promemoria pasto mancante** — uno per ciascuno dei 5 Meal Slot, vicino al suo orario atteso (default sovrascrivibile dall'utente). Notifica se a quell'ora non esiste un Meal Entry **né** un Meal Slot Ack per quello slot in giornata.
 - **Preavviso documento** — vedi modulo `1r0-documenti`.
-- **Impostazioni notifiche** — un interruttore per categoria di Promemoria (es. "Acqua", "Pasto mancante", "Documenti"), non per singola istanza.
+- **Impostazioni Dieta** — schermata (`DietSettingsView`, ex `NotificationSettingsView`) con 3 sezioni: Salute (toggle HealthKit, ADR-0029), Notifiche (un interruttore per categoria di Promemoria, es. "Acqua"/"Pasto mancante", non per singola istanza), Report (link all'Andamento). Sostituisce le vecchie icone separate report/notifiche nell'header Dieta.
 
 ## Integrazioni
 
 - **HealthKit** — gateway condiviso (`Modules/Shared/HealthKit/`). `diet` **scrive** energia alimentare + macro (`dietary*`) per ogni pasto e **legge** peso corporeo, acqua ed energia attiva. `gym` **legge** solo il peso corporeo. Nessuna scrittura di workout (il `gym` non crea più sessioni). Vedi ADR-0004 amendata.
+- **Collegamento Salute (toggle)** — interruttore esplicito lato app (`HealthKitPreference`, `UserDefaults`) che abilita/disabilita letture e scritture HealthKit del modulo `diet`, in aggiunta (non in sostituzione) al permesso di sistema. Prima voce di **Impostazioni Dieta**. ADR-0029.
 - **Watch companion** — *congelato* (ADR-0016 superseded): il target `1r0-pkm-w Watch App` esiste nel repo ma è fuori dalla build (non distribuibile via sideload sul piano gratuito).
 
 ## Infrastruttura

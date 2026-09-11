@@ -6,9 +6,8 @@
 //  atteso, se a quell'ora (+ tolleranza) non c'è né un `MealEntry` né un Meal
 //  Slot Ack per la giornata, notifica azionabile "«Slot»?" con "Sì" / "Rimanda".
 //
-//  Gli orari sono un default ragionevole; ADR-0024 (5 slot) e l'override utente
-//  arrivano con lo step 4 — la regola itera comunque `MealSlot.allCases`, quindi
-//  eredita i nuovi slot appena esistono.
+//  Gli orari sono un default ragionevole; l'override utente resta da fare.
+//  La regola itera `MealSlot.allCases`, quindi copre i 5 slot di ADR-0024.
 //
 
 import Foundation
@@ -21,11 +20,12 @@ struct MissingMealReminder: ReminderRule {
     /// Store degli ack (iniettabile nei test).
     var acksDefaults: UserDefaults = .standard
 
-    /// Ora del giorno attesa per slot. Slot senza voce → nessun promemoria
-    /// (es. `snack` generico, senza orario significativo).
+    /// Ora del giorno attesa per slot. Slot senza voce → nessun promemoria.
     static let expectedHour: [MealSlot: (h: Int, m: Int)] = [
         .breakfast: (9, 30),
+        .morningSnack: (11, 0),
         .lunch: (13, 0),
+        .afternoonSnack: (17, 0),
         .dinner: (20, 0),
     ]
 
