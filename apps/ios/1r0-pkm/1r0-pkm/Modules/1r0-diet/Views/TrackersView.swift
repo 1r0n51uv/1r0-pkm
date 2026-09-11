@@ -23,12 +23,16 @@ struct TrackersCard: View {
     @State private var showManage = false
 
     private let cal = Calendar.current
-    private var waterToday: Double {
-        water.filter { cal.isDateInToday($0.loggedAt) }.reduce(0) { $0 + $1.amountMl }
+    /// Voci di oggi, più recente prima — per poterle rimuovere una per una
+    /// (ADR-0036), non solo vedere il totale cumulativo.
+    private var waterEntriesToday: [WaterLog] {
+        water.filter { cal.isDateInToday($0.loggedAt) }.sorted { $0.loggedAt > $1.loggedAt }
     }
-    private var caffeineToday: Double {
-        caffeine.filter { cal.isDateInToday($0.loggedAt) }.reduce(0) { $0 + $1.caffeineMg }
+    private var caffeineEntriesToday: [CaffeineLog] {
+        caffeine.filter { cal.isDateInToday($0.loggedAt) }.sorted { $0.loggedAt > $1.loggedAt }
     }
+    private var waterToday: Double { waterEntriesToday.reduce(0) { $0 + $1.amountMl } }
+    private var caffeineToday: Double { caffeineEntriesToday.reduce(0) { $0 + $1.caffeineMg } }
     private var activeSupps: [Supplement] { supplements.filter(\.active) }
     private func takenToday(_ s: Supplement) -> Bool {
         suppLogs.contains { $0.supplementId == s.id && $0.taken && cal.isDateInToday($0.loggedAt) }
@@ -63,6 +67,14 @@ struct TrackersCard: View {
                     quickAdd("+250 ml", id: "water250") { DietSync.addWater(ml: 250, in: context) }
                     quickAdd("+500 ml", id: "water500") { DietSync.addWater(ml: 500, in: context) }
                 }
+                if !waterEntriesToday.isEmpty {
+                    VStack(spacing: 4) {
+                        ForEach(waterEntriesToday) { w in
+                            entryRow(verbatim: "\(Int(w.amountMl)) ml", at: w.loggedAt,
+                                    id: "removeWater_\(w.id)") { DietSync.deleteWaterLog(w, in: context) }
+                        }
+                    }
+                }
             }
 
             Divider().overlay(Glass.hairlineSoft)
@@ -82,6 +94,14 @@ struct TrackersCard: View {
                     }
                     quickAdd("Filtro +120", id: "caff120") {
                         DietSync.addCaffeine(mg: 120, source: "Caffè filtro", in: context)
+                    }
+                }
+                if !caffeineEntriesToday.isEmpty {
+                    VStack(spacing: 4) {
+                        ForEach(caffeineEntriesToday) { c in
+                            entryRow(verbatim: "\(c.sourceName) · \(Int(c.caffeineMg)) mg", at: c.loggedAt,
+                                    id: "removeCaffeine_\(c.id)") { DietSync.deleteCaffeineLog(c, in: context) }
+                        }
                     }
                 }
             }
@@ -160,6 +180,27 @@ struct TrackersCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(id)
+    }
+
+    /// Riga di una voce tracker di oggi (acqua/caffeina), con un pulsante
+    /// per rimuoverla se aggiunta per errore (ADR-0036).
+    private func entryRow(verbatim text: String, at date: Date, id: String,
+                          _ onDelete: @escaping @MainActor () -> Void) -> some View {
+        HStack(spacing: 8) {
+            Text(date.formatted(date: .omitted, time: .shortened))
+                .font(Glass.body(11)).monospacedDigit().foregroundStyle(Glass.ink.opacity(0.35))
+                .frame(width: 46, alignment: .leading)
+            Text(verbatim: text).font(Glass.body(12)).foregroundStyle(Glass.ink.opacity(0.6))
+            Spacer(minLength: 4)
+            Button { Task { @MainActor in onDelete() } } label: {
+                Image(systemName: "xmark.circle.fill").font(.system(size: 13))
+                    .foregroundStyle(Glass.ink.opacity(0.3))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(id)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.white.opacity(0.03)))
     }
 }
 

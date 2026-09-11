@@ -232,6 +232,26 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   `DietSync.pullPlannedMeals`, risolto insieme (stesso code path).
   Verificato in produzione: "pane" → 19 risultati, "bread" → 20.
 
+## 4nonies. Dieta unificata + peso da Salute + rimozione voci + filtro Italia — **fatto** ([ADR-0036](adr/0036-diet-unificata-peso-salute-rimozione-voci-filtro-italia.md))
+
+- [x] `MealPlanView` (schermata "Pianificazione" separata) assorbita in
+  `DietTabView`: striscia giorni + i 5 slot con switch mangiato/saltato
+  vivono sulla stessa schermata dell'anello calorie (sempre di oggi).
+  `MealPlanView.swift` ora contiene solo `PlanMealSheet`.
+- [x] Etichetta peso più recente da Salute sull'header Dieta
+  (`healthWeightLabel`), solo informativa.
+- [x] `_r0_pkm.entitlements`: rimosse due chiavi App Sandbox macOS-only,
+  candidate root cause dello stop di HealthKit sui build sideload
+  (SideStore/AltStore) — da confermare sulla prossima installazione.
+- [x] Banner di sync fallita chiudibile (`dismissSyncBanner`), ricompare
+  su un nuovo fallimento.
+- [x] Rimozione voci: pasto mangiato (`DietSync.deleteMealEntry`), acqua e
+  caffeina (`deleteWaterLog`/`deleteCaffeineLog`) — locale + nuove route
+  `DELETE /v1/water-logs/:id` e `DELETE /v1/caffeine-logs/:id`.
+- [x] Filtro "Solo Italia" nella ricerca alimenti (`FoodSearchPreference`,
+  default acceso): il backend instrada verso `it.openfoodfacts.org`
+  invece del dominio mondiale.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

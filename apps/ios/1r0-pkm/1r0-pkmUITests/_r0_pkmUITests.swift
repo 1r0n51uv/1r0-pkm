@@ -196,8 +196,6 @@ final class _r0_pkmUITests: XCTestCase {
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
 
-        app.buttons["openPlan"].tap()
-        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
         app.buttons["openRecipes"].tap()
         XCTAssertTrue(app.staticTexts["Ricette"].waitForExistence(timeout: 5))
         app.buttons["addRecipe"].firstMatch.tap()
@@ -229,8 +227,6 @@ final class _r0_pkmUITests: XCTestCase {
 
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
-        app.buttons["openPlan"].tap()
-        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
         app.buttons["openTemplates"].tap()
         XCTAssertTrue(app.staticTexts["Diete settimanali"].waitForExistence(timeout: 5))
 
@@ -257,7 +253,6 @@ final class _r0_pkmUITests: XCTestCase {
 
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
-        app.buttons["openPlan"].tap()
         app.buttons["openTemplates"].tap()
         XCTAssertTrue(app.staticTexts["Diete settimanali"].waitForExistence(timeout: 5))
 
@@ -303,9 +298,6 @@ final class _r0_pkmUITests: XCTestCase {
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
 
-        app.buttons["openPlan"].tap()
-        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
-
         app.buttons["plan_lunch"].tap()
         XCTAssertTrue(app.staticTexts["Pianifica"].waitForExistence(timeout: 5))
 
@@ -318,7 +310,7 @@ final class _r0_pkmUITests: XCTestCase {
 
         app.buttons["savePlannedMeal"].tap()
 
-        let toggle = app.switches["plannedEatenToggle"]
+        let toggle = app.switches["mealEatenToggle_lunch"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 6),
                       "Il pasto pianificato non è comparso")
         toggle.tap()
@@ -343,7 +335,6 @@ final class _r0_pkmUITests: XCTestCase {
 
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
-        app.buttons["openPlan"].tap()
         app.buttons["plan_dinner"].tap()
         XCTAssertTrue(app.staticTexts["Pianifica"].waitForExistence(timeout: 5))
 
@@ -360,7 +351,7 @@ final class _r0_pkmUITests: XCTestCase {
         app.buttons["savePlannedMeal"].tap()
 
         // riapre per modificare: rimuove "Noci test" (aggiunto per errore)
-        let edit = app.buttons["editPlanned"]
+        let edit = app.buttons["editPlanned_dinner"]
         XCTAssertTrue(edit.waitForExistence(timeout: 6), "manca il pulsante di modifica")
         edit.tap()
         XCTAssertTrue(app.staticTexts["Modifica pasto"].waitForExistence(timeout: 5))
@@ -390,8 +381,6 @@ final class _r0_pkmUITests: XCTestCase {
 
         app.tabBars.buttons["Dieta"].tap()
         XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
-        app.buttons["openPlan"].tap()
-        XCTAssertTrue(app.staticTexts["Pianificazione"].waitForExistence(timeout: 5))
         app.buttons["openShopping"].tap()
         XCTAssertTrue(app.staticTexts["Lista della spesa"].waitForExistence(timeout: 5))
 

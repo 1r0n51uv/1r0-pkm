@@ -49,6 +49,15 @@ export default async function trackers(app) {
     }
   });
 
+  // ADR-0036: rimuovere una singola voce acqua registrata per errore.
+  app.delete("/v1/water-logs/:id", async (req, reply) => {
+    if (!UUID_RE.test(String(req.params.id))) {
+      return reply.code(400).send({ error: "id non è un UUID" });
+    }
+    await pool.query("delete from water_logs where id = $1", [req.params.id]);
+    return reply.code(204).send();
+  });
+
   // ---- integratori -----------------------------------------------------
   app.get("/v1/supplements", async (_req, reply) => {
     const { rows } = await pool.query(
@@ -162,5 +171,14 @@ export default async function trackers(app) {
     } finally {
       c.release();
     }
+  });
+
+  // ADR-0036: rimuovere una singola voce caffeina registrata per errore.
+  app.delete("/v1/caffeine-logs/:id", async (req, reply) => {
+    if (!UUID_RE.test(String(req.params.id))) {
+      return reply.code(400).send({ error: "id non è un UUID" });
+    }
+    await pool.query("delete from caffeine_logs where id = $1", [req.params.id]);
+    return reply.code(204).send();
   });
 }

@@ -39,15 +39,17 @@ struct ContentView: View {
 }
 
 /// Banner globale quando l'outbox ha entry parcheggiate (4xx o troppi
-/// tentativi, ADR-0006). "Riprova" le rimette in coda.
+/// tentativi, ADR-0006). "Riprova" le rimette in coda. Richiudibile
+/// (ADR-0036): un nuovo fallimento dopo la chiusura lo fa ricomparire.
 private struct SyncFailureBanner: View {
     @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<OutboxEntry> { $0.failedPermanently })
     private var failed: [OutboxEntry]
     @State private var retrying = false
+    @State private var dismissed = false
 
     var body: some View {
-        if !failed.isEmpty {
+        if !failed.isEmpty && !dismissed {
             HStack(spacing: 12) {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .font(.system(size: 15, weight: .semibold))
@@ -71,6 +73,14 @@ private struct SyncFailureBanner: View {
                         .font(Glass.body(12, .bold)).foregroundStyle(Glass.amberText)
                 }
                 .disabled(retrying)
+                Button {
+                    dismissed = true
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Glass.ink.opacity(0.4))
+                }
+                .accessibilityIdentifier("dismissSyncBanner")
             }
             .foregroundStyle(Glass.textPrimary)
             .padding(.horizontal, 16).padding(.vertical, 12)
@@ -82,6 +92,7 @@ private struct SyncFailureBanner: View {
             .padding(.top, 4)
             .transition(.move(edge: .top).combined(with: .opacity))
             .animation(.snappy, value: failed.count)
+            .onChange(of: failed.count) { _, _ in dismissed = false }
         }
     }
 }

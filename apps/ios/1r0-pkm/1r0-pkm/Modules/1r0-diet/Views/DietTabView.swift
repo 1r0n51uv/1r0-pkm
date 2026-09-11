@@ -2,9 +2,12 @@
 //  DietTabView.swift
 //  1r0-pkm · Modules/1r0-diet
 //
-//  Dashboard giornaliera del modulo dieta (ADR-0017 slice 1): anello
-//  calorie, barre macro, pasti della giornata. Stile Glass Dark (ADR-0023),
-//  layout dal mockup "GlassDiet" — accento ambra.
+//  Dashboard giornaliera del modulo dieta (ADR-0017 slice 1, redesign
+//  ADR-0036): anello calorie (sempre di oggi) + striscia giorni + i 5 pasti
+//  con lo switch mangiato/saltato — la pianificazione (ex `MealPlanView`,
+//  una pagina a parte) è ora la stessa vista: niente più due schermate quasi
+//  identiche per "oggi" e "pianifica". Stile Glass Dark (ADR-0023), accento
+//  ambra.
 //
 
 import SwiftUI
@@ -19,35 +22,60 @@ enum DietGoal {
     static let fatG: Double = 70
 }
 
+/// Quanti giorni indietro/avanti mostrare nella striscia (ex `MealPlanView`,
+/// ADR-0032: copre anche il passato per poter correggere retroattivamente).
+private let daysBack = 10
+private let daysForward = 13
+
 struct DietTabView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \MealEntry.consumedAt, order: .reverse) private var allMeals: [MealEntry]
     @Query(sort: \NutritionGoal.effectiveFrom, order: .reverse) private var goals: [NutritionGoal]
     @Query(sort: \PlannedMeal.plannedDate) private var allPlanned: [PlannedMeal]
     @Query private var allFoods: [Food]
+
+    @State private var selectedDay = Calendar.current.startOfDay(for: .now)
     @State private var logSlot: MealSlot?
+    @State private var composeSlot: MealSlot?
+    @State private var editingPlan: PlannedMeal?
     @State private var showGoal = false
-    @State private var showPlan = false
+    @State private var showRecipes = false
+    @State private var showShopping = false
+    @State private var showTemplates = false
     /// Energia attiva di oggi da HealthKit (ADR-0019 amendata): alza la quota
     /// calorica del giorno senza toccare `nutrition_goals`.
     @State private var activeEnergyKcal: Double = 0
+    /// Peso più recente da Salute (ADR-0036) — solo etichetta informativa,
+    /// non entra nei calcoli di questa vista (per quello vedi Palestra →
+    /// "Peso e misure", che lo registra come rilevazione).
+    @State private var latestWeightKg: Double?
 
-    private var today: [MealEntry] {
-        allMeals.filter { Calendar.current.isDateInToday($0.consumedAt) }
+    private let cal = Calendar.current
+    private let today = Calendar.current.startOfDay(for: .now)
+    private var isToday: Bool { cal.isDate(selectedDay, inSameDayAs: today) }
+    private var week: [Date] {
+        (-daysBack...daysForward).compactMap { cal.date(byAdding: .day, value: $0, to: today) }
     }
-    private func meals(_ slot: MealSlot) -> [MealEntry] {
-        today.filter { $0.mealSlot == slot }
+
+    private var todayMeals: [MealEntry] {
+        allMeals.filter { cal.isDateInToday($0.consumedAt) }
     }
-    private var foodMap: [UUID: Food] { Dictionary(allFoods.map { ($0.id, $0) }) { a, _ in a } }
-    /// Pasto pianificato per oggi non ancora mangiato (ADR-0029: dieta
-    /// settimanale a template). `nil` se non pianificato o già confermato.
-    private func plannedToday(_ slot: MealSlot) -> PlannedMeal? {
+    private func meals(_ slot: MealSlot, on day: Date) -> [MealEntry] {
+        allMeals.filter { cal.isDate($0.consumedAt, inSameDayAs: day) && $0.mealSlot == slot }
+    }
+    /// Il `PlannedMeal` di quello slot/giorno, qualunque sia lo stato — non
+    /// solo `.planned`: anche `.completed`/`.skipped` restano visibili (con
+    /// lo switch) per poterli correggere, come nella `MealPlanView` pre-fusione.
+    private func plan(_ slot: MealSlot, on day: Date) -> PlannedMeal? {
         allPlanned.first {
-            Calendar.current.isDateInToday($0.plannedDate) && $0.mealSlot == slot && $0.status == .planned
+            cal.isDate($0.plannedDate, inSameDayAs: day) && $0.mealSlot == slot
         }
     }
+    private var foodMap: [UUID: Food] { Dictionary(allFoods.map { ($0.id, $0) }) { a, _ in a } }
+    /// Il conteggio calorie resta sempre quello di **oggi**, qualunque
+    /// giorno sia selezionato nella striscia per pianificare/correggere.
     private var dayTotals: Macros {
-        today.reduce(.zero) { $0 + $1.totals }
+        todayMeals.reduce(.zero) { $0 + $1.totals }
     }
 
     /// Obiettivo corrente (ADR-0019) o il default fisso se non ne è stato
@@ -61,29 +89,43 @@ struct DietTabView: View {
     private var dayCalorieTarget: Double {
         NutritionMath.dailyCalorieQuota(baseKcal: goal.kcal, activeEnergyKcal: activeEnergyKcal)
     }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 header
                 summaryCard
+                dayStrip
                 VStack(spacing: 12) {
-                    ForEach(MealSlot.allCases) { slot in mealCard(slot) }
+                    ForEach(MealSlot.allCases) { slot in mealRow(slot) }
                 }
-                TrackersCard(waterTargetMl: DietSync.current(goals)?.waterMlTarget)
-                GlassPrimaryButton(title: "Aggiungi alimento", systemImage: "plus",
-                                   fill: Glass.amber, onInk: Color(red: 0.12, green: 0.06, blue: 0),
-                                   height: 56) {
+                GlassPrimaryButton(title: "Aggiungi alimento", systemImage: "plus", fill: Glass.amber,
+                                   onInk: Color(red: 0.12, green: 0.06, blue: 0)) {
                     logSlot = defaultSlot()
                 }
                 .accessibilityIdentifier("addFood")
+                TrackersCard(waterTargetMl: DietSync.current(goals)?.waterMlTarget)
             }
             .padding(.horizontal, 22).padding(.top, 20).padding(.bottom, 40)
         }
         .scrollIndicators(.hidden)
         .glassScreen(.warm)
         .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(isPresented: $showRecipes) { RecipeListView() }
+        .navigationDestination(isPresented: $showShopping) { ShoppingListView() }
+        .navigationDestination(isPresented: $showTemplates) { DietTemplateEditorView() }
         .sheet(item: $logSlot) { slot in
             LogFoodView(slot: slot)
+                .presentationDetents([.large])
+                .presentationBackground(.ultraThinMaterial)
+        }
+        .sheet(item: $composeSlot) { slot in
+            PlanMealSheet(day: selectedDay, slot: slot)
+                .presentationDetents([.large])
+                .presentationBackground(.ultraThinMaterial)
+        }
+        .sheet(item: $editingPlan) { p in
+            PlanMealSheet(day: p.plannedDate, slot: p.mealSlot, existing: p)
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
@@ -92,18 +134,20 @@ struct DietTabView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
-        .sheet(isPresented: $showPlan) {
-            MealPlanView()
-                .presentationDetents([.large])
-                .presentationBackground(.ultraThinMaterial)
-        }
         .task {
             await DietSync.pullFoods(into: context)
             await DietSync.pullMealEntries(into: context)
             await DietSync.pullGoals(into: context)
+            await DietSync.pullRecipes(into: context)
+            // finestra allargata di ±1 giorno oltre la striscia: la GET usa
+            // date UTC, la UI filtra poi per giorno locale.
+            let from = cal.date(byAdding: .day, value: -1, to: week[0]) ?? week[0]
+            let to = cal.date(byAdding: .day, value: 1, to: week[week.count - 1]) ?? week[0]
+            await DietSync.pullPlannedMeals(from: from, to: to, into: context)
             await Outbox.flushOutbox(context)
             if HealthKitPreference.isEnabled() {
                 activeEnergyKcal = await HealthKitService.shared.todayActiveEnergyKcal()
+                latestWeightKg = await HealthKitService.shared.latestBodyWeightKg()
             }
         }
     }
@@ -111,16 +155,71 @@ struct DietTabView: View {
     private var header: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Oggi")
+                Text(isToday ? "Oggi"
+                     : selectedDay.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized)
                     .font(Glass.display(28, .bold)).tracking(-0.5)
-                Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized)
-                    .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
+                HStack(spacing: 8) {
+                    Text(isToday ? Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).capitalized
+                         : (selectedDay < today ? "Giorno passato" : "In programma"))
+                        .font(Glass.body(14)).foregroundStyle(Glass.textSecondary)
+                    if let w = latestWeightKg {
+                        HStack(spacing: 3) {
+                            Image(systemName: "heart.fill").font(.system(size: 9))
+                                .foregroundStyle(Glass.coralLight)
+                            Text("\(fmt(w)) kg").font(Glass.body(12, .semibold))
+                                .foregroundStyle(Glass.ink.opacity(0.55))
+                        }
+                        .accessibilityIdentifier("healthWeightLabel")
+                    }
+                }
             }
             Spacer(minLength: 8)
-            GlassIconButton(systemName: "calendar") { showPlan = true }
-                .accessibilityIdentifier("openPlan")
+            GlassIconButton(systemName: "cart") { showShopping = true }
+                .accessibilityIdentifier("openShopping")
+            GlassIconButton(systemName: "book.closed") { showRecipes = true }
+                .accessibilityIdentifier("openRecipes")
+            GlassIconButton(systemName: "calendar.badge.clock") { showTemplates = true }
+                .accessibilityIdentifier("openTemplates")
             GlassIconButton(systemName: "target") { showGoal = true }
                 .accessibilityIdentifier("editGoal")
+        }
+    }
+
+    private var dayStrip: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(week, id: \.self) { d in
+                        let sel = cal.isDate(d, inSameDayAs: selectedDay)
+                        let isPast = d < today
+                        Button { selectedDay = d } label: {
+                            VStack(spacing: 4) {
+                                Text(d.formatted(.dateTime.weekday(.abbreviated)).uppercased())
+                                    .font(Glass.body(10, .bold)).tracking(0.5)
+                                Text(d.formatted(.dateTime.day()))
+                                    .font(Glass.display(17, .bold)).monospacedDigit()
+                            }
+                            .foregroundStyle(sel ? Color(red: 0.12, green: 0.06, blue: 0)
+                                             : Glass.ink.opacity(isPast ? 0.4 : 0.6))
+                            .frame(width: 46, height: 58)
+                            .background {
+                                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                    .fill(sel ? Glass.amber : Color.white.opacity(0.05))
+                            }
+                            .overlay {
+                                if !sel {
+                                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                        .strokeBorder(Color.white.opacity(0.10))
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .id(d)
+                        .accessibilityIdentifier("day_\(isoDay(d))")
+                    }
+                }
+            }
+            .onAppear { proxy.scrollTo(today, anchor: .center) }
         }
     }
 
@@ -180,67 +279,94 @@ struct DietTabView: View {
         }
     }
 
-    private func mealCard(_ slot: MealSlot) -> some View {
-        let entries = meals(slot)
+    // MARK: - pasti (ex DietTabView.mealCard + MealPlanView.slotCard fusi, ADR-0036)
+
+    private func mealRow(_ slot: MealSlot) -> some View {
+        let entries = meals(slot, on: selectedDay)
         let items = entries.flatMap { $0.items }.sorted { $0.orderIndex < $1.orderIndex }
+        let eaten = !items.isEmpty
         let kcal = items.reduce(0) { $0 + $1.calories }
-        let logged = !items.isEmpty
-        let plan = logged ? nil : plannedToday(slot)
-        let statusText: String = {
-            if logged { return "\(Int(kcal.rounded())) kcal" }
-            if plan != nil { return "pianificato" }
-            return "non ancora loggato"
-        }()
-        let highlighted = logged || plan != nil
+        let planForSlot = plan(slot, on: selectedDay)
+        let hasContent = eaten || planForSlot != nil
+        let statusText = eaten ? "\(Int(kcal.rounded())) kcal"
+            : (planForSlot != nil ? "pianificato" : "non pianificato")
 
         return VStack(spacing: 0) {
-            mealCardHeader(slot, logged: logged, plan: plan, highlighted: highlighted, statusText: statusText)
-            if logged {
+            mealRowHeader(slot, entries: entries, eaten: eaten, plan: planForSlot,
+                         hasContent: hasContent, statusText: statusText)
+            if eaten {
                 loggedItemsList(items)
-            } else if let plan {
-                plannedItemsList(plan)
+            } else if let planForSlot {
+                plannedItemsList(planForSlot)
             }
         }
         .background(RoundedRectangle(cornerRadius: 24, style: .continuous).fill(Color.white.opacity(0.05)))
-        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.white.opacity(highlighted ? 0.12 : 0.08)))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Color.white.opacity(hasContent ? 0.12 : 0.08)))
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     @ViewBuilder
-    private func mealCardHeader(_ slot: MealSlot, logged: Bool, plan: PlannedMeal?, highlighted: Bool, statusText: String) -> some View {
+    private func mealRowHeader(_ slot: MealSlot, entries: [MealEntry], eaten: Bool, plan: PlannedMeal?,
+                               hasContent: Bool, statusText: String) -> some View {
         HStack {
-            HStack(spacing: 10) {
-                if let plan {
-                    Button {
-                        Task { @MainActor in
-                            DietSync.completePlannedMeal(plan, foods: foodMap, in: context)
-                        }
-                    } label: {
-                        Image(systemName: "circle")
-                            .font(.system(size: 18)).foregroundStyle(Glass.amber)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("checkPlanned_\(slot.rawValue)")
-                } else {
-                    Image(systemName: slot.systemImage)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(logged ? Glass.amber : Glass.ink.opacity(0.4))
-                }
+            HStack(spacing: 8) {
+                Image(systemName: slot.systemImage)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(hasContent ? Glass.amber : Glass.ink.opacity(0.4))
                 Text(slot.label)
                     .font(Glass.display(16, .semibold))
-                    .foregroundStyle(highlighted ? Glass.ink : Glass.ink.opacity(0.6))
+                    .foregroundStyle(hasContent ? Glass.ink : Glass.ink.opacity(0.6))
+                if let plan, !eaten {
+                    Button { editingPlan = plan } label: {
+                        Image(systemName: "pencil").font(.system(size: 11))
+                            .foregroundStyle(Glass.ink.opacity(0.35))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("editPlanned_\(slot.rawValue)")
+                }
+                if let plan { statusPill(plan.status) }
             }
             Spacer()
             Text(statusText)
                 .font(Glass.body(13))
-                .foregroundStyle(Glass.ink.opacity(highlighted ? 0.5 : 0.35))
-            Image(systemName: "plus")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(Glass.ink.opacity(0.4))
+                .foregroundStyle(Glass.ink.opacity(hasContent ? 0.5 : 0.35))
+            if hasContent {
+                Toggle("", isOn: Binding(
+                    get: { eaten },
+                    set: { newValue in
+                        Task { @MainActor in
+                            if newValue, let plan {
+                                DietSync.completePlannedMeal(plan, foods: foodMap, in: context)
+                            } else if !newValue {
+                                for e in entries { DietSync.deleteMealEntry(e, in: context) }
+                            }
+                        }
+                    }
+                ))
+                .labelsHidden()
+                .tint(Glass.amber)
+                .accessibilityIdentifier("mealEatenToggle_\(slot.rawValue)")
+            } else {
+                Button { composeSlot = slot } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Glass.ink.opacity(0.4))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("plan_\(slot.rawValue)")
+            }
         }
         .contentShape(Rectangle())
         .padding(.horizontal, 18).padding(.vertical, 16)
-        .onTapGesture { logSlot = slot }
+    }
+
+    private func statusPill(_ s: PlanStatus) -> some View {
+        let c: Color = s == .completed ? Glass.green : (s == .skipped ? Glass.ink.opacity(0.4) : Glass.amber)
+        return Text(s.label.uppercased())
+            .font(Glass.body(9, .bold)).tracking(0.5).foregroundStyle(c)
+            .padding(.horizontal, 8).padding(.vertical, 3)
+            .background(Capsule().fill(c.opacity(0.15)))
+            .overlay(Capsule().strokeBorder(c.opacity(0.35)))
     }
 
     private func loggedItemsList(_ items: [MealEntryItem]) -> some View {
@@ -293,6 +419,13 @@ struct DietTabView: View {
     private func kcalString(_ v: Double) -> String {
         let n = Int(v.rounded())
         return n >= 1000 ? "\(n / 1000).\(String(format: "%03d", n % 1000))" : "\(n)"
+    }
+    private func fmt(_ v: Double) -> String {
+        v == v.rounded() ? String(Int(v)) : String(format: "%.1f", v)
+    }
+    private func isoDay(_ d: Date) -> String {
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; f.timeZone = .current
+        return f.string(from: d)
     }
 
     private func defaultSlot() -> MealSlot {

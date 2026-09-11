@@ -26,6 +26,7 @@ struct FoodBasketEditor: View {
     @State private var remote: [FoodCandidate] = []
     @State private var searching = false
     @State private var searchTask: Task<Void, Never>?
+    @State private var italianOnly = FoodSearchPreference.isItalianOnly()
 
     private var query: String { search.lowercased().trimmingCharacters(in: .whitespaces) }
     private var localHits: [Food] {
@@ -49,6 +50,13 @@ struct FoodBasketEditor: View {
             GlassField(placeholder: "Aggiungi un alimento…", text: $search,
                        identifier: "basketSearch")
                 .onChange(of: search) { _, _ in scheduleSearch() }
+
+            GlassChip(label: "🇮🇹 Solo Italia", selected: italianOnly, tint: Glass.amber) {
+                italianOnly.toggle()
+                FoodSearchPreference.setItalianOnly(italianOnly)
+                scheduleSearch()
+            }
+            .accessibilityIdentifier("italianOnlyFilter")
 
             if !localHits.isEmpty || !remoteHits.isEmpty || searching {
                 VStack(spacing: 8) {

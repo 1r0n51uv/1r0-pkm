@@ -104,9 +104,17 @@ function fromUSDA(f) {
   };
 }
 
-async function searchOFF(q, limit) {
+// ADR-0036: filtro paese opzionale — il sottodominio nazionale di OFF
+// (es. it.openfoodfacts.org) restringe ai prodotti taggati per quel paese
+// e preferisce nomi/marchi locali, invece della ricerca globale che pesca
+// prodotti di qualunque paese (molti risultati francesi/spagnoli/tedeschi
+// anche per query in italiano, es. "pane"/"bread").
+const OFF_COUNTRY_HOSTS = { it: "https://it.openfoodfacts.org" };
+
+async function searchOFF(q, limit, country) {
+  const base = (country && OFF_COUNTRY_HOSTS[country]) || OFF_BASE;
   const url =
-    `${OFF_BASE}/cgi/search.pl?search_terms=${encodeURIComponent(q)}` +
+    `${base}/cgi/search.pl?search_terms=${encodeURIComponent(q)}` +
     `&search_simple=1&action=process&json=1&page_size=${limit}` +
     `&fields=code,product_name,generic_name,brands,serving_quantity,nutriments`;
   const j = await fetchJSON(url);
@@ -128,9 +136,11 @@ export default async function foodSearch(app) {
     const q = typeof req.query?.q === "string" ? req.query.q.trim() : "";
     if (q.length < 2) return reply.send([]);
     const limit = Math.min(Math.max(Number(req.query?.limit) || 20, 1), 40);
+    const country = typeof req.query?.country === "string"
+      ? req.query.country.trim().toLowerCase() : "";
 
     const [off, usda] = await Promise.all([
-      searchOFF(q, limit),
+      searchOFF(q, limit, country),
       searchUSDA(q, Math.ceil(limit / 2)),
     ]);
 

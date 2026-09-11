@@ -299,10 +299,11 @@ enum DietSync {
 
     /// Toggle "mangiato" (ADR-0032, sostituisce i pulsanti Salta/Mangiato):
     /// `eaten = true` completa (come `completePlannedMeal`); `eaten = false`
-    /// riporta a `.skipped` e — se era già completato — **cancella** il
-    /// `MealEntry` creato in precedenza (locale + `DELETE` backend) invece di
-    /// lasciarlo orfano, altrimenti ri-completare duplicherebbe le calorie e
-    /// il prossimo pull lo rimaterializzerebbe. Permette anche di correggere
+    /// riporta a `.skipped` e — se era già completato — cancella il
+    /// `MealEntry` creato in precedenza via `deleteMealEntry` (che a sua
+    /// volta risistema questo stesso `PlannedMeal`) invece di lasciarlo
+    /// orfano, altrimenti ri-completare duplicherebbe le calorie e il
+    /// prossimo pull lo rimaterializzerebbe. Permette anche di correggere
     /// giorni passati: si "ri-apre" un pasto già segnato per poterlo
     /// modificare (`updatePlannedMeal`), poi lo si rimarca mangiato.
     @MainActor
@@ -310,19 +311,37 @@ enum DietSync {
                                     in context: ModelContext) {
         if eaten {
             completePlannedMeal(p, foods: foods, in: context)
-        } else {
-            if p.status == .completed, let entryId = p.mealEntryId {
-                if let entry = try? context.fetch(FetchDescriptor<MealEntry>(
+        } else if p.status == .completed, let entryId = p.mealEntryId,
+                  let entry = try? context.fetch(FetchDescriptor<MealEntry>(
                     predicate: #Predicate { $0.id == entryId }
-                )).first {
-                    context.delete(entry)
-                }
-                p.mealEntryId = nil
-                let idString = entryId.uuidString
-                Task { try? await ApiClient.shared.delete("v1/meal-entries/\(idString)") }
-            }
+                  )).first {
+            deleteMealEntry(entry, in: context) // risistema anche `p` (vedi sotto)
+        } else {
             skipPlannedMeal(p, in: context)
         }
+    }
+
+    /// Rimuove un pasto mangiato (ADR-0036) — locale + `DELETE` backend.
+    /// Se un `PlannedMeal` punta a questo `MealEntry` (era stato segnato
+    /// "mangiato" dal pianificato), lo riporta a `.skipped` e sgancia il
+    /// riferimento invece di lasciarlo orfano — stessa pulizia di
+    /// `setPlannedMealEaten(eaten: false)`, generalizzata anche ai pasti
+    /// loggati direttamente (`logMeal`, senza passare da un pianificato).
+    @MainActor
+    static func deleteMealEntry(_ m: MealEntry, in context: ModelContext) {
+        let mid = m.id
+        if let p = try? context.fetch(FetchDescriptor<PlannedMeal>(
+            predicate: #Predicate { $0.mealEntryId == mid }
+        )).first {
+            p.status = .skipped
+            p.mealEntryId = nil
+            p.syncedAt = nil
+            enqueuePlannedMeal(p, in: context)
+        }
+        let idString = mid.uuidString
+        context.delete(m)
+        try? context.save()
+        Task { try? await ApiClient.shared.delete("v1/meal-entries/\(idString)") }
     }
 
     /// Modifica un pasto pianificato esistente (slot, ricetta, alimenti) —
@@ -638,6 +657,15 @@ enum DietSync {
         return w
     }
 
+    /// Rimuove una voce acqua registrata per errore (ADR-0036).
+    @MainActor
+    static func deleteWaterLog(_ w: WaterLog, in context: ModelContext) {
+        let id = w.id.uuidString
+        context.delete(w)
+        try? context.save()
+        Task { try? await ApiClient.shared.delete("v1/water-logs/\(id)") }
+    }
+
     @MainActor
     static func pullSupplements(into context: ModelContext) async {
         do {
@@ -756,6 +784,15 @@ enum DietSync {
         return ca
     }
 
+    /// Rimuove una voce caffeina registrata per errore (ADR-0036).
+    @MainActor
+    static func deleteCaffeineLog(_ c: CaffeineLog, in context: ModelContext) {
+        let id = c.id.uuidString
+        context.delete(c)
+        try? context.save()
+        Task { try? await ApiClient.shared.delete("v1/caffeine-logs/\(id)") }
+    }
+
     // MARK: - Ricerca esterna (ADR-0018)
 
     /// Ricerca testuale su OpenFoodFacts + USDA (via backend). Ritorna
@@ -766,8 +803,10 @@ enum DietSync {
         guard q.count >= 2,
               let enc = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         else { return [] }
+        var path = "v1/foods/search?q=\(enc)"
+        if FoodSearchPreference.isItalianOnly() { path += "&country=it" }
         do {
-            let data = try await ApiClient.shared.get("v1/foods/search?q=\(enc)")
+            let data = try await ApiClient.shared.get(path)
             return try JSONDecoder.api.decode([FoodCandidate].self, from: data)
         } catch {
             return []

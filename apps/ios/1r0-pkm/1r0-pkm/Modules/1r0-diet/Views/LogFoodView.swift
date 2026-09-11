@@ -27,6 +27,7 @@ struct LogFoodView: View {
     @State private var searchTask: Task<Void, Never>?
     @State private var showScanner = false
     @State private var note: String?
+    @State private var italianOnly = FoodSearchPreference.isItalianOnly()
 
     private var query: String { search.lowercased().trimmingCharacters(in: .whitespaces) }
 
@@ -54,6 +55,12 @@ struct LogFoodView: View {
                         slotPicker
                         GlassField(placeholder: "Cerca un alimento…", text: $search,
                                    identifier: "foodSearch")
+                        GlassChip(label: "🇮🇹 Solo Italia", selected: italianOnly, tint: Glass.amber) {
+                            italianOnly.toggle()
+                            FoodSearchPreference.setItalianOnly(italianOnly)
+                            scheduleSearch()
+                        }
+                        .accessibilityIdentifier("italianOnlyFilter")
                         scanButton
 
                         if let note {
