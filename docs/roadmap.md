@@ -200,6 +200,16 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   `testEditPlannedMealRemovesFood`; `testPlanAndCompleteMeal` esteso al
   toggle andata/ritorno. 78/78 unit + UI verdi.
 
+## 4sexies. Database prod separato da dev/test — **fatto** ([ADR-0033](adr/0033-database-prod-separato-da-dev.md))
+
+- [x] Secondo database Postgres sulla stessa istanza/container
+  (`onepkm_prod`, var `PROD_DB_NAME`), migrato con gli stessi file
+  `supabase/migrations/*.sql`. `docker-compose.yml`: l'`api` ora si
+  connette a `PROD_DB_NAME`, non più a `POSTGRES_DB` (che resta il
+  database di bootstrap/dev-test, intatto ma non più usato dall'api).
+- Nessuna modifica lato client: `Secrets.swift` punta sempre allo stesso
+  host, solo l'api dietro quell'endpoint parla con un database diverso.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

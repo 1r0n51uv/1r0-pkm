@@ -62,7 +62,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 
 ## Infrastruttura
 
-- **Backend** — `apps/api` (Node/Fastify + Postgres, ADR-0022) su un'istanza AWS EC2 di proprietà (ADR-0009). Auth a chiave statica. Da portare su **HTTPS + backup** prima del sync `documenti` (ADR-0028).
+- **Backend** — `apps/api` (Node/Fastify + Postgres, ADR-0022) su un'istanza AWS EC2 di proprietà (ADR-0009). Auth a chiave statica. Da portare su **HTTPS + backup** prima del sync `documenti` (ADR-0028). Database di produzione separato da quello di sviluppo/test — stesso Postgres, database diverso (`PROD_DB_NAME`, ADR-0033).
 - **Route server-side** — logica esposta dal backend Fastify come route `/v1/...` (ADR-0022).
 - **Outbox** — coda locale (SwiftData) di mutazioni non ancora sincronizzate col backend, riprocessata quando torna la rete (ADR-0006 amendata). Condivisa da tutti i moduli (`Modules/Shared/Sync/`).
 
