@@ -20,9 +20,9 @@ ADR-0027 removed the gym catalog / routine-editor endpoints (`/v1/exercises*`,
 `/v1/plate-config`) and the live-session endpoints (`/v1/workout-sessions`,
 `/v1/set-logs`) with the client code that used them — `POST /v1/workout-import`
 replaces the latter. `exercises` / `routines` / `plate_config` tables stay for
-now; migration `0009` makes `set_logs.exercise_id` nullable and adds
+now; migration `0009` makes `set_logs.reps` / `exercise_id` nullable and adds
 `exercise_name` / `duration_seconds` / `is_warmup` (+ `routine_label` /
-`duration_seconds` on `workout_sessions`, `status` nullable).
+`duration_seconds` on `workout_sessions`, and `source` gains `'liftin'`).
 
 ## Env
 

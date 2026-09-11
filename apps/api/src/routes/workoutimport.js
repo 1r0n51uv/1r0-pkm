@@ -29,8 +29,8 @@ export default async function workoutImport(app) {
         }
         await c.query(
           `insert into workout_sessions
-             (id, user_id, source, status, started_at, routine_label, duration_seconds)
-           values ($1, $2, $3, null, $4, $5, $6)
+             (id, user_id, source, started_at, routine_label, duration_seconds)
+           values ($1, $2, $3, $4, $5, $6)
            on conflict (id) do update set
              source           = excluded.source,
              started_at       = excluded.started_at,
