@@ -9,8 +9,9 @@ Apple ID all'installazione (bundle id → `dev.1r0.pkm.<team>`, ri-firma ~ogni
 
 | file | versione | commit | contenuto | note |
 |---|---|---|---|---|
-| ~~`1r0-pkm-1.0-20260910.ipa`~~ | 1.0 (1) | `8004b92` | gym + diet | **rimossa**, superata dalla riga sotto. |
-| `1r0-pkm-1.0-20260911.ipa` | 1.0 (2) | `fc52de5` | gym + diet + dieta a template/toggle Salute (ADR-0029) + dashboard grafici Palestra (ADR-0030) | beta. HealthKit non verificato su device; backend HTTP (`100.31.154.129`), niente HTTPS. |
+| ~~`1r0-pkm-1.0-20260910.ipa`~~ | 1.0 (1) | `8004b92` | gym + diet | **rimossa**, superata. |
+| ~~`1r0-pkm-1.0-20260911.ipa`~~ | 1.0 (2) | `fc52de5` | gym + diet + dieta a template/toggle Salute (ADR-0029) + dashboard grafici Palestra (ADR-0030) | **rimossa**: creare un template crashava sempre (fix sotto). |
+| `1r0-pkm-1.0-20260911-b3.ipa` | 1.0 (3) | `7673379` | gym + diet + dieta a template/toggle Salute + dashboard grafici Palestra + fix crash creazione template + tab Impostazioni al posto di Progressi (ADR-0031) | beta. HealthKit non verificato su device; backend HTTP (`100.31.154.129`), niente HTTPS. |
 
 ## Come è stato prodotto
 
