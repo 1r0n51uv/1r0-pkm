@@ -13,7 +13,7 @@ import recipes from "./routes/recipes.js";
 import plannedMeals from "./routes/plannedmeals.js";
 import shopping from "./routes/shopping.js";
 import trackers from "./routes/trackers.js";
-import { pool } from "./db.js";
+import { closeAll, setDbTarget } from "./db.js";
 
 // ADR-0027: gym is now import + history. The catalog/routine-editor endpoints
 // (exercises, routines, routine-tree, wger sync, ai import, plate-config) and
@@ -31,6 +31,12 @@ const app = Fastify({
 
 registerAuth(app);
 
+// ADR-0034: sceglie il database (prod/dev) per l'intera richiesta, letto
+// dall'header X-Db-Target impostato lato client (Impostazioni).
+app.addHook("onRequest", async (req) => {
+  setDbTarget(req.headers["x-db-target"]);
+});
+
 await app.register(health);
 await app.register(profile);
 await app.register(workoutImport);
@@ -47,7 +53,7 @@ await app.register(trackers);
 const port = Number(process.env.PORT ?? 8080);
 
 app.addHook("onClose", async () => {
-  await pool.end();
+  await closeAll();
 });
 
 try {

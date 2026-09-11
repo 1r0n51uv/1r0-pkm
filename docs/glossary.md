@@ -52,7 +52,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **Promemoria acqua** — valutato a cadenza fissa nella fascia diurna; notifica se il totale acqua di oggi (Water Log + HealthKit) è sotto la quota proporzionata all'ora. Se `waterMlTarget` non è impostato usa un default.
 - **Promemoria pasto mancante** — uno per ciascuno dei 5 Meal Slot, vicino al suo orario atteso (default sovrascrivibile dall'utente). Notifica se a quell'ora non esiste un Meal Entry **né** un Meal Slot Ack per quello slot in giornata.
 - **Preavviso documento** — vedi modulo `1r0-documenti`.
-- **Impostazioni** — tab dell'app (`DietSettingsView`, ex `NotificationSettingsView`, poi ex sheet dall'header Dieta) con 3 sezioni: Salute (toggle HealthKit, ADR-0029), Notifiche (un interruttore per categoria di Promemoria, es. "Acqua"/"Pasto mancante", non per singola istanza), Report (link all'Andamento). Al posto della vecchia tab "Progressi" (ADR-0031).
+- **Impostazioni** — tab dell'app (`DietSettingsView`, ex `NotificationSettingsView`, poi ex sheet dall'header Dieta) con 4 sezioni: Salute (toggle HealthKit, ADR-0029), Notifiche (un interruttore per categoria di Promemoria, es. "Acqua"/"Pasto mancante", non per singola istanza), Report (link all'Andamento), Database (toggle dev/prod, ADR-0034). Al posto della vecchia tab "Progressi" (ADR-0031).
 
 ## Integrazioni
 
@@ -62,7 +62,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 
 ## Infrastruttura
 
-- **Backend** — `apps/api` (Node/Fastify + Postgres, ADR-0022) su un'istanza AWS EC2 di proprietà (ADR-0009). Auth a chiave statica. Da portare su **HTTPS + backup** prima del sync `documenti` (ADR-0028). Database di produzione separato da quello di sviluppo/test — stesso Postgres, database diverso (`PROD_DB_NAME`, ADR-0033).
+- **Backend** — `apps/api` (Node/Fastify + Postgres, ADR-0022) su un'istanza AWS EC2 di proprietà (ADR-0009). Auth a chiave statica. Da portare su **HTTPS + backup** prima del sync `documenti` (ADR-0028). Database di produzione separato da quello di sviluppo/test — stesso Postgres, database diverso (`PROD_DB_NAME`, ADR-0033), scelto per-richiesta dall'header `X-Db-Target` (interruttore "Usa database di sviluppo" in Impostazioni, ADR-0034).
 - **Route server-side** — logica esposta dal backend Fastify come route `/v1/...` (ADR-0022).
 - **Outbox** — coda locale (SwiftData) di mutazioni non ancora sincronizzate col backend, riprocessata quando torna la rete (ADR-0006 amendata). Condivisa da tutti i moduli (`Modules/Shared/Sync/`).
 

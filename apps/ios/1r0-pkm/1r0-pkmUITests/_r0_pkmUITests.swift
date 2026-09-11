@@ -510,6 +510,10 @@ final class _r0_pkmUITests: XCTestCase {
         XCTAssertTrue(app.switches["Pasto mancante"].exists || app.staticTexts["Pasto mancante"].exists)
         XCTAssertTrue(app.switches["Acqua"].exists || app.staticTexts["Acqua"].exists)
         XCTAssertTrue(app.buttons["openReport"].exists)
+        XCTAssertTrue(app.switches["devDBToggle"].exists
+                      || app.switches["Usa database di sviluppo"].exists
+                      || app.staticTexts["Usa database di sviluppo"].exists,
+                      "manca l'interruttore database di sviluppo")
         sleep(1); attach(app, "impostazioni-dieta")
     }
 

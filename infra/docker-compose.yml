@@ -32,13 +32,15 @@ services:
       db:
         condition: service_healthy
     environment:
-      # ADR-0033: l'api parla con PROD_DB_NAME, non con POSTGRES_DB — quello
-      # resta il database che il container `db` inizializza al primo avvio
-      # ("onepkm", dati di sviluppo/test). PROD_DB_NAME è il database
-      # separato coi dati reali di produzione; entrambi vivono nello stesso
-      # Postgres/volume. Va impostato esplicitamente in .env (niente
-      # fallback qui: l'interpolazione di compose non annida `${A:-${B}}`).
+      # ADR-0033/0034: due database, un solo container api. DATABASE_URL
+      # (prod, PROD_DB_NAME) è il default; DATABASE_URL_DEV (POSTGRES_DB, il
+      # database di bootstrap del container `db` — dati di sviluppo/test) si
+      # usa per richiesta quando il client manda l'header `X-Db-Target: dev`
+      # (interruttore in Impostazioni, db.js sceglie il pool per richiesta).
+      # Entrambi vivono nello stesso Postgres/volume. Niente fallback
+      # annidato qui: l'interpolazione di compose non supporta `${A:-${B}}`.
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${PROD_DB_NAME}
+      DATABASE_URL_DEV: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       API_KEY: ${API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5}

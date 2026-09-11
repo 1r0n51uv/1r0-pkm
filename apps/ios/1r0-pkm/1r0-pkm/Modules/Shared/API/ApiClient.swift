@@ -23,6 +23,10 @@ struct ApiClient {
         var req = URLRequest(url: Secrets.apiBaseURL.appendingPathComponent(path))
         req.httpMethod = method
         req.setValue("Bearer \(Secrets.apiKey)", forHTTPHeaderField: "Authorization")
+        // ADR-0034: interruttore "database di sviluppo" in Impostazioni.
+        if DBTargetPreference.isDevEnabled() {
+            req.setValue("dev", forHTTPHeaderField: "X-Db-Target")
+        }
         if let body {
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
             req.httpBody = body

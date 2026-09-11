@@ -210,6 +210,19 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
 - Nessuna modifica lato client: `Secrets.swift` punta sempre allo stesso
   host, solo l'api dietro quell'endpoint parla con un database diverso.
 
+## 4septies. Switch database dev/prod in Impostazioni — **fatto** ([ADR-0034](adr/0034-switch-database-dev-prod-in-impostazioni.md))
+
+- [x] Interruttore "Usa database di sviluppo" in Impostazioni
+  (`DBTargetPreference`) — acceso, `ApiClient` manda `X-Db-Target: dev` su
+  ogni richiesta.
+- [x] Backend: due pool (`DATABASE_URL`/`DATABASE_URL_DEV`) dietro un
+  `Proxy` in `db.js`, target scelto per-richiesta via `AsyncLocalStorage`
+  in un hook `onRequest` — nessuna delle ~12 route toccata. Verificato
+  senza race con richieste concorrenti interlacciate dev/prod.
+- Non svuota la cache locale SwiftData: cambiare target a metà sessione
+  mescola dati di entrambi i database finché l'app non riparte pulita
+  (limite noto, documentato in `DBTargetPreference.swift`).
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

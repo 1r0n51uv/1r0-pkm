@@ -5,8 +5,8 @@
 //  Tab "Impostazioni" (ADR-0031, era un sheet dall'header Dieta, ADR-0029):
 //  prima voce il collegamento esplicito ad Apple Salute (`HealthKitPreference`,
 //  separato dal permesso di sistema), poi le notifiche — un interruttore per
-//  categoria di Promemoria, non per singola istanza (ADR-0027) — e l'accesso
-//  all'andamento (ADR-0020).
+//  categoria di Promemoria, non per singola istanza (ADR-0027) — l'accesso
+//  all'andamento (ADR-0020) e, in fondo, il database backend (ADR-0034).
 //
 
 import SwiftUI
@@ -18,6 +18,7 @@ struct DietSettingsView: View {
     @State private var healthKitBusy = false
     @State private var missingMeal = true
     @State private var water = true
+    @State private var useDevDB = false
 
     var body: some View {
         ScrollView {
@@ -59,6 +60,11 @@ struct DietSettingsView: View {
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("openReport")
                 }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionLabel(text: "Database")
+                    dbTargetRow
+                }
             }
             .padding(.horizontal, 22).padding(.bottom, 40)
         }
@@ -69,6 +75,7 @@ struct DietSettingsView: View {
             healthKitOn = HealthKitPreference.isEnabled()
             missingMeal = reminderSettings.isEnabled(.missingMeal)
             water = reminderSettings.isEnabled(.water)
+            useDevDB = DBTargetPreference.isDevEnabled()
         }
         .onChange(of: missingMeal) { _, v in
             reminderSettings.setEnabled(v, for: .missingMeal)
@@ -78,6 +85,34 @@ struct DietSettingsView: View {
             reminderSettings.setEnabled(v, for: .water)
             RemindersEngine.shared.refresh()
         }
+    }
+
+    /// ADR-0034: instrada le chiamate al backend verso il database di
+    /// sviluppo/test invece di quello di produzione (`X-Db-Target: dev`,
+    /// `ApiClient`). Non svuota la cache locale — i dati dell'altro
+    /// database restano mescolati finché l'app non riparte da uno store
+    /// pulito.
+    private var dbTargetRow: some View {
+        Toggle(isOn: Binding(
+            get: { useDevDB },
+            set: { newValue in
+                useDevDB = newValue
+                DBTargetPreference.setDevEnabled(newValue)
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Usa database di sviluppo").font(Glass.body(15, .semibold))
+                Text(useDevDB
+                     ? "Attivo: le sincronizzazioni usano i dati di test, non quelli reali."
+                     : "Spento: le sincronizzazioni usano i dati reali di produzione.")
+                    .font(Glass.body(12)).foregroundStyle(Glass.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .tint(Glass.amber)
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.white.opacity(0.05)))
+        .accessibilityIdentifier("devDBToggle")
     }
 
     private var healthRow: some View {
