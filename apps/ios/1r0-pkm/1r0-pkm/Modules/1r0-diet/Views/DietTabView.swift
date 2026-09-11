@@ -27,6 +27,10 @@ struct DietTabView: View {
     @State private var showGoal = false
     @State private var showReport = false
     @State private var showPlan = false
+    @State private var showNotif = false
+    /// Energia attiva di oggi da HealthKit (ADR-0019 amendata): alza la quota
+    /// calorica del giorno senza toccare `nutrition_goals`.
+    @State private var activeEnergyKcal: Double = 0
 
     private var today: [MealEntry] {
         allMeals.filter { Calendar.current.isDateInToday($0.consumedAt) }
@@ -44,6 +48,10 @@ struct DietTabView: View {
         DietSync.current(goals)?.macros
             ?? Macros(kcal: DietGoal.kcal, proteinG: DietGoal.proteinG,
                       carbsG: DietGoal.carbsG, fatG: DietGoal.fatG)
+    }
+    /// Quota calorica del giorno = obiettivo di base + energia attiva HealthKit.
+    private var dayCalorieTarget: Double {
+        NutritionMath.dailyCalorieQuota(baseKcal: goal.kcal, activeEnergyKcal: activeEnergyKcal)
     }
     var body: some View {
         ScrollView {
@@ -86,11 +94,17 @@ struct DietTabView: View {
                 .presentationDetents([.large])
                 .presentationBackground(.ultraThinMaterial)
         }
+        .sheet(isPresented: $showNotif) {
+            NavigationStack { NotificationSettingsView() }
+                .presentationDetents([.medium, .large])
+                .presentationBackground(.ultraThinMaterial)
+        }
         .task {
             await DietSync.pullFoods(into: context)
             await DietSync.pullMealEntries(into: context)
             await DietSync.pullGoals(into: context)
             await Outbox.flushOutbox(context)
+            activeEnergyKcal = await HealthKitService.shared.todayActiveEnergyKcal()
         }
     }
 
@@ -109,13 +123,16 @@ struct DietTabView: View {
                 .accessibilityIdentifier("showReport")
             GlassIconButton(systemName: "target") { showGoal = true }
                 .accessibilityIdentifier("editGoal")
+            GlassIconButton(systemName: "bell") { showNotif = true }
+                .accessibilityIdentifier("notifSettings")
         }
     }
 
     private var summaryCard: some View {
         let t = dayTotals
         let g = goal
-        let frac = min(1, g.kcal > 0 ? t.kcal / g.kcal : 0)
+        let targetKcal = dayCalorieTarget
+        let frac = min(1, targetKcal > 0 ? t.kcal / targetKcal : 0)
         return VStack(spacing: 20) {
             ZStack {
                 Circle().stroke(Color.white.opacity(0.10), lineWidth: 14)
@@ -126,8 +143,12 @@ struct DietTabView: View {
                 VStack(spacing: 2) {
                     Text(kcalString(t.kcal))
                         .font(Glass.display(36, .bold)).tracking(-0.5).monospacedDigit()
-                    Text("di \(kcalString(g.kcal)) kcal")
+                    Text("di \(kcalString(targetKcal)) kcal")
                         .font(Glass.body(13)).foregroundStyle(Glass.ink.opacity(0.55))
+                    if activeEnergyKcal >= 50 {
+                        Text("+\(kcalString(min(activeEnergyKcal, 1200))) da attività")
+                            .font(Glass.body(10, .semibold)).foregroundStyle(Glass.greenText)
+                    }
                 }
             }
             .frame(width: 180, height: 180)

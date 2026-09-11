@@ -159,4 +159,27 @@ enum NutritionMath {
         }
         return macros(kcal: maintenanceKcal * mult, weightKg: weightKg)
     }
+
+    /// Quota calorica **del giorno corrente** = obiettivo di base + energia
+    /// attiva letta da HealthKit (ADR-0019 amendata da ADR-0027). Non tocca la
+    /// riga `nutrition_goals`. Il bonus è limitato a un tetto prudente.
+    static func dailyCalorieQuota(baseKcal: Double, activeEnergyKcal: Double,
+                                  maxBonusKcal: Double = 1200) -> Double {
+        let bonus = max(0, min(activeEnergyKcal, maxBonusKcal))
+        return (baseKcal + bonus).rounded()
+    }
+
+    /// Quota d'acqua "attesa a quest'ora": frazione del target proporzionale al
+    /// tempo trascorso nella fascia diurna `[startHour, endHour]`. Prima
+    /// dell'inizio ⇒ 0; dopo la fine ⇒ target pieno.
+    static func waterQuotaMl(targetMl: Double, now: Date,
+                             startHour: Int = 8, endHour: Int = 22,
+                             calendar: Calendar = .current) -> Double {
+        let h = Double(calendar.component(.hour, from: now))
+            + Double(calendar.component(.minute, from: now)) / 60
+        let s = Double(startHour), e = Double(endHour)
+        guard e > s else { return targetMl }
+        let frac = min(1, max(0, (h - s) / (e - s)))
+        return (targetMl * frac).rounded()
+    }
 }

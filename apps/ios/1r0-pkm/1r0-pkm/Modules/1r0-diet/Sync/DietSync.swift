@@ -112,8 +112,10 @@ enum DietSync {
         let m = MealEntry(consumedAt: date, mealSlot: slot)
         context.insert(m)
         var payloadItems: [[String: Any]] = []
+        var total = Macros.zero
         for (i, pair) in items.enumerated() {
             let mac = pair.food.macros(forGrams: pair.grams)
+            total = total + mac
             let it = MealEntryItem(meal: m, foodId: pair.food.id, foodName: pair.food.name,
                                    quantityG: pair.grams, macros: mac, orderIndex: i)
             context.insert(it)
@@ -130,6 +132,12 @@ enum DietSync {
             "mealSlot": slot.rawValue,
             "items": payloadItems,
         ], in: context)
+
+        // Specchio in uscita su Apple Salute (ADR-0027): energia + macro del
+        // pasto. Best-effort, one-way.
+        let t = total
+        Task { await HealthKitService.shared.saveMeal(
+            energyKcal: t.kcal, proteinG: t.proteinG, carbsG: t.carbsG, fatG: t.fatG, at: date) }
         return m
     }
 

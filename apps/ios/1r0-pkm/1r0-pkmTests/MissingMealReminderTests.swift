@@ -2,7 +2,7 @@
 //  MissingMealReminderTests.swift
 //  1r0-pkmTests
 //
-//  Valutazione pura di `MissingMealReminder.plan(now:context:)` + `MealSlotAck`
+//  Valutazione pura di `MissingMealReminder.plan(now:context:env:)` + `MealSlotAck`
 //  (ADR-0027 step 2). Nessuna dipendenza da `UNUserNotificationCenter`.
 //
 
@@ -36,7 +36,7 @@ final class MissingMealReminderTests: XCTestCase {
     func testEarlyMorning_allThreeSlotsPlanned() throws {
         let ctx = try makeContext()
         let rule = MissingMealReminder(acksDefaults: isolatedDefaults())
-        let planned = rule.plan(now: today(at: 7), context: ctx)
+        let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
         XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }), ["breakfast", "lunch", "dinner"])
         XCTAssertTrue(planned.allSatisfy { $0.category == .missingMeal })
@@ -48,7 +48,7 @@ final class MissingMealReminderTests: XCTestCase {
         let ctx = try makeContext()
         logMeal(.lunch, at: today(at: 12, 30), in: ctx)
         let rule = MissingMealReminder(acksDefaults: isolatedDefaults())
-        let planned = rule.plan(now: today(at: 7), context: ctx)
+        let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
         XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }), ["breakfast", "dinner"])
     }
@@ -57,7 +57,7 @@ final class MissingMealReminderTests: XCTestCase {
         let ctx = try makeContext()
         logMeal(.dinner, at: today(at: 20).addingTimeInterval(-86_400), in: ctx)
         let rule = MissingMealReminder(acksDefaults: isolatedDefaults())
-        let planned = rule.plan(now: today(at: 7), context: ctx)
+        let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
         XCTAssertTrue(planned.contains { $0.userInfo["slot"] == "dinner" })
     }
@@ -67,7 +67,7 @@ final class MissingMealReminderTests: XCTestCase {
         let defaults = isolatedDefaults()
         MealSlotAck.record(slotRaw: "breakfast", dayStamp: MealSlotAck.stamp(Date()), defaults: defaults)
         let rule = MissingMealReminder(acksDefaults: defaults)
-        let planned = rule.plan(now: today(at: 7), context: ctx)
+        let planned = rule.plan(now: today(at: 7), context: ctx, env: ReminderEnv())
 
         XCTAssertFalse(planned.contains { $0.userInfo["slot"] == "breakfast" })
         XCTAssertEqual(Set(planned.map { $0.userInfo["slot"] }), ["lunch", "dinner"])
@@ -76,7 +76,7 @@ final class MissingMealReminderTests: XCTestCase {
     func testLateEvening_nothingPlanned() throws {
         let ctx = try makeContext()
         let rule = MissingMealReminder(acksDefaults: isolatedDefaults())
-        let planned = rule.plan(now: today(at: 23), context: ctx)
+        let planned = rule.plan(now: today(at: 23), context: ctx, env: ReminderEnv())
 
         XCTAssertTrue(planned.isEmpty, "tutti gli orari attesi + tolleranza sono passati")
     }

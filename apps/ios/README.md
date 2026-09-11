@@ -51,21 +51,25 @@ ridimensionata da ADR-0027 a `gym` (storico + grafici) / `diet` / futuro
       Views/             GymHistoryView (tab Palestra), ImportWorkoutsView,
                           ProgressTabView, AddMeasurementView
     1r0-diet/
-      Reminders/         MissingMealReminder + MealSlotAck (ADR-0027 step 2)
+      Reminders/         MissingMealReminder, WaterReminder, MealSlotAck
+      Views/…            + NotificationSettingsView (interruttori promemoria)
       …                  resto invariato (ADR-0017/0018/0019/0020)
 1r0-pkm-w Watch App/       congelato (ADR-0027), fuori dalla build
 ```
 
-**Promemoria (ADR-0027 step 2).** `RemindersEngine` (speculare a
-`SyncEngine`) parte in `_r0_pkmApp` con le regole registrate dai moduli
-(`[MissingMealReminder()]`), rivaluta in foreground (`refresh()`) e in
-background (`BGAppRefreshTask` `dev.1r0.pkm.reminders`). Ogni regola
-`plan(now:context:)` restituisce le `PlannedNotification` che dovrebbero
+**Promemoria (ADR-0027 step 2 + 4).** `RemindersEngine` (speculare a
+`SyncEngine`) parte in `_r0_pkmApp` con `[MissingMealReminder(),
+WaterReminder()]` + un `envProvider` che pre-carica acqua/energia-attiva da
+HealthKit; rivaluta in foreground (`refresh()`) e in background
+(`BGAppRefreshTask` `dev.1r0.pkm.reminders`). Ogni regola
+`plan(now:context:env:)` restituisce le `PlannedNotification` che dovrebbero
 essere pendenti; il `NotificationGateway` fa il diff con la coda reale e
 gestisce le azioni ("Sì" → `MealSlotAck`, "Rimanda" → +30 min) anche ad app
-terminata. Interruttore per categoria in `ReminderSettings` (`UserDefaults`).
-`MissingMealReminder` copre breakfast/lunch/dinner; eredita i 5 slot di
-ADR-0024 quando esisteranno.
+terminata. `WaterReminder` è un nudge semplice (nessuna azione) se il totale
+acqua (WaterLog + HealthKit) è sotto la quota proporzionata all'ora.
+Interruttore per categoria in `ReminderSettings` (`UserDefaults`),
+`NotificationSettingsView`. `MissingMealReminder` copre
+breakfast/lunch/dinner; eredita i 5 slot di ADR-0024 quando esisteranno.
 
 ## Capability e dipendenze
 
@@ -126,10 +130,13 @@ la tab **Palestra** con storico e grafici per esercizio.
   (il consumer lato iPhone dei suoi eventi di sessione) è stato rimosso col
   resto della sessione live; `PhoneConnector`/`WatchConnector` (trasporto)
   restano come base per un eventuale rilancio futuro.
-- `Modules/Shared/HealthKit/` — `HealthKitService` legge **solo** il peso
-  corporeo più recente per l'andamento nei Progressi; nessuna scrittura di
-  workout (ADR-0004 amendata da ADR-0027: il modulo non crea più sessioni).
-  `HealthKitOnboardingView` spiega i permessi prima di richiederli.
+- `Modules/Shared/HealthKit/` — `HealthKitService` (gateway, ADR-0004
+  amendata da ADR-0027): **legge** peso corporeo (Progressi), acqua ed
+  energia attiva di oggi (quota calorica + promemoria acqua); **scrive**
+  `saveMeal(...)` = energia + macro di ogni pasto loggato (`DietSync.logMeal`,
+  best-effort one-way). Niente scrittura workout. `HealthKitOnboardingView`
+  spiega i permessi. Sul simulatore non ci sono dati/permessi → letture 0,
+  scrittura no-op (verificare su device).
 - `Modules/Shared/DesignSystem/GlassTheme.swift` — linguaggio visivo Glass
   Dark (ADR-0023), usato da gym + diet.
 - `Modules/1r0-gym/Views/` — `ProgressTabView`/`AddMeasurementView` (ADR-0012;

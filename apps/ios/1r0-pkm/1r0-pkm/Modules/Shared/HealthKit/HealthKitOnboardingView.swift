@@ -21,7 +21,9 @@ struct HealthKitOnboardingView: View {
                     .font(Glass.display(26, .bold)).padding(.top, 8)
 
                 row("scalemass",
-                    "1r0-gym legge il peso corporeo più recente da Salute per l'andamento nei Progressi.")
+                    "Legge peso corporeo, acqua ed energia attiva: andamento nei Progressi e quota calorica del giorno.")
+                row("fork.knife",
+                    "Scrive energia e macro dei pasti che registri nella dieta, così Salute resta allineata.")
                 row("lock.shield",
                     "Solo questi dati, niente altro. Puoi revocare i permessi da Impostazioni → Salute.")
 

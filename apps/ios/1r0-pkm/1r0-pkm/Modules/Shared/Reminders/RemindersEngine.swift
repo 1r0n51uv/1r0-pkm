@@ -26,17 +26,22 @@ final class RemindersEngine {
     private var settings = ReminderSettings()
     private var container: ModelContainer?
     private var rules: [ReminderRule] = []
+    private var envProvider: @MainActor () async -> ReminderEnv = { ReminderEnv() }
     private var started = false
 
     private init() {}
 
     /// Da chiamare una volta all'avvio col container condiviso e le regole
-    /// registrate dai moduli.
-    func start(container: ModelContainer, rules: [ReminderRule]) {
+    /// registrate dai moduli. `envProvider` recupera i valori HealthKit che le
+    /// regole non possono leggere in `plan` (default: nessuno).
+    func start(container: ModelContainer,
+               rules: [ReminderRule],
+               envProvider: @escaping @MainActor () async -> ReminderEnv = { ReminderEnv() }) {
         guard !started else { return }
         started = true
         self.container = container
         self.rules = rules
+        self.envProvider = envProvider
 
         gateway.onResponse = { [weak self] response in
             await self?.handle(response)
@@ -76,9 +81,10 @@ final class RemindersEngine {
     private func runRefresh() async {
         guard let context = container?.mainContext else { return }
         let now = Date()
+        let env = await envProvider()
         var planned: [PlannedNotification] = []
         for rule in rules where settings.isEnabled(rule.category) {
-            planned += rule.plan(now: now, context: context)
+            planned += rule.plan(now: now, context: context, env: env)
         }
         await gateway.reconcile(planned: planned)
     }

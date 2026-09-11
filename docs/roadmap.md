@@ -93,14 +93,30 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   sull'istanza EC2**: applicare la migrazione 0009 e ridistribuire `apps/api`
   (non testati in locale — niente `node`/DB qui).
 
-## 4. `diet` + HealthKit read/write + notifiche azionabili — **da iniziare**
+## 4. `diet` + HealthKit read/write + notifiche azionabili — **fatto**
 
-- Scrittura energia/macro su HealthKit per ogni pasto loggato.
-- Lettura da HealthKit di peso, acqua, energia attiva (oggi il gateway
-  HealthKit — post-cleanup — legge solo il peso, per `gym`).
-- Notifiche azionabili "Hai mangiato a `<slot>`?" (Sì → `MealSlotAck`,
-  Rimanda → +30 min, gestite in background) e "Hai bevuto?" (sotto quota
-  proporzionata all'ora). Dipende dal motore Promemoria (step 2).
+- [x] **Gateway HealthKit** (`Modules/Shared/HealthKit/HealthKitService`)
+  ricostruito: legge peso (già) + `todayDietaryWaterMl` + `todayActiveEnergyKcal`;
+  scrive `saveMeal(energyKcal:proteinG:carbsG:fatG:at:)` (samples dietetici,
+  best-effort one-way). `Info.plist` + `NSHealthUpdateUsageDescription`.
+- [x] **Scrittura pasti** — `DietSync.logMeal` accumula i macro e chiama
+  `saveMeal` (vale anche per `completePlannedMeal`).
+- [x] **Quota calorica del giorno** — `NutritionMath.dailyCalorieQuota(baseKcal:
+  activeEnergyKcal:)` (base + energia attiva, tetto 1200, non tocca
+  `nutrition_goals`, ADR-0019 amendata). `DietTabView` legge l'energia attiva
+  in `.task` e l'anello calorie usa la quota del giorno (+hint "da attività").
+- [x] **"Hai mangiato a &lt;slot&gt;?"** — già `MissingMealReminder` (step 2).
+- [x] **"Hai bevuto?"** — `WaterReminder` (`Modules/1r0-diet/Reminders/`): a
+  orari fissi (11/14/17/20), se `WaterLog` locale + acqua HealthKit è sotto la
+  quota proporzionata all'ora (`NutritionMath.waterQuotaMl`) manda un nudge
+  semplice. `ReminderRule.plan` guadagna un `env: ReminderEnv` con i valori
+  HealthKit pre-caricati da `RemindersEngine` (`envProvider`).
+- [x] **Impostazioni notifiche** — `NotificationSettingsView` (interruttore per
+  categoria via `ReminderSettings`), dall'header della Dieta (`bell`).
+- Unit test: `NutritionMathTests`, `WaterReminderTests`.
+- **Da verificare su device**: nel simulatore HealthKit non ha dati/permessi,
+  quindi le letture tornano 0 e la scrittura è no-op — testare con un device
+  reale o dati seed in Salute.
 
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 

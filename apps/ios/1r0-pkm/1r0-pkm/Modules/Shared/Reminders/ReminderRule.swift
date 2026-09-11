@@ -12,6 +12,14 @@
 import Foundation
 import SwiftData
 
+/// Valori pre-caricati (asincroni) che le regole non possono leggere da sole
+/// dentro `plan` (che è sincrono). `RemindersEngine` li recupera prima del
+/// giro e li passa a ogni regola.
+struct ReminderEnv: Sendable {
+    var healthKitWaterMl: Double?
+    var activeEnergyKcal: Double?
+}
+
 /// Una notifica che una regola vuole vedere schedulata.
 struct PlannedNotification: Equatable, Sendable {
     /// Identificatore stabile e deterministico per `(regola, slot, giorno)`,
@@ -32,8 +40,9 @@ protocol ReminderRule {
 
     /// Le notifiche che dovrebbero essere pendenti valutando lo stato a `now`.
     /// Solo istanze con `fireDate > now`. Pura rispetto alla rete; legge da
-    /// SwiftData (`context`) e da `UserDefaults`.
-    func plan(now: Date, context: ModelContext) -> [PlannedNotification]
+    /// SwiftData (`context`), `UserDefaults` ed `env` (valori HealthKit
+    /// pre-caricati).
+    func plan(now: Date, context: ModelContext, env: ReminderEnv) -> [PlannedNotification]
 
     /// Risposta a un'azione custom della categoria (gestita in background).
     /// Lo "snooze" generico è gestito dal motore; qui arriva il resto (es.

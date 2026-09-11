@@ -38,7 +38,17 @@ struct _r0_pkmApp: App {
         // UI per non dipendere da rete e permessi di sistema.
         if !isUITest {
             SyncEngine.shared.start(container: container)
-            RemindersEngine.shared.start(container: container, rules: [MissingMealReminder()])
+            RemindersEngine.shared.start(
+                container: container,
+                rules: [MissingMealReminder(), WaterReminder()],
+                envProvider: {
+                    let hk = HealthKitService.shared
+                    async let water = hk.todayDietaryWaterMl()
+                    async let active = hk.todayActiveEnergyKcal()
+                    return ReminderEnv(healthKitWaterMl: await water,
+                                       activeEnergyKcal: await active)
+                }
+            )
         }
     }
 

@@ -32,7 +32,7 @@ struct MissingMealReminder: ReminderRule {
     /// Minuti di tolleranza dopo l'orario atteso prima di notificare.
     static let graceMinutes = 30
 
-    func plan(now: Date, context: ModelContext) -> [PlannedNotification] {
+    func plan(now: Date, context: ModelContext, env: ReminderEnv) -> [PlannedNotification] {
         let cal = Calendar.current
         let today = cal.startOfDay(for: now)
         let stamp = MealSlotAck.stamp(now, calendar: cal)
