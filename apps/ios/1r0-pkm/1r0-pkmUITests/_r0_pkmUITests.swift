@@ -348,6 +348,29 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "import-allenamenti")
     }
 
+    /// 1r0-gym · redesign dashboard grafici: con allenamenti presenti, la
+    /// Palestra mostra le statistiche rapide + la griglia multi-esercizio, e
+    /// una card apre il drill-down a tutta larghezza (1RM + volume).
+    func testGymDashboard() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset", "-uitest-seed-gym"]
+        app.launch()
+
+        app.tabBars.buttons["Palestra"].tap()
+        XCTAssertTrue(app.staticTexts["Grafici"].waitForExistence(timeout: 10),
+                      "manca la dashboard grafici")
+        XCTAssertTrue(app.staticTexts["giorni di fila"].exists || app.staticTexts["giorno di fila"].exists,
+                      "manca lo stat chip streak")
+        XCTAssertTrue(app.staticTexts["Panca piana"].exists, "manca la card dell'esercizio seminato")
+
+        app.buttons["gymExerciseCard_Panca piana"].tap()
+        XCTAssertTrue(app.navigationBars["Panca piana"].waitForExistence(timeout: 5),
+                      "il drill-down non si è aperto")
+        XCTAssertTrue(app.staticTexts["1RM stimato"].exists)
+        XCTAssertTrue(app.staticTexts["Volume"].exists)
+        sleep(1); attach(app, "gym-dashboard")
+    }
+
     /// 1r0-diet · ADR-0029: dall'header Dieta si aprono le impostazioni —
     /// collegamento Salute + interruttori notifiche per categoria.
     func testDietSettingsSheet() throws {

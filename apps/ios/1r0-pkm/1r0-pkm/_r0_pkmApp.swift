@@ -33,6 +33,27 @@ struct _r0_pkmApp: App {
             }
         }
 
+        // seed deterministico per i test UI della dashboard grafici Palestra
+        // (redesign ADR-0030): due allenamenti con lo stesso esercizio, così
+        // `GymStats.oneRMSeries` ha >= 2 punti e la mini-card mostra un
+        // grafico reale, non il trattino segnaposto.
+        if ProcessInfo.processInfo.arguments.contains("-uitest-seed-gym") {
+            let ctx = container.mainContext
+            if (try? ctx.fetch(FetchDescriptor<WorkoutSession>()))?.isEmpty ?? true {
+                let cal = Calendar.current
+                let d1 = cal.date(byAdding: .day, value: -3, to: .now) ?? .now
+                let s1 = WorkoutSession(startedAt: d1, routineLabel: "Push")
+                ctx.insert(s1)
+                ctx.insert(SetLogEntry(session: s1, exerciseName: "Panca piana", setIndex: 1,
+                                       weightKg: 60, reps: 8, completedAt: d1))
+                let s2 = WorkoutSession(startedAt: .now, routineLabel: "Push")
+                ctx.insert(s2)
+                ctx.insert(SetLogEntry(session: s2, exerciseName: "Panca piana", setIndex: 1,
+                                       weightKg: 62.5, reps: 8, completedAt: .now))
+                try? ctx.save()
+            }
+        }
+
         // motori di sync (ADR-0006) e promemoria (ADR-0027 step 2):
         // reachability / notifiche locali + BackgroundTasks. Saltati nei test
         // UI per non dipendere da rete e permessi di sistema.

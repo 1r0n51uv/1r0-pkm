@@ -137,7 +137,20 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   sistema. `DietSettingsView` (ex `NotificationSettingsView`): Salute →
   Notifiche → Report; header Dieta con una sola icona `gearshape`.
 - **Da fare sull'istanza EC2**: applicare la migrazione 0010 (non serve
-  ridistribuire `apps/api`, solo `ALTER TYPE`).
+  ridistribuire `apps/api`, solo `ALTER TYPE`). **Fatto** — applicata 2026-09-10.
+
+## 4ter. Palestra — dashboard grafici multi-esercizio — **fatto** ([ADR-0030](adr/0030-palestra-dashboard-grafici-multi-esercizio.md))
+
+- [x] `GymHistoryView`: rimosso il selettore a chip + due grafici per un
+  solo esercizio, sostituito da una griglia 2 colonne con una mini-card
+  (1RM stimato + sparkline) per ciascuno dei fino a 6 esercizi più allenati.
+  Toccare una card apre `ExerciseChartsView` (drill-down, stessi grafici 1RM
+  + volume di prima, a tutta larghezza).
+- [x] Stat chip "giorni di fila" / "allenamenti sett." in testa alla vista
+  (`GymMath.currentStreakDays`/`workoutsThisWeek`, funzioni pure già
+  esistenti e testate, non ancora usate in nessuna UI prima d'ora).
+- [x] Hook `-uitest-seed-gym` + `testGymDashboard`. 78/78 unit + 19/19 UI
+  verdi.
 
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 

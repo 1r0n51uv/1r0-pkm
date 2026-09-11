@@ -19,6 +19,7 @@ Termini di dominio usati nel codice, nello schema DB e nella UI. Fonte di verit�
 - **PR (Personal Record) / 1RM stimato** — massimale stimato per esercizio, calcolato dai Set Log importati (formula Epley, `GymMath`).
 - **Volume** — somma di (peso × reps) per esercizio/sessione/settimana per i grafici di progresso; ignora le serie `isWarmup` e quelle a 0 kg / a tempo.
 - **Body Measurement** — rilevazione periodica di peso e misure a nastro (chiavi libere). Il peso corporeo per i grafici `gym` si legge da **HealthKit** (il CSV Liftin' non lo contiene).
+- **Dashboard grafici (Palestra)** — griglia con una mini-card (1RM stimato + sparkline) per ciascuno dei fino a 6 esercizi più allenati, in testa alla tab Palestra; toccarne una apre il drill-down con i grafici a tutta larghezza (1RM + volume). Non una sezione/tab separata (ADR-0030).
 
 ## Modulo 1r0-diet
 
