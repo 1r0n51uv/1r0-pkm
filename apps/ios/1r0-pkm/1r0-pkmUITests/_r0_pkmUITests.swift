@@ -314,15 +314,68 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "trackers")
     }
 
+    /// 1r0-gym · ADR-0027: la tab Palestra parte dallo stato vuoto con la CTA
+    /// di import (nessun allenamento in uno store `-uitest-reset`).
+    func testGymHistoryEmptyState() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Palestra"].tap()
+        XCTAssertTrue(app.staticTexts["Nessun allenamento"].waitForExistence(timeout: 10),
+                      "manca lo stato vuoto della Palestra")
+        XCTAssertTrue(app.buttons["Importa da Liftin'"].exists
+                      || app.buttons["importWorkouts"].exists,
+                      "manca la CTA di import")
+        sleep(1); attach(app, "palestra-vuota")
+    }
+
+    /// 1r0-gym · ADR-0027: dall'header Palestra si apre il foglio di import CSV.
+    func testImportWorkoutsSheetOpens() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Palestra"].tap()
+        XCTAssertTrue(app.buttons["importWorkouts"].waitForExistence(timeout: 10))
+        app.buttons["importWorkouts"].tap()
+
+        XCTAssertTrue(app.staticTexts["Import allenamenti"].waitForExistence(timeout: 5),
+                      "il foglio di import non si è aperto")
+        XCTAssertTrue(app.buttons["pickCSV"].exists, "manca il pulsante 'Scegli file CSV'")
+        sleep(1); attach(app, "import-allenamenti")
+    }
+
+    /// 1r0-diet · ADR-0027 step 4: dall'header Dieta si aprono le impostazioni
+    /// notifiche con gli interruttori per categoria.
+    func testNotificationSettingsSheet() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.buttons["notifSettings"].waitForExistence(timeout: 10))
+        app.buttons["notifSettings"].tap()
+
+        XCTAssertTrue(app.staticTexts["Notifiche"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["Pasto mancante"].exists || app.staticTexts["Pasto mancante"].exists)
+        XCTAssertTrue(app.switches["Acqua"].exists || app.staticTexts["Acqua"].exists)
+        sleep(1); attach(app, "impostazioni-notifiche")
+    }
+
     /// Non è un test: cattura screenshot delle tab per la review.
     func testCaptureScreens() throws {
         let app = XCUIApplication()
         app.launch()
-        _ = app.staticTexts["Oggi"].waitForExistence(timeout: 10)
-        sleep(1); attach(app, "01-dieta")
+        app.tabBars.buttons["Palestra"].tap()
+        _ = app.staticTexts["Palestra"].waitForExistence(timeout: 10)
+        sleep(1); attach(app, "01-palestra")
+        app.tabBars.buttons["Dieta"].tap()
+        _ = app.staticTexts["Oggi"].waitForExistence(timeout: 5)
+        sleep(2); attach(app, "02-dieta")
         app.tabBars.buttons["Progressi"].tap()
         _ = app.staticTexts["Progressi"].waitForExistence(timeout: 5)
-        sleep(2); attach(app, "02-progressi")
+        sleep(2); attach(app, "03-progressi")
     }
 
     private func attach(_ app: XCUIApplication, _ name: String) {

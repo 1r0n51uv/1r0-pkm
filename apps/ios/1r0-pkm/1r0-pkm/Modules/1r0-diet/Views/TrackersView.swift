@@ -45,7 +45,7 @@ struct TrackersCard: View {
                     Label("Acqua", systemImage: "drop.fill")
                         .font(Glass.body(13, .semibold)).foregroundStyle(Glass.ink.opacity(0.75))
                     Spacer()
-                    Text(waterTargetMl.map { "\(Int(waterToday)) / \(Int($0)) ml" }
+                    Text(verbatim: waterTargetMl.map { "\(Int(waterToday)) / \(Int($0)) ml" }
                          ?? "\(Int(waterToday)) ml")
                         .font(Glass.body(13)).monospacedDigit().foregroundStyle(Glass.ink.opacity(0.5))
                 }
@@ -73,7 +73,7 @@ struct TrackersCard: View {
                     Label("Caffeina", systemImage: "cup.and.saucer.fill")
                         .font(Glass.body(13, .semibold)).foregroundStyle(Glass.ink.opacity(0.75))
                     Spacer()
-                    Text("\(Int(caffeineToday)) mg oggi")
+                    Text(verbatim: "\(Int(caffeineToday)) mg oggi")
                         .font(Glass.body(13)).monospacedDigit().foregroundStyle(Glass.ink.opacity(0.5))
                 }
                 HStack(spacing: 8) {

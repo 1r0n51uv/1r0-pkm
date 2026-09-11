@@ -14,7 +14,12 @@ struct ApiClient {
 
     struct HTTPError: Error { let status: Int; let body: String }
 
+    /// Sotto i test UI la rete è disattivata: i `pull*` catturano l'errore e
+    /// diventano no-op, così i test non dipendono dallo stato del backend.
+    private static let offline = ProcessInfo.processInfo.arguments.contains("-uitest-reset")
+
     private func request(_ method: String, _ path: String, body: Data?) async throws -> Data {
+        if Self.offline { throw HTTPError(status: -1, body: "offline (uitest)") }
         var req = URLRequest(url: Secrets.apiBaseURL.appendingPathComponent(path))
         req.httpMethod = method
         req.setValue("Bearer \(Secrets.apiKey)", forHTTPHeaderField: "Authorization")
