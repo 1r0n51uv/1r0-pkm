@@ -90,4 +90,17 @@ export default async function meals(app) {
       c.release();
     }
   });
+
+  // ADR-0032: "un-eat" un pasto pianificato (il toggle mangiato/saltato in
+  // MealPlanView) deve poter rimuovere il Meal Entry creato per errore o da
+  // rifare, non solo lato client — altrimenti il pull successivo lo
+  // rimaterializza. `meal_entry_items` ha `on delete cascade`;
+  // `planned_meals.meal_entry_id` ha `on delete set null` (0004).
+  app.delete("/v1/meal-entries/:id", async (req, reply) => {
+    if (!UUID_RE.test(String(req.params.id))) {
+      return reply.code(400).send({ error: "id non è un UUID" });
+    }
+    await pool.query("delete from meal_entries where id = $1", [req.params.id]);
+    return reply.code(204).send();
+  });
 }

@@ -2,14 +2,20 @@
 //  MealPlanView.swift
 //  1r0-pkm · Modules/1r0-diet
 //
-//  Pianificazione pasti (ADR-0017 slice 2): striscia dei prossimi 7 giorni,
-//  slot per giorno, ogni pasto pianificato si conferma ("Mangiato" → crea un
-//  MealEntry) o si salta. Le ricette si compongono a parte (RecipeListView).
-//  Stile Glass Dark (ADR-0023), accento ambra.
+//  Pianificazione pasti (ADR-0017 slice 2, edit + giorni passati ADR-0032):
+//  striscia di giorni (passati e futuri), slot per giorno, ogni pasto
+//  pianificato ha uno switch mangiato/saltato ed è modificabile finché non è
+//  "mangiato" (togglelo per riaprirlo). Le ricette si compongono a parte
+//  (RecipeListView). Stile Glass Dark (ADR-0023), accento ambra.
 //
 
 import SwiftUI
 import SwiftData
+
+/// Quanti giorni indietro/avanti mostrare nella striscia (ADR-0032: prima
+/// erano solo i 7 giorni in avanti — serve poter correggere il passato).
+private let daysBack = 10
+private let daysForward = 13
 
 struct MealPlanView: View {
     @Environment(\.modelContext) private var context
@@ -20,15 +26,17 @@ struct MealPlanView: View {
 
     @State private var selectedDay = Calendar.current.startOfDay(for: .now)
     @State private var composeSlot: MealSlot?
+    @State private var editingPlan: PlannedMeal?
     @State private var showRecipes = false
     @State private var showShopping = false
     @State private var showTemplates = false
 
     private var foodMap: [UUID: Food] { Dictionary(foods.map { ($0.id, $0) }) { a, _ in a } }
     private let cal = Calendar.current
+    private let today = Calendar.current.startOfDay(for: .now)
 
     private var week: [Date] {
-        (0..<7).compactMap { cal.date(byAdding: .day, value: $0, to: cal.startOfDay(for: .now)) }
+        (-daysBack...daysForward).compactMap { cal.date(byAdding: .day, value: $0, to: today) }
     }
     private func meals(_ slot: MealSlot) -> [PlannedMeal] {
         planned.filter {
@@ -59,12 +67,17 @@ struct MealPlanView: View {
                     .presentationDetents([.large])
                     .presentationBackground(.ultraThinMaterial)
             }
+            .sheet(item: $editingPlan) { p in
+                PlanMealSheet(day: p.plannedDate, slot: p.mealSlot, existing: p)
+                    .presentationDetents([.large])
+                    .presentationBackground(.ultraThinMaterial)
+            }
             .task {
                 await DietSync.pullRecipes(into: context)
-                // finestra allargata di ±1 giorno: la GET usa date UTC, la UI
-                // filtra poi per giorno locale (`isDate(_:inSameDayAs:)`).
+                // finestra allargata di ±1 giorno oltre la striscia: la GET
+                // usa date UTC, la UI filtra poi per giorno locale.
                 let from = cal.date(byAdding: .day, value: -1, to: week[0]) ?? week[0]
-                let to = cal.date(byAdding: .day, value: 8, to: week[0]) ?? week[0]
+                let to = cal.date(byAdding: .day, value: 1, to: week[week.count - 1]) ?? week[0]
                 await DietSync.pullPlannedMeals(from: from, to: to, into: context)
                 await Outbox.flushOutbox(context)
             }
@@ -93,34 +106,40 @@ struct MealPlanView: View {
     }
 
     private var dayStrip: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(week, id: \.self) { d in
-                    let sel = cal.isDate(d, inSameDayAs: selectedDay)
-                    Button { selectedDay = d } label: {
-                        VStack(spacing: 4) {
-                            Text(d.formatted(.dateTime.weekday(.abbreviated)).uppercased())
-                                .font(Glass.body(10, .bold)).tracking(0.5)
-                            Text(d.formatted(.dateTime.day()))
-                                .font(Glass.display(17, .bold)).monospacedDigit()
-                        }
-                        .foregroundStyle(sel ? Color(red: 0.12, green: 0.06, blue: 0) : Glass.ink.opacity(0.6))
-                        .frame(width: 46, height: 58)
-                        .background {
-                            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                .fill(sel ? Glass.amber : Color.white.opacity(0.05))
-                        }
-                        .overlay {
-                            if !sel {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(week, id: \.self) { d in
+                        let sel = cal.isDate(d, inSameDayAs: selectedDay)
+                        let isPast = d < today
+                        Button { selectedDay = d } label: {
+                            VStack(spacing: 4) {
+                                Text(d.formatted(.dateTime.weekday(.abbreviated)).uppercased())
+                                    .font(Glass.body(10, .bold)).tracking(0.5)
+                                Text(d.formatted(.dateTime.day()))
+                                    .font(Glass.display(17, .bold)).monospacedDigit()
+                            }
+                            .foregroundStyle(sel ? Color(red: 0.12, green: 0.06, blue: 0)
+                                             : Glass.ink.opacity(isPast ? 0.4 : 0.6))
+                            .frame(width: 46, height: 58)
+                            .background {
                                 RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                    .strokeBorder(Color.white.opacity(0.10))
+                                    .fill(sel ? Glass.amber : Color.white.opacity(0.05))
+                            }
+                            .overlay {
+                                if !sel {
+                                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                        .strokeBorder(Color.white.opacity(0.10))
+                                }
                             }
                         }
+                        .buttonStyle(.plain)
+                        .id(d)
                     }
-                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 22)
             }
-            .padding(.horizontal, 22)
+            .onAppear { proxy.scrollTo(today, anchor: .center) }
         }
     }
 
@@ -163,9 +182,26 @@ struct MealPlanView: View {
         let title = p.items.first.map { first -> String in
             p.items.count > 1 ? "\(first.foodName) +\(p.items.count - 1)" : first.foodName
         } ?? "Pasto"
+        // modificabile solo finché non è "mangiato": per correggere un pasto
+        // già mangiato, prima si riapre con lo switch (ADR-0032).
+        let editable = p.status != .completed
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Text(title).font(Glass.body(14, .semibold)).lineLimit(1)
+                Button {
+                    guard editable else { return }
+                    editingPlan = p
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(title).font(Glass.body(14, .semibold)).lineLimit(1)
+                        if editable {
+                            Image(systemName: "pencil").font(.system(size: 10))
+                                .foregroundStyle(Glass.ink.opacity(0.35))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(!editable)
+                .accessibilityIdentifier("editPlanned")
                 Spacer(minLength: 4)
                 statusPill(p.status)
             }
@@ -173,20 +209,20 @@ struct MealPlanView: View {
                 Text("\(Int(mac.kcal.rounded())) kcal")
                     .font(Glass.body(12)).foregroundStyle(Glass.ink.opacity(0.5))
                 Spacer()
-                if p.status == .planned {
-                    Button("Salta") {
-                        Task { @MainActor in DietSync.skipPlannedMeal(p, in: context) }
-                    }
-                    .font(Glass.body(12, .semibold)).foregroundStyle(Glass.ink.opacity(0.55))
-                    .accessibilityIdentifier("skipPlanned")
-                    Button("Mangiato") {
+                Text(p.status == .completed ? "Mangiato" : "Mangiato?")
+                    .font(Glass.body(12, .semibold))
+                    .foregroundStyle(p.status == .completed ? Glass.amberText : Glass.ink.opacity(0.5))
+                Toggle("", isOn: Binding(
+                    get: { p.status == .completed },
+                    set: { eaten in
                         Task { @MainActor in
-                            DietSync.completePlannedMeal(p, foods: foodMap, in: context)
+                            DietSync.setPlannedMealEaten(p, eaten: eaten, foods: foodMap, in: context)
                         }
                     }
-                    .font(Glass.body(12, .bold)).foregroundStyle(Glass.amberText)
-                    .accessibilityIdentifier("completePlanned")
-                }
+                ))
+                .labelsHidden()
+                .tint(Glass.amber)
+                .accessibilityIdentifier("plannedEatenToggle")
             }
         }
         .padding(.horizontal, 12).padding(.vertical, 10)
@@ -203,18 +239,24 @@ struct MealPlanView: View {
     }
 }
 
-/// Foglio "pianifica un pasto": ricetta rapida o paniere di alimenti.
+/// Foglio "pianifica un pasto": ricetta rapida o paniere di alimenti. Con
+/// `existing` passato, modifica quel pasto pianificato (ADR-0032) invece di
+/// crearne uno nuovo — paniere pre-riempito, si può rimuovere un alimento
+/// aggiunto per errore (già supportato da `FoodBasketEditor`).
 struct PlanMealSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \Recipe.updatedAt, order: .reverse) private var recipes: [Recipe]
+    @Query private var allFoods: [Food]
 
     let day: Date
     @State var slot: MealSlot
+    var existing: PlannedMeal? = nil
     @State private var basket: [BasketItem] = []
     @State private var pickedRecipe: Recipe?
 
     private var canSave: Bool { !basket.isEmpty }
+    private var isEditing: Bool { existing != nil }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -222,9 +264,9 @@ struct PlanMealSheet: View {
                 Button("Annulla") { dismiss() }
                     .font(Glass.body(14)).foregroundStyle(Glass.ink.opacity(0.6))
                 Spacer()
-                Text("Pianifica").font(Glass.display(16, .semibold))
+                Text(isEditing ? "Modifica pasto" : "Pianifica").font(Glass.display(16, .semibold))
                 Spacer()
-                Button("Aggiungi") { save() }
+                Button(isEditing ? "Salva" : "Aggiungi") { save() }
                     .font(Glass.body(14, .bold))
                     .foregroundStyle(canSave ? Glass.amberText : Glass.ink.opacity(0.3))
                     .disabled(!canSave)
@@ -265,6 +307,22 @@ struct PlanMealSheet: View {
             .scrollIndicators(.hidden)
         }
         .glassScreen(.warm)
+        .onAppear { populateIfEditing() }
+    }
+
+    @MainActor
+    private func populateIfEditing() {
+        guard let existing, basket.isEmpty else { return }
+        if let rid = existing.recipeId {
+            pickedRecipe = recipes.first { $0.id == rid }
+        }
+        let foodMap = Dictionary(allFoods.map { ($0.id, $0) }) { a, _ in a }
+        basket = existing.items
+            .sorted { $0.orderIndex < $1.orderIndex }
+            .compactMap { it in
+                guard let fid = it.foodId, let f = foodMap[fid] else { return nil }
+                return BasketItem(food: f, grams: it.quantityG)
+            }
     }
 
     @MainActor
@@ -285,9 +343,12 @@ struct PlanMealSheet: View {
     @MainActor
     private func save() {
         guard canSave else { return }
-        DietSync.planMeal(date: day, slot: slot, recipe: pickedRecipe,
-                          items: basket.map { (food: $0.food, grams: $0.grams) },
-                          in: context)
+        let items = basket.map { (food: $0.food, grams: $0.grams) }
+        if let existing {
+            DietSync.updatePlannedMeal(existing, slot: slot, recipe: pickedRecipe, items: items, in: context)
+        } else {
+            DietSync.planMeal(date: day, slot: slot, recipe: pickedRecipe, items: items, in: context)
+        }
         dismiss()
     }
 }

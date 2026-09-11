@@ -175,6 +175,31 @@ se serve ai report. Step 6: `DocumentExpiryReminder`.
   `Progressi`, `Impostazioni` invece di `Dieta` → `dietSettings`). 78/78
   unit + 19/19 UI verdi.
 
+## 4quinquies. Alimenti nel template + modifica/retroattività pasti — **fatto** ([ADR-0032](adr/0032-alimenti-nel-template-e-modifica-pasti-pianificati.md))
+
+- [x] **Bug fix SwiftData**: assegnare una ricetta/alimento a uno slot del
+  template salvava ma non compariva mai nello slot — `template.items` letto
+  subito dopo (stessa vista, non un `@Query` fresco) restava stantio.
+  Serviva anche `template.items.append(it)` esplicito, non solo l'inverse
+  dal figlio. Vedi memoria `swiftdata-relationship-1r0-pkm`.
+- [x] `DietTemplateItem` assegna una ricetta **o un alimento semplice**
+  (mutuamente esclusivi); il picker riusa `FoodBasketEditor` per la sezione
+  "Alimenti" (stessa ricerca/stepper del resto dell'app).
+- [x] Un pasto pianificato si modifica (icona matita sulla riga, paniere
+  pre-riempito) — rimuovere un alimento aggiunto per errore è il pulsante
+  "✕" già esistente in `FoodBasketEditor`. Modificabile solo mentre non è
+  "mangiato".
+- [x] "Salta"/"Mangiato" → un solo switch (`plannedEatenToggle`); spegnerlo
+  da "mangiato" cancella il `MealEntry` collegato (locale + nuova route
+  `DELETE /v1/meal-entries/:id`) invece di lasciarlo orfano — è anche il
+  modo per correggere retroattivamente un pasto già segnato.
+- [x] Striscia giorni di `MealPlanView`: ora copre anche il passato (10
+  indietro, 13 avanti, prima solo 0-6 avanti), scroll automatico su oggi.
+- [x] Hook `-uitest-seed-diet` seeda 2 alimenti (non 1) per testare la
+  rimozione dal paniere. Nuovi test `testAssignFoodToTemplateSlot`,
+  `testEditPlannedMealRemovesFood`; `testPlanAndCompleteMeal` esteso al
+  toggle andata/ritorno. 78/78 unit + UI verdi.
+
 ## 5. Infra HTTPS + backup — **da iniziare** ([ADR-0028](adr/0028-backend-https-e-storage-documenti.md))
 
 - Dominio + Caddy/ACME su EC2, `API_DOMAIN` in `Secrets.swift`, rimozione

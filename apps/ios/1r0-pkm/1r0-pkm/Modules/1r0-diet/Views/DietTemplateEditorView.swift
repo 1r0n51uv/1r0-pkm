@@ -3,9 +3,11 @@
 //  1r0-pkm · Modules/1r0-diet/Views
 //
 //  Dieta settimanale a template (ADR-0029): un template assegna una ricetta
-//  per ciascuno dei 5 slot (ADR-0024) di ciascun giorno; "Applica" lo traduce
-//  in `PlannedMeal` per una settimana specifica (`DietSync.applyTemplate`).
-//  Reso da `MealPlanView` (icona "calendar.badge.clock").
+//  **o un alimento semplice** (ADR-0032, es. "noci" senza incapsularlo in
+//  una ricetta) per ciascuno dei 5 slot (ADR-0024) di ciascun giorno;
+//  "Applica" lo traduce in `PlannedMeal` per una settimana specifica
+//  (`DietSync.applyTemplate`). Reso da `MealPlanView` (icona
+//  "calendar.badge.clock").
 //
 
 import SwiftUI
@@ -46,7 +48,7 @@ struct DietTemplateEditorView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(t.name).font(Glass.body(15, .semibold)).foregroundStyle(Glass.textPrimary)
-                                        Text("\(t.items.filter { $0.recipeId != nil }.count) pasti assegnati")
+                                        Text("\(t.items.filter { $0.recipeId != nil || $0.foodId != nil }.count) pasti assegnati")
                                             .font(Glass.body(11)).foregroundStyle(Glass.textFaint)
                                     }
                                     Spacer()
@@ -91,6 +93,7 @@ struct DietTemplateDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Query private var recipes: [Recipe]
+    @Query(sort: \Food.name) private var foods: [Food]
 
     @State private var pickerFor: (weekday: Int, slot: MealSlot)?
     @State private var applyWeekStart = DietTemplateDetailView.thisMonday()
@@ -148,9 +151,12 @@ struct DietTemplateDetailView: View {
             get: { pickerFor.map { PickerTarget(weekday: $0.weekday, slot: $0.slot) } },
             set: { pickerFor = $0.map { ($0.weekday, $0.slot) } }
         )) { target in
-            RecipePickerSheet(recipes: recipes, current: template.item(weekday: target.weekday, slot: target.slot)?.recipeId) { picked in
-                assign(picked, weekday: target.weekday, slot: target.slot)
-            }
+            let existing = template.item(weekday: target.weekday, slot: target.slot)
+            TemplateItemPickerSheet(recipes: recipes, foods: foods,
+                                    currentRecipeId: existing?.recipeId, currentFoodId: existing?.foodId,
+                                    onPickRecipe: { assignRecipe($0, weekday: target.weekday, slot: target.slot) },
+                                    onPickFood: { assignFood($0, grams: $1, weekday: target.weekday, slot: target.slot) },
+                                    onClear: { clearAssignment(weekday: target.weekday, slot: target.slot) })
             .presentationDetents([.medium, .large])
             .presentationBackground(.ultraThinMaterial)
         }
@@ -172,15 +178,16 @@ struct DietTemplateDetailView: View {
 
     private func slotRow(_ weekday: Int, _ slot: MealSlot) -> some View {
         let item = template.item(weekday: weekday, slot: slot)
+        let assigned = item?.assignedName
         return Button { pickerFor = (weekday, slot) } label: {
             HStack(spacing: 10) {
                 Image(systemName: slot.systemImage).font(.system(size: 12))
-                    .foregroundStyle(item?.recipeId != nil ? Glass.amber : Glass.ink.opacity(0.35))
+                    .foregroundStyle(assigned != nil ? Glass.amber : Glass.ink.opacity(0.35))
                     .frame(width: 18)
                 Text(slot.label).font(Glass.body(12, .semibold)).foregroundStyle(Glass.textSecondary)
                     .frame(width: 130, alignment: .leading)
-                Text(item?.recipeName ?? "—")
-                    .font(Glass.body(13)).foregroundStyle(item?.recipeName != nil ? Glass.textPrimary : Glass.textFaint)
+                Text(assigned ?? "—")
+                    .font(Glass.body(13)).foregroundStyle(assigned != nil ? Glass.textPrimary : Glass.textFaint)
                     .lineLimit(1)
                 Spacer()
                 Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
@@ -193,13 +200,49 @@ struct DietTemplateDetailView: View {
         .accessibilityIdentifier("slot_\(weekday)_\(slot.rawValue)")
     }
 
-    private func assign(_ recipe: Recipe?, weekday: Int, slot: MealSlot) {
+    private func assignRecipe(_ recipe: Recipe, weekday: Int, slot: MealSlot) {
         if let existing = template.item(weekday: weekday, slot: slot) {
-            existing.recipeId = recipe?.id
-            existing.recipeName = recipe?.name
+            existing.recipeId = recipe.id
+            existing.recipeName = recipe.name
+            existing.foodId = nil
+            existing.foodName = nil
         } else {
-            let it = DietTemplateItem(template: template, weekday: weekday, mealSlot: slot,
-                                      recipeId: recipe?.id, recipeName: recipe?.name)
+            // Creare il figlio con `template:` nell'init e poi `context.insert`
+            // non basta: `template.items` (letto in `slotRow` subito dopo, non
+            // via @Query) resta stantio finché non si passa dal lato "a molti"
+            // della relazione — append, non assegnazione dell'intero array
+            // (quella impicca, nota memoria SwiftData).
+            let it = DietTemplateItem(weekday: weekday, mealSlot: slot,
+                                      recipeId: recipe.id, recipeName: recipe.name)
+            template.items.append(it)
+            context.insert(it)
+        }
+        try? context.save()
+    }
+
+    private func assignFood(_ food: Food, grams: Double, weekday: Int, slot: MealSlot) {
+        if let existing = template.item(weekday: weekday, slot: slot) {
+            existing.recipeId = nil
+            existing.recipeName = nil
+            existing.foodId = food.id
+            existing.foodName = food.name
+            existing.foodGrams = grams
+        } else {
+            let it = DietTemplateItem(weekday: weekday, mealSlot: slot,
+                                      foodId: food.id, foodName: food.name, foodGrams: grams)
+            template.items.append(it)
+            context.insert(it)
+        }
+        try? context.save()
+    }
+
+    private func clearAssignment(weekday: Int, slot: MealSlot) {
+        if let existing = template.item(weekday: weekday, slot: slot) {
+            existing.recipeId = nil; existing.recipeName = nil
+            existing.foodId = nil; existing.foodName = nil
+        } else {
+            let it = DietTemplateItem(weekday: weekday, mealSlot: slot)
+            template.items.append(it)
             context.insert(it)
         }
         try? context.save()
@@ -222,35 +265,69 @@ struct DietTemplateDetailView: View {
     }
 }
 
-/// Sheet minimale: scegli una ricetta o "Nessuna" per svuotare lo slot.
-private struct RecipePickerSheet: View {
+/// Sheet: scegli una ricetta, un alimento semplice dall'elenco cibi
+/// (ADR-0032, es. "noci" — usa `FoodBasketEditor` per riusare ricerca cache
+/// locale/OpenFoodFacts/USDA + stepper grammi), o "Nessuna" per svuotare lo
+/// slot.
+private struct TemplateItemPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     let recipes: [Recipe]
-    let current: UUID?
-    let onPick: (Recipe?) -> Void
+    let foods: [Food]
+    let currentRecipeId: UUID?
+    let currentFoodId: UUID?
+    let onPickRecipe: (Recipe) -> Void
+    let onPickFood: (Food, Double) -> Void
+    let onClear: () -> Void
+
+    @State private var foodBasket: [BasketItem] = []
 
     var body: some View {
         NavigationStack {
             List {
-                Button {
-                    onPick(nil); dismiss()
-                } label: {
-                    HStack { Text("Nessuna"); Spacer(); if current == nil { Image(systemName: "checkmark") } }
-                }
-                ForEach(recipes) { r in
+                Section {
                     Button {
-                        onPick(r); dismiss()
+                        onClear(); dismiss()
                     } label: {
-                        HStack { Text(r.name); Spacer(); if current == r.id { Image(systemName: "checkmark") } }
+                        HStack {
+                            Text("Nessuna")
+                            Spacer()
+                            if currentRecipeId == nil && currentFoodId == nil { Image(systemName: "checkmark") }
+                        }
+                    }
+                }
+                Section("Ricette") {
+                    ForEach(recipes) { r in
+                        Button {
+                            onPickRecipe(r); dismiss()
+                        } label: {
+                            HStack { Text(r.name); Spacer(); if currentRecipeId == r.id { Image(systemName: "checkmark") } }
+                        }
+                    }
+                }
+                Section("Alimenti") {
+                    FoodBasketEditor(items: $foodBasket)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                    if let picked = foodBasket.last {
+                        Button {
+                            onPickFood(picked.food, picked.grams); dismiss()
+                        } label: {
+                            Text("Usa \(picked.food.name)").font(Glass.body(14, .bold))
+                        }
+                        .accessibilityIdentifier("useFoodInTemplate")
                     }
                 }
             }
-            .navigationTitle("Scegli ricetta")
+            .navigationTitle("Scegli ricetta o alimento")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Chiudi") { dismiss() }
                 }
+            }
+            .onChange(of: foodBasket.count) { _, n in
+                // un solo alimento per slot: il più recente sostituisce i precedenti.
+                if n > 1 { foodBasket.removeFirst(n - 1) }
             }
         }
     }

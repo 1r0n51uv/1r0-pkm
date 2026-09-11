@@ -248,6 +248,51 @@ final class _r0_pkmUITests: XCTestCase {
         sleep(1); attach(app, "diet-template-created")
     }
 
+    /// 1r0-diet · ADR-0032: in un template si può assegnare a uno slot un
+    /// alimento semplice dall'elenco cibi (non solo una ricetta).
+    func testAssignFoodToTemplateSlot() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset", "-uitest-seed-diet"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+        app.buttons["openPlan"].tap()
+        app.buttons["openTemplates"].tap()
+        XCTAssertTrue(app.staticTexts["Diete settimanali"].waitForExistence(timeout: 5))
+
+        app.buttons["Nuovo template"].tap()
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        alert.textFields.firstMatch.tap(); alert.textFields.firstMatch.typeText("Con alimenti")
+        alert.buttons["Crea"].tap()
+        XCTAssertTrue(app.staticTexts["Con alimenti"].waitForExistence(timeout: 5))
+        app.staticTexts["Con alimenti"].tap()
+
+        let slot = app.buttons["slot_1_breakfast"]
+        XCTAssertTrue(slot.waitForExistence(timeout: 5), "manca lo slot lunedì colazione")
+        slot.tap()
+
+        let search = app.textFields["basketSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "manca la ricerca alimenti nel picker")
+        search.tap(); search.typeText("Avena")
+        let add = app.buttons["basketAdd"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "Nessun risultato nella ricerca alimenti")
+        add.tap()
+
+        let use = app.buttons["useFoodInTemplate"]
+        XCTAssertTrue(use.waitForExistence(timeout: 5), "manca il pulsante di conferma alimento")
+        use.tap()
+
+        XCTAssertTrue(app.staticTexts["Avena test"].waitForExistence(timeout: 5),
+                      "L'alimento assegnato non compare nello slot")
+
+        app.buttons["applyTemplate"].tap()
+        XCTAssertTrue(app.staticTexts["Template applicato"].waitForExistence(timeout: 5),
+                      "L'applicazione del template non ha confermato")
+        sleep(1); attach(app, "template-alimento-slot")
+    }
+
     /// 1r0-diet · ADR-0017 slice 2: pianifica un pasto per oggi e confermalo
     /// ("Mangiato") — lo stato passa a completato.
     func testPlanAndCompleteMeal() throws {
@@ -273,14 +318,67 @@ final class _r0_pkmUITests: XCTestCase {
 
         app.buttons["savePlannedMeal"].tap()
 
-        let complete = app.buttons["completePlanned"]
-        XCTAssertTrue(complete.waitForExistence(timeout: 6),
+        let toggle = app.switches["plannedEatenToggle"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 6),
                       "Il pasto pianificato non è comparso")
-        complete.tap()
+        toggle.tap()
 
         XCTAssertTrue(app.staticTexts["MANGIATO"].waitForExistence(timeout: 6),
                       "Lo stato del pasto non è passato a 'Mangiato'")
+
+        // ADR-0032: lo switch permette anche di tornare indietro ("riaprire"
+        // un pasto già mangiato, es. per correggerlo).
+        toggle.tap()
+        XCTAssertTrue(app.staticTexts["SALTATO"].waitForExistence(timeout: 6),
+                      "Lo switch non ha riportato il pasto a 'Saltato'")
         sleep(1); attach(app, "meal-plan")
+    }
+
+    /// 1r0-diet · ADR-0032: modificare un pasto pianificato — rimuovere un
+    /// alimento aggiunto per errore prima di salvare.
+    func testEditPlannedMealRemovesFood() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-uitest-reset", "-uitest-seed-diet"]
+        app.launch()
+
+        app.tabBars.buttons["Dieta"].tap()
+        XCTAssertTrue(app.staticTexts["Oggi"].waitForExistence(timeout: 10))
+        app.buttons["openPlan"].tap()
+        app.buttons["plan_dinner"].tap()
+        XCTAssertTrue(app.staticTexts["Pianifica"].waitForExistence(timeout: 5))
+
+        // aggiunge due alimenti, uno "per errore"
+        for name in ["Avena", "Noci"] {
+            let bs = app.textFields["basketSearch"]
+            XCTAssertTrue(bs.waitForExistence(timeout: 5))
+            bs.tap(); bs.typeText(name)
+            let add = app.buttons["basketAdd"].firstMatch
+            XCTAssertTrue(add.waitForExistence(timeout: 5), "Nessun risultato per \(name)")
+            add.tap()
+        }
+        XCTAssertTrue(app.staticTexts["Noci test"].waitForExistence(timeout: 5))
+        app.buttons["savePlannedMeal"].tap()
+
+        // riapre per modificare: rimuove "Noci test" (aggiunto per errore)
+        let edit = app.buttons["editPlanned"]
+        XCTAssertTrue(edit.waitForExistence(timeout: 6), "manca il pulsante di modifica")
+        edit.tap()
+        XCTAssertTrue(app.staticTexts["Modifica pasto"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Noci test"].waitForExistence(timeout: 5),
+                      "Il paniere non è pre-riempito con gli alimenti esistenti")
+
+        let removeNoci = app.buttons["removeBasketItem_Noci test"]
+        XCTAssertTrue(removeNoci.waitForExistence(timeout: 5), "manca il pulsante di rimozione per Noci test")
+        removeNoci.tap()
+        // "Noci test" può ricomparire come suggerimento da riaggiungere (non
+        // più nel paniere): verifica che la riga-paniere sia sparita, non il testo.
+        XCTAssertFalse(app.buttons["removeBasketItem_Noci test"].exists,
+                       "Noci test è ancora nel paniere dopo la rimozione")
+        app.buttons["savePlannedMeal"].tap()
+
+        XCTAssertTrue(app.staticTexts["Avena test"].waitForExistence(timeout: 6),
+                      "Il pasto modificato non compare più con l'alimento rimasto")
+        sleep(1); attach(app, "meal-plan-edited")
     }
 
     /// 1r0-diet · ADR-0017 slice 3: aggiungi una voce alla lista della spesa

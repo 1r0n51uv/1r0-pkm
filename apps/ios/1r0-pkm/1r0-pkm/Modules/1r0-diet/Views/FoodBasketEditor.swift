@@ -96,6 +96,7 @@ struct FoodBasketEditor: View {
                 items.removeAll { $0.id == it.wrappedValue.id }
             } label: { Image(systemName: "xmark.circle.fill") }
                 .buttonStyle(.plain).foregroundStyle(Glass.ink.opacity(0.35))
+                .accessibilityIdentifier("removeBasketItem_\(it.wrappedValue.food.name)")
         }
         .padding(.horizontal, 14).padding(.vertical, 11)
         .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.06)))

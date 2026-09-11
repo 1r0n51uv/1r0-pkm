@@ -297,14 +297,66 @@ enum DietSync {
         enqueuePlannedMeal(p, in: context)
     }
 
+    /// Toggle "mangiato" (ADR-0032, sostituisce i pulsanti Salta/Mangiato):
+    /// `eaten = true` completa (come `completePlannedMeal`); `eaten = false`
+    /// riporta a `.skipped` e — se era già completato — **cancella** il
+    /// `MealEntry` creato in precedenza (locale + `DELETE` backend) invece di
+    /// lasciarlo orfano, altrimenti ri-completare duplicherebbe le calorie e
+    /// il prossimo pull lo rimaterializzerebbe. Permette anche di correggere
+    /// giorni passati: si "ri-apre" un pasto già segnato per poterlo
+    /// modificare (`updatePlannedMeal`), poi lo si rimarca mangiato.
+    @MainActor
+    static func setPlannedMealEaten(_ p: PlannedMeal, eaten: Bool, foods: [UUID: Food],
+                                    in context: ModelContext) {
+        if eaten {
+            completePlannedMeal(p, foods: foods, in: context)
+        } else {
+            if p.status == .completed, let entryId = p.mealEntryId {
+                if let entry = try? context.fetch(FetchDescriptor<MealEntry>(
+                    predicate: #Predicate { $0.id == entryId }
+                )).first {
+                    context.delete(entry)
+                }
+                p.mealEntryId = nil
+                let idString = entryId.uuidString
+                Task { try? await ApiClient.shared.delete("v1/meal-entries/\(idString)") }
+            }
+            skipPlannedMeal(p, in: context)
+        }
+    }
+
+    /// Modifica un pasto pianificato esistente (slot, ricetta, alimenti) —
+    /// consente di correggere un alimento aggiunto per errore (rimuovendolo
+    /// dal paniere prima di salvare) senza doverlo ripianificare da zero.
+    /// Non tocca lo stato: editare un pasto già `.completed` corregge la
+    /// pianificazione ma **non** il `MealEntry` già registrato — per quello
+    /// vedi `setPlannedMealEaten(eaten: false)` poi di nuovo `true`.
+    @MainActor
+    static func updatePlannedMeal(_ p: PlannedMeal, slot: MealSlot, recipe: Recipe?,
+                                  items: [(food: Food, grams: Double)],
+                                  in context: ModelContext) {
+        p.mealSlot = slot
+        p.recipeId = recipe?.id
+        for old in p.items { context.delete(old) }
+        for (i, pair) in items.enumerated() {
+            let it = PlannedMealItem(plannedMeal: p, foodId: pair.food.id,
+                                     foodName: pair.food.name, quantityG: pair.grams, orderIndex: i)
+            p.items.append(it)
+            context.insert(it)
+        }
+        p.syncedAt = nil
+        enqueuePlannedMeal(p, in: context)  // ricostruisce il payload da p.items, salva.
+    }
+
     // MARK: - Dieta settimanale a template (ADR-0029)
 
     /// Applica un `DietTemplate` alla settimana che inizia a `weekStart`
     /// (dev'essere un lunedì — `weekday == 1`): per ogni `DietTemplateItem`
-    /// con una ricetta assegnata crea/rimpiazza il `PlannedMeal` di quel
-    /// giorno/slot. Non tocca gli slot senza voce nel template né i
-    /// `PlannedMeal` già `.completed`/`.skipped` (solo quelli ancora
-    /// `.planned` vengono sovrascritti). Ritorna quanti pasti ha pianificato.
+    /// con una ricetta **o un alimento semplice** assegnato (ADR-0032) crea/
+    /// rimpiazza il `PlannedMeal` di quel giorno/slot. Non tocca gli slot
+    /// senza voce nel template né i `PlannedMeal` già `.completed`/`.skipped`
+    /// (solo quelli ancora `.planned` vengono sovrascritti). Ritorna quanti
+    /// pasti ha pianificato.
     @MainActor
     @discardableResult
     static func applyTemplate(_ template: DietTemplate, weekStart: Date,
@@ -321,13 +373,29 @@ enum DietSync {
 
         var applied = 0
         for item in template.items {
-            guard let recipeId = item.recipeId,
-                  let date = cal.date(byAdding: .day, value: item.weekday - 1, to: monday)
+            guard let date = cal.date(byAdding: .day, value: item.weekday - 1, to: monday)
             else { continue }
-            let recipe = try? context.fetch(FetchDescriptor<Recipe>(
-                predicate: #Predicate { $0.id == recipeId }
-            )).first
-            guard let recipe else { continue }
+
+            var recipe: Recipe?
+            let items: [(food: Food, grams: Double)]
+            if let recipeId = item.recipeId {
+                let r = try? context.fetch(FetchDescriptor<Recipe>(
+                    predicate: #Predicate { $0.id == recipeId }
+                )).first
+                guard let r else { continue }
+                recipe = r
+                items = r.items
+                    .sorted { $0.orderIndex < $1.orderIndex }
+                    .compactMap { ri in
+                        guard let fid = ri.foodId, let f = foodMap[fid] else { return nil }
+                        return (f, ri.quantityG)
+                    }
+            } else if let foodId = item.foodId, let f = foodMap[foodId] {
+                items = [(f, item.foodGrams)]
+            } else {
+                continue
+            }
+            guard !items.isEmpty else { continue }
 
             // sostituisce un eventuale planned non ancora mangiato per lo stesso slot/giorno
             if let clash = existingThisWeek.first(where: {
@@ -337,13 +405,6 @@ enum DietSync {
                 context.delete(clash)
             }
 
-            let items: [(food: Food, grams: Double)] = recipe.items
-                .sorted { $0.orderIndex < $1.orderIndex }
-                .compactMap { ri in
-                    guard let fid = ri.foodId, let f = foodMap[fid] else { return nil }
-                    return (f, ri.quantityG)
-                }
-            guard !items.isEmpty else { continue }
             planMeal(date: date, slot: item.mealSlot, recipe: recipe, items: items, in: context)
             applied += 1
         }
